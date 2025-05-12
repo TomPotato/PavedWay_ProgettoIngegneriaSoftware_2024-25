@@ -15,106 +15,72 @@ consumes:
 produces:
 - application/json
 paths:
-  /questions:
-    x-summary: Questions Collection
+  /events:
+    x-summary: Events Collection
     get:
-      summary: List All Questions
+      summary: List All Events
       responses:
         200:
           description: Successful Response
           schema:
             type: array
             items:
-              $ref: '#/definitions/Question'
-          examples:
-            application/json:
-              - question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 2048
-                  - choice: Python
-                    votes: 1024
-                  - choice: Objective-C
-                    votes: 512
-                  - choice: Ruby
-                    votes: 256
+              $ref: '#/definitions/Events/id'
+
     post:
       description: >-
-        You may create your own question using this action. It takes a JSON
-        object containing a question and a collection of answers in the
-        form of choices.
+        You can create an event inserting the informations 
+        that the events requires as: Id, nome, durata, upload date, data inizio presunta, data fine presunta, location, comments
       summary: Create a New Question
       parameters:
         - name: body
           in: body
           required: true
           schema:
-            $ref: '#/definitions/QuestionRequest'
+            $ref: '#/definitions/eventDisplay'
       responses:
         201:
           description: ''
           schema:
-            $ref: '#/definitions/Question'
-          examples:
-            application/json:
-                question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 0
-                  - choice: Python
-                    votes: 0
-                  - choice: Objective-C
-                    votes: 0
-                  - choice: Ruby
-                    votes: 0
+            $ref: '#/definitions/event'
 definitions:
-  Question:
-    title: Question
+  Event:
+    title: event
     type: object
     properties:
-      question:
+      Id:
         type: string
-      published_at:
+      nome:
         type: string
-      choices:
-        type: array
-        items:
-          $ref: '#/definitions/Choice'
-    required:
-      - question
-      - published_at
-      - choices
-  Choice:
-    title: Choice
-    type: object
-    properties:
-      votes:
+      durata:
         type: integer
         format: int32
-      choice:
-        type: string
-    required:
-      - votes
-      - choice
-  QuestionRequest:
-    title: Question Request
-    type: object
-    properties:
-      question:
-        type: string
-      choices:
+      upload_date:
+        type: timestamp
+      data_inizio:
+        type: date
+      data_fine:
+        type: date
+      location:
+        type: location
+      comments:
         type: array
         items:
-          type: string
+          $ref: '#/definitions/event'
     required:
-      - question
-      - choices
-    example:
-      question: Favourite programming language?
-      choices:
-        - Swift
-        - Python
-        - Objective-C
-        - Ruby
+      - Id
+      - nome
+      - durata
+      - upload_date
+      - data_inizio
+      - data_fine
+      - location
+      - comments
+  EventDisplay:
+    title: event Display
+    type: object
+    properties:
+      questioevent:
+        type: object
+    required:
+      - event
