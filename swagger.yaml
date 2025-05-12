@@ -2,11 +2,11 @@ swagger: '2.0'
 info:
   version: '1.0'
   title: "PavedWay"
-  description: PavedWay sono le API del sistema
+  description: PavedWay sono le API dell'applicazione "PavedWay"
   license:
     name: MIT
-    url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
-host: polls.apiblueprint.org
+    url: https://github.com/apiaryio/pavedway-api/blob/master/LICENSE
+host: pavedway.apiblueprint.org
 basePath: /
 schemes:
 - https
@@ -15,7 +15,7 @@ consumes:
 produces:
 - application/json
 paths:
-  /events:
+  /event:
     x-summary: Events Collection
     get:
       summary: List All Events
@@ -25,13 +25,13 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Events/id'
+              $ref: '#/definitions/Event'
 
     post:
       description: >-
         You can create an event inserting the informations 
         that the events requires as: Id, nome, durata, upload date, data inizio presunta, data fine presunta, location, comments
-      summary: Create a New Question
+      summary: Create a New event
       parameters:
         - name: body
           in: body
@@ -48,18 +48,18 @@ definitions:
     title: event
     type: object
     properties:
-      Id:
+      id:
         type: string
-      nome:
+      name:
         type: string
-      durata:
+      duration:
         type: integer
         format: int32
       upload_date:
         type: timestamp
-      data_inizio:
+      start_date:
         type: date
-      data_fine:
+      end_date:
         type: date
       location:
         type: location
