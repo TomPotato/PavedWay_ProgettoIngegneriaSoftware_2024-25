@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   version: '1.0'
   title: "PavedWay"
-  description: PavedWay sono le API del sistema "per una mobilita senza intoppi"
+  description: PavedWay sono le API del sistema
   license:
     name: MIT
     url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
