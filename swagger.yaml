@@ -62,10 +62,14 @@ components:
           type: number
           format: float
           description: Latitudine della posizione.
+          minimum: -90
+          maximum: 90
         longitude:
           type: number
           format: float
           description: Longitudine della posizione.
+          minimum: -180
+          maximum: 180
         street:
           type: string
           description: Nome della strada.
@@ -158,7 +162,7 @@ components:
             status:
               type: string
               enum:
-                - approved
                 - pending
+                - approved
                 - rejected
               description: Stato della segnalazione.
