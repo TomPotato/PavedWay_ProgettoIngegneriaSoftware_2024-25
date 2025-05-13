@@ -9,15 +9,15 @@ servers:
   - url: TODO
 
 paths:
-  /event:
-    summary: Restituisce la lista degli Eventi attivi.
-    description: Restituisce la lista degli Eventi attivi.
+  /site:
+    summary: Restituisce la lista dei cantieri esistenti.
+    description: Restituisce la lista dei cantieri esistenti.
     parameters:
       - in: query
         name: limit
         schema:
           type: integer
-        description: Numero massimo di eventi da restituire.
+        description: Numero massimo di cantieri da restituire.
     responses:
       "200":
         description: OK
@@ -26,7 +26,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/Event"
+                $ref: "#/components/schemas/Sites"
       "500":
         description: Errore interno del server.
         content:
@@ -48,59 +48,15 @@ components:
           type: string
           description: Messaggio di errore dettagliato.
 
-    Event:
+    Site:
       type: object
       properties:
-        id:
-          type: integer
-          description: ID dell'evento.
-        name:
+        companyName: 
           type: string
-          description: Nome dell'evento.
-        description:
-          type: string
-          description: Descrizione dell'evento.
-        location:
-          $ref: "#/components/schemas/Location"
-          description: Posizione dell'evento.
-        duration:
-          $ref: "#/components/schemas/Duration"
-          description: Durata dell'evento.
-        createdAt:
-          type: string
-          format: date-time
-          description: Data e ora di creazione dell'evento.
-        comments:
-          type: array
-          items:
-            $ref: "#/components/schemas/Comment"
-          description: Lista dei commenti associati all'evento.
-
-    Location:
-      type: object
-      properties:
-        latitude:
-          type: number
-          format: float
-          description: Latitudine della posizione.
-        longitude:
-          type: number
-          format: float
-          description: Longitudine della posizione.
-        street:
-          type: string
-          description: Nome della strada.
-        number:
-          type: string
-          description: Numero civico.
-        city:
-          type: string
-          description: Nome della città.
-        code:
-          type: string
-          description: Codice di Avviamento Postale.
-          minLength: 5
-          maxLength: 5
+          description: Nome della ditta di costruzioni che sta lavorando sul cantiere
+        realDuration:
+          type: Duration 
+          description: Reale durata del cantiere, puó divergere da quella ipotetica definita su event
 
     Duration:
       type: object
@@ -113,20 +69,3 @@ components:
           type: string
           format: date-time
           description: Data e ora di fine dell'evento.
-
-    Comment:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: ID del commento.
-        userId:
-          type: integer
-          description: ID dell'utente che ha scritto il commento.
-        text:
-          type: string
-          description: Testo del commento.
-        createdAt:
-          type: string
-          format: date-time
-          description: Data e ora di creazione del commento.
