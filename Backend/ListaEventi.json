@@ -1,0 +1,11 @@
+@Path("/event")
+public class ListaEventi{
+    @GET
+    @Path("/Events")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<event> getEvents(@QueryParam("id") String id){
+        //esempio, non ho capito completamente se é implementata correttamente
+        List<event> Ev = new ArrayList<event>();
+        event ev0 = new event();
+    }
+}
