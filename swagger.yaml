@@ -1,86 +1,132 @@
-swagger: '2.0'
+openapi: 3.0.0
+
 info:
-  version: '1.0'
-  title: "PavedWay"
-  description: PavedWay sono le API dell'applicazione "PavedWay"
-  license:
-    name: MIT
-    url: https://github.com/apiaryio/pavedway-api/blob/master/LICENSE
-host: pavedway.apiblueprint.org
-basePath: /
-schemes:
-- https
-consumes:
-- application/json
-produces:
-- application/json
+  title: Paved Way API
+  description: API per la gestione degli eventi sulla mobilità della città di Trento.
+  version: 1.0.0
+
+servers:
+  - url: TODO
+
 paths:
   /event:
-    x-summary: Events Collection
-    get:
-      summary: List All Events
-      responses:
-        200:
-          description: Successful Response
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Event'
+    summary: Restituisce la lista degli Eventi attivi.
+    description: Restituisce la lista degli Eventi attivi.
+    parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Numero massimo di eventi da restituire.
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Event"
+      "500":
+        description: Errore interno del server.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommonError"
+components:
+  schemas:
+    CommonError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Messaggio di errore.
+        code:
+          type: integer
+          description: Codice di errore.
+        message:
+          type: string
+          description: Messaggio di errore dettagliato.
 
-    post:
-      description: >-
-        You can create an event inserting the informations 
-        that the events requires as: Id, nome, durata, upload date, data inizio presunta, data fine presunta, location, comments
-      summary: Create a New event
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/eventDisplay'
-      responses:
-        201:
-          description: ''
-          schema:
-            $ref: '#/definitions/event'
-definitions:
-  Event:
-    title: event
-    type: object
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-      duration:
-        type: integer
-        format: int32
-      upload_date:
-        type: timestamp
-      start_date:
-        type: date
-      end_date:
-        type: date
-      location:
-        type: location
-      comments:
-        type: array
-        items:
-          $ref: '#/definitions/event'
-    required:
-      - Id
-      - nome
-      - durata
-      - upload_date
-      - data_inizio
-      - data_fine
-      - location
-      - comments
-  EventDisplay:
-    title: event Display
-    type: object
-    properties:
-      questioevent:
-        type: object
-    required:
-      - event
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID dell'evento.
+        name:
+          type: string
+          description: Nome dell'evento.
+        description:
+          type: string
+          description: Descrizione dell'evento.
+        location:
+          $ref: "#/components/schemas/Location"
+          description: Posizione dell'evento.
+        duration:
+          $ref: "#/components/schemas/Duration"
+          description: Durata dell'evento.
+        createdAt:
+          type: string
+          format: date-time
+          description: Data e ora di creazione dell'evento.
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+          description: Lista dei commenti associati all'evento.
+
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+          description: Latitudine della posizione.
+        longitude:
+          type: number
+          format: float
+          description: Longitudine della posizione.
+        street:
+          type: string
+          description: Nome della strada.
+        number:
+          type: string
+          description: Numero civico.
+        city:
+          type: string
+          description: Nome della città.
+        code:
+          type: string
+          description: Codice di Avviamento Postale.
+          minLength: 5
+          maxLength: 5
+
+    Duration:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+          description: Data e ora di inizio dell'evento.
+        end:
+          type: string
+          format: date-time
+          description: Data e ora di fine dell'evento.
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID del commento.
+        userId:
+          type: integer
+          description: ID dell'utente che ha scritto il commento.
+        text:
+          type: string
+          description: Testo del commento.
+        createdAt:
+          type: string
+          format: date-time
+          description: Data e ora di creazione del commento.
