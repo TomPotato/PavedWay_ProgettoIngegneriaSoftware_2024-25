@@ -38,11 +38,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CommonError"
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
-    CommonError:
+    Error:
       type: object
       properties:
         error:
