@@ -10,8 +10,8 @@ servers:
 
 paths:
   /event:
-    summary: Restituisce la lista degli Eventi attivi.
-    description: Restituisce la lista degli Eventi attivi.
+    summary: Restituisce la lista degli Eventi.
+    description: Restituisce la lista degli Eventi.
     parameters:
       - in: query
         name: limit
