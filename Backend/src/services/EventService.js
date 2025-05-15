@@ -1,7 +1,7 @@
 const { Event } = require('../models/Event');
 
 class EventService {
-    async getReports(offset, limit) {
+    async getEvents(offset, limit) {
         try {
             let query = Event.find({});
 
