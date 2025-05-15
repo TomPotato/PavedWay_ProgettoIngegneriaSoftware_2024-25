@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const reportRoutes = require('./reportRoutes');
+const eventRoutes = require('./eventRoutes');
 
-router.use('/reports', reportRoutes);
+router.use('/events', eventRoutes);
 
 module.exports = router;
