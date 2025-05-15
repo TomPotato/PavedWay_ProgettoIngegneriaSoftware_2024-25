@@ -11,7 +11,7 @@ servers:
   - url: TODO
 
 paths:
-  /event:
+  /events:
     summary: Restituisce la lista degli Eventi.
     description: Restituisce la lista degli Eventi.
     parameters:
@@ -38,135 +38,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CommonError"
-components:
-  schemas:
-    CommonError:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Messaggio di errore.
-        code:
-          type: integer
-          description: Codice di errore.
-        message:
-          type: string
-          description: Messaggio di errore dettagliato.
-
-    Event:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: ID dell'evento.
-        name:
-          type: string
-          description: Nome dell'evento.
-        description:
-          type: string
-          description: Descrizione dell'evento.
-        location:
-          $ref: "#/components/schemas/Location"
-          description: Posizione dell'evento.
-        duration:
-          $ref: "#/components/schemas/Duration"
-          description: Durata dell'evento.
-        createdAt:
-          type: string
-          format: date-time
-          description: Data e ora di creazione dell'evento.
-        comments:
-          type: array
-          items:
-            $ref: "#/components/schemas/Comment"
-          description: Lista dei commenti associati all'evento.
-
-    Location:
-      type: object
-      properties:
-        latitude:
-          type: number
-          format: float
-          description: Latitudine della posizione.
-        longitude:
-          type: number
-          format: float
-          description: Longitudine della posizione.
-        street:
-          type: string
-          description: Nome della strada.
-        number:
-          type: string
-          description: Numero civico.
-        city:
-          type: string
-          description: Nome della città.
-        code:
-          type: string
-          description: Codice di Avviamento Postale.
-          minLength: 5
-          maxLength: 5
-
-    Duration:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date-time
-          description: Data e ora di inizio dell'evento.
-        end:
-          type: string
-          format: date-time
-          description: Data e ora di fine dell'evento.
-
-    Comment:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: ID del commento.
-        userId:
-          type: integer
-          description: ID dell'utente che ha scritto il commento.
-        text:
-          type: string
-          description: Testo del commento.
-        createdAt:
-          type: string
-          format: date-time
-          description: Data e ora di creazione del commento.
-  /reports:
-    get:
-      summary: Restituisce la lista delle segnalazioni.
-      description: Restituisce la lista delle segnalazioni.
-      parameters:
-        - in: query
-          name: offset
-          schema:
-            type: integer
-          description: Numero di segnalazioni da saltare prima di restituire i risultati.
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Numero massimo di segnalazioni da restituire.
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Report"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
+              $ref: "#/components/schemas/Error"
 components:
   schemas:
     Error:
@@ -182,6 +54,34 @@ components:
           type: string
           description: Messaggio di errore dettagliato.
 
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID dell'evento.
+        name:
+          type: string
+          description: Nome dell'evento.
+        description:
+          type: string
+          description: Descrizione dell'evento.
+        location:
+          $ref: "#/components/schemas/Location"
+          description: Posizione dell'evento.
+        duration:
+          $ref: "#/components/schemas/Duration"
+          description: Durata dell'evento.
+        createdAt:
+          type: string
+          format: date-time
+          description: Data e ora di creazione dell'evento.
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+          description: Lista dei commenti associati all'evento.
+
     Location:
       type: object
       properties:
@@ -189,14 +89,10 @@ components:
           type: number
           format: float
           description: Latitudine della posizione.
-          minimum: -90
-          maximum: 90
         longitude:
           type: number
           format: float
           description: Longitudine della posizione.
-          minimum: -180
-          maximum: 180
         street:
           type: string
           description: Nome della strada.
@@ -240,56 +136,3 @@ components:
           type: string
           format: date-time
           description: Data e ora di creazione del commento.
-
-    Event:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: ID dell'evento.
-        name:
-          type: string
-          description: Nome dell'evento.
-        description:
-          type: string
-          description: Descrizione dell'evento.
-        location:
-          $ref: "#/components/schemas/Location"
-          description: Posizione dell'evento.
-        duration:
-          $ref: "#/components/schemas/Duration"
-          description: Durata dell'evento.
-        createdAt:
-          type: string
-          format: date-time
-          description: Data e ora di creazione dell'evento.
-        comments:
-          type: array
-          items:
-            $ref: "#/components/schemas/Comment"
-          description: Lista dei commenti associati all'evento.
-
-    Report:
-      allof:
-        - $ref: "#/components/schemas/Event"
-        - type: object
-          properties:
-            createdBy:
-              type: integer
-              description: ID dell'utente che ha creato la segnalazione.
-            photos:
-              type: array
-              items:
-                type: string
-                format: binary
-              description: Lista delle foto associate alla segnalazione.
-            rating:
-              type: integer
-              description: Punteggio della segnalazione.
-            status:
-              type: string
-              enum:
-                - pending
-                - approved
-                - rejected
-              description: Stato della segnalazione.
