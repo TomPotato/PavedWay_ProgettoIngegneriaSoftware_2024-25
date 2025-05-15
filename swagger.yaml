@@ -120,6 +120,12 @@ components:
         id:
           type: integer
           description: ID dell'evento.
+        type:
+          type: string
+          enum:
+            - report
+            - site
+          description: Tipo di evento.
         name:
           type: string
           description: Nome dell'evento.

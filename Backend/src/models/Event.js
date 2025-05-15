@@ -11,6 +11,11 @@ const eventSchema = new Schema({
         required: true,
         unique: true,
     },
+    type: {
+        type: String,
+        enum: ['report', 'site'],
+        default: 'report',
+    },
     name: {
         type: String,
         required: true,
