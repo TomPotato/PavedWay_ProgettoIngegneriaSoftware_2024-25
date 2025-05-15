@@ -40,5 +40,4 @@ class DatabaseClient {
     }
 }
 
-export default new DatabaseClient();
-export { DatabaseClient };
+module.exports = new DatabaseClient();

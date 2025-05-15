@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-import Event from "./Event";
+const { Event } = require('./Event');
 
 const reportSchema = new Schema({
     createdBy: {
@@ -26,7 +26,9 @@ const reportSchema = new Schema({
 // Report eredita la struttura di Event, aggiungendo nuovi campi
 const Report = Event.discriminator('Report', reportSchema);
 
-export default Report;
-export { reportSchema };
+module.exports = {
+    reportSchema,
+    Report,
+};
 
 
