@@ -1,15 +1,20 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-import { locationSchema } from "./Location.js";
-import { durationSchema } from "./Duration.js";
-import { commentSchema } from "./Comment.js";
+const { locationSchema } = require('./Location');
+const { durationSchema } = require('./Duration');
+const { commentSchema } = require('./Comment');
 
 const eventSchema = new Schema({
     id: {
         type: Number,
         required: true,
         unique: true,
+    },
+    type: {
+        type: String,
+        enum: ['report', 'site'],
+        default: 'report',
     },
     name: {
         type: String,
@@ -31,5 +36,8 @@ const eventSchema = new Schema({
 });
 
 const Event = mongoose.model('Event', eventSchema);
-export default Event;
-export { eventSchema };
+
+module.exports = {
+    eventSchema,
+    Event,
+};

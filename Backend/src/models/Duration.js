@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const durationSchema = new Schema({
@@ -32,5 +32,7 @@ const durationSchema = new Schema({
 
 const Duration = mongoose.model('Duration', durationSchema);
 
-export default Duration;
-export { durationSchema };
+module.exports = {
+    durationSchema,
+    Duration,
+};
