@@ -2,31 +2,23 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const { Event } = require('./Event');
+const { Duration } = require('./Duration');
 
-const reportSchema = new Schema({
-    createdBy: {
-        type: Number,
-        required: true,
-    },
-    photos: {
-        type: [String],
-        required: true,
-    },
-    rating: {
-        type: Number,
-        required: true,
-    },
-    status: {
+const siteSchema = new Schema({
+    companyName: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
+        required: true,
+    },
+    realDuration: {
+        type: Duration,
+        required: true,
     },
 });
 
-// Report eredita la struttura di Event, aggiungendo nuovi campi
-const Report = Event.discriminator('Report', reportSchema);
+// Site eredita la struttura di Event, aggiungendo nuovi campi
+const Site = Event.discriminator('Site', siteSchema);
 
 module.exports = {
-    reportSchema,
-    Report,
+    siteSchema,
+    Site,
 };
