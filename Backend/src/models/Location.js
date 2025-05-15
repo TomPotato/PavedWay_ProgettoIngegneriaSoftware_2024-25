@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { format } from "util";
+const mongoose = require('mongoose');
+const { format } = require('util');
 const { Schema } = mongoose;
 
 const locationSchema = new Schema({
@@ -53,5 +53,7 @@ const locationSchema = new Schema({
 
 const Location = mongoose.model('Location', locationSchema);
 
-export default Location;
-export { locationSchema };
+module.exports = {
+    locationSchema,
+    Location,
+};
