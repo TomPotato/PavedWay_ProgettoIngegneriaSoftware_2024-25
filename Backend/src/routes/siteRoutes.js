@@ -5,11 +5,13 @@ const toValidInt = require('../utils/toValidInt');
 const { SiteService } = require('../services/SiteService');
 
 router.get('/', async (req, res) => {
+    offset = toValidInt(req.query.offset);
+    limit = toValidInt(req.query.limit);
     try {
+        const sites = await service.getSites(offset, limit);
         res.status(200).json(sites);
     } catch (error) {
-        console.error('Error fetching reports:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json(createError('Errore interno del server', 500, error.message));
     }
 });
 
