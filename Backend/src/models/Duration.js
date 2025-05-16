@@ -9,23 +9,22 @@ const durationSchema = new Schema({
             validator: function (v) {
                 return v instanceof Date && !isNaN(v);
             },
-            message: (props) => `Start date must be a valid date. Received: ${props.value}`,
+            message: (props) => `La data di inizio deve essere una data valida. Ricevuto: ${props.value}`,
         },
     },
     end: {
         type: Date,
-        required: true,
         validate: {
             validator: function (v) {
                 return v instanceof Date && !isNaN(v);
             },
-            message: (props) => `End date must be a valid date. Received: ${props.value}`,
+            message: (props) => `La data di fine deve essere una data valida. Ricevuto: ${props.value}`,
         },
         validate: {
             validator: function (v) {
                 return v > this.start;
             },
-            message: (props) => `End date must be after start date. Received: ${props.value}`,
+            message: (props) => `La data di fine deve essere successiva alla date di inizio. Ricevuto: ${props.value}`,
         },
     },
 });

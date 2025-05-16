@@ -10,7 +10,6 @@ const reportSchema = new Schema({
     },
     photos: {
         type: [String],
-        required: true,
     },
     rating: {
         type: Number,
