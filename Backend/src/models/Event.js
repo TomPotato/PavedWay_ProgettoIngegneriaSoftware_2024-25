@@ -6,33 +6,43 @@ const { durationSchema } = require('./Duration');
 const { commentSchema } = require('./Comment');
 
 const eventSchema = new Schema({
-    id: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    type: {
+    eventType: {
         type: String,
         enum: ['report', 'site'],
-        default: 'report',
+        required: true,
     },
     name: {
         type: String,
         required: true,
         trim: true,
     },
-    description: {
+    info: {
         type: String,
         required: true,
         trim: true,
     },
-    location: locationSchema,
-    duration: durationSchema,
+    location: {
+        type: locationSchema,
+        required: true,
+    },
+    duration: {
+        type: durationSchema,
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
     comments: [commentSchema],
+});
+
+eventSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+    },
 });
 
 const Event = mongoose.model('Event', eventSchema);

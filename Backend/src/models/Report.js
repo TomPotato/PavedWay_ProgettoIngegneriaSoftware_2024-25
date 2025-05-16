@@ -10,7 +10,6 @@ const reportSchema = new Schema({
     },
     photos: {
         type: [String],
-        required: true,
     },
     rating: {
         type: Number,
@@ -20,6 +19,15 @@ const reportSchema = new Schema({
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending',
+    },
+});
+
+reportSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
     },
 });
 

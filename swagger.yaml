@@ -39,8 +39,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /sites:
+    get:
+      summary: Restituisce la lista dei cantieri esistenti.
+      description: Restituisce la lista dei cantieri esistenti.
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di cantieri da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di cantieri da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Site"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommonError"
+    post:
+      summary: Crea un nuovo cantiere.
+      description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Site"
+      responses:
+        "201":
+          description: Cantiere creato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: >-
+        Chiave API per l'autenticazione.
+        Deve essere fornita nell'intestazione della richiesta.
+        Deve essere un token JWT valido.
+
   schemas:
     Error:
       type: object
@@ -57,6 +139,13 @@ components:
 
     Location:
       type: object
+      required:
+        - latitude
+        - longitude
+        - street
+        - number
+        - city
+        - code
       properties:
         latitude:
           type: number
@@ -87,6 +176,8 @@ components:
 
     Duration:
       type: object
+      required:
+        - start
       properties:
         start:
           type: string
@@ -99,10 +190,13 @@ components:
 
     Comment:
       type: object
+      required:
+        - userId
+        - text
       properties:
         id:
           type: integer
-          description: ID del commento.
+          description: ID del commento (generato automaticamente dal server).
         userId:
           type: integer
           description: ID dell'utente che ha scritto il commento.
@@ -116,11 +210,17 @@ components:
 
     Event:
       type: object
+      required:
+        - eventType
+        - name
+        - info
+        - location
+        - duration
       properties:
         id:
           type: integer
-          description: ID dell'evento.
-        type:
+          description: ID dell'evento (generato automaticamente dal server).
+        eventType:
           type: string
           enum:
             - report
@@ -129,7 +229,7 @@ components:
         name:
           type: string
           description: Nome dell'evento.
-        description:
+        info:
           type: string
           description: Descrizione dell'evento.
         location:
@@ -141,17 +241,23 @@ components:
         createdAt:
           type: string
           format: date-time
-          description: Data e ora di creazione dell'evento.
+          description: Data e ora di creazione dell'evento (ora attuale se non specificata).
         comments:
           type: array
           items:
             $ref: "#/components/schemas/Comment"
           description: Lista dei commenti associati all'evento.
+        discriminator:
+          propertyName: eventType
 
     Report:
       allof:
         - $ref: "#/components/schemas/Event"
         - type: object
+          required:
+            - createdBy
+            - rating
+            - status
           properties:
             createdBy:
               type: integer
@@ -172,3 +278,17 @@ components:
                 - approved
                 - rejected
               description: Stato della segnalazione.
+
+    Site:
+      allof:
+        - $ref: "#/components/schemas/Event"
+        - type: object
+          required:
+            - companyName
+          properties:
+            companyName: 
+              type: string
+              description: Nome dell'impresa edile che sta lavorando sul cantiere.
+            realDuration:
+              type: Duration 
+              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.

@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const commentSchema = new Schema({
-    id: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
     userId: {
         type: Number,
         required: true,
@@ -19,6 +14,15 @@ const commentSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
+    },
+});
+
+commentSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
     },
 });
 

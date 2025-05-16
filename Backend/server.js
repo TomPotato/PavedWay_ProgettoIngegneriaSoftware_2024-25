@@ -1,8 +1,8 @@
-const app = require('./src/app');
 const dotenv = require('dotenv');
-const db = require('./src/database/DatabaseClient');
-
 dotenv.config();
+
+const app = require('./src/app');
+const db = require('./src/database/DatabaseClient');
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
