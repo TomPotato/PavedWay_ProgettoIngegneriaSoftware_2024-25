@@ -39,6 +39,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /sites:
+    get:
+      summary: Restituisce la lista dei cantieri esistenti.
+      description: Restituisce la lista dei cantieri esistenti.
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di segnalazioni da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di cantieri da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Site"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommonError"
 
 components:
   schemas:
@@ -195,3 +225,17 @@ components:
                 - approved
                 - rejected
               description: Stato della segnalazione.
+
+    Site:
+      allof:
+        - $ref: "#/components/schemas/Event"
+        - type: object
+          required:
+            - companyName
+          properties:
+            companyName: 
+              type: string
+              description: Nome dell'impresa edile che sta lavorando sul cantiere.
+            realDuration:
+              type: Duration 
+              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
