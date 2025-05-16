@@ -42,7 +42,7 @@ const reportSchema = new Schema({
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending',
     },
-    commenst: [commentSchema],
+    comments: [commentSchema],
 });
 
 reportSchema.set('toJSON', {
