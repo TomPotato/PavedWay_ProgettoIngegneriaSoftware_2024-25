@@ -16,14 +16,15 @@ paths:
     description: Restituisce la lista degli Eventi.
     parameters:
       - in: query
-        name: offset
-        schema:
-        type: integer
-        description: Numero massimo di eventi da restituire.
-        name: limit
-        schema:
+          name: offset
+          schema:
           type: integer
-        description: Numero massimo di eventi da restituire.
+          description: Numero massimo di eventi da restituire.
+      - in: query
+          name: limit
+          schema:
+          type: integer
+          description: Numero massimo di eventi da restituire.
     responses:
       "200":
         description: OK
@@ -39,7 +40,17 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Error"
+
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: >-
+        Chiave API per l'autenticazione.
+        Deve essere fornita nell'intestazione della richiesta.
+        Deve essere un token JWT valido.
   schemas:
     Error:
       type: object
@@ -84,6 +95,13 @@ components:
 
     Location:
       type: object
+      required:
+        - latitude
+        - longitude
+        - street
+        - number
+        - city
+        - code
       properties:
         latitude:
           type: number
