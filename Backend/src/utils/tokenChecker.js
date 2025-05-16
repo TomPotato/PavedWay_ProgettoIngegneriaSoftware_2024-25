@@ -25,3 +25,5 @@ function tokenChecker(req, res, next) {
         }
     });
 }
+
+module.exports = tokenChecker;
