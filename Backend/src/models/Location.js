@@ -10,7 +10,7 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return v >= -90 && v <= 90;
             },
-            message: (props) => format("Latitude must be between -90 and 90. Received: %s", props.value),
+            message: (props) => format("Latitudine deve essere compresa tra -90 e 90. Inserito: %s", props.value),
         },
     },
     longitude: {
@@ -20,7 +20,7 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return v >= -180 && v <= 180;
             },
-            message: (props) => format("Longitude must be between -180 and 180. Received: %s", props.value),
+            message: (props) => format("Longitudine deve essere compresa tra -180 e 180. Inserito: %s", props.value),
         },
     },
     street: {
@@ -46,7 +46,7 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return /^[0-9]{5}$/.test(v);
             },
-            message: (props) => format("Code must be a 5-digit number. Received: %s", props.value),
+            message: (props) => format("Codice Postale deve essere massimo 5 numeri. Inserito: %s", props.value),
         },
     },
 });

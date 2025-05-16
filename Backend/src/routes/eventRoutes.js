@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         const events = await service.getEvents(offset, limit);
         res.status(200).json(events);
     } catch (error) {
-        res.status(500).json(createError('[GET /reports] Errore', 500, error.message));
+        res.status(500).json(createError('[GET /events] Errore', 500, error.message));
     }
 });
 
