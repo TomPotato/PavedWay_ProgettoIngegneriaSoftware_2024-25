@@ -10,7 +10,7 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return v >= -90 && v <= 90;
             },
-            message: (props) => format("Latitudine deve essere compresa tra -90 e 90. Inserito: %s", props.value),
+            message: (props) => `La latitudine deve essere compresa tra -90 e 90. Ricevuto: ${props.value}`,
         },
     },
     longitude: {
@@ -20,7 +20,7 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return v >= -180 && v <= 180;
             },
-            message: (props) => format("Longitudine deve essere compresa tra -180 e 180. Inserito: %s", props.value),
+            message: (props) => `La longitudine deve essere compresa tra -180 e 180. Ricevuto: ${props.value}`,
         },
     },
     street: {
@@ -46,8 +46,16 @@ const locationSchema = new Schema({
             validator: function (v) {
                 return /^[0-9]{5}$/.test(v);
             },
-            message: (props) => format("Codice Postale deve essere massimo 5 numeri. Inserito: %s", props.value),
+            message: (props) => `Il CAP deve essere un numero di 5 cifre. Ricevuto: ${props.value}`,
         },
+    },
+});
+
+locationSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        delete ret._id;
+        delete ret.__v;
+        return ret;
     },
 });
 
