@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
+
 const service = require('../services/SiteService');
+
+const createError = require('../utils/createError');
+const toValidInt = require('../utils/toValidInt');
+const tokenChecker = require('../utils/tokenChecker');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
@@ -10,11 +15,11 @@ router.get('/', async (req, res) => {
         const sites = await service.getSites(offset, limit);
         res.status(200).json(sites);
     } catch (error) {
-        res.status(500).json(createError('Errore interno del server', 500, error.message));
+        res.status(500).json(error);
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', tokenChecker, async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire un cantiere nel corpo della richiesta.'));
     }
@@ -27,8 +32,10 @@ router.post('/', async (req, res) => {
         const site = await service.createSite(req.body);
         res.status(201).json(site);
     } catch (error) {
-        // TODO
-        res.status(500).json(createError('Errore interno del server', 500, error.message));
+        if (error.code === 400) {
+            return res.status(400).json(error);
+        }
+        res.status(500).json(error);
     }
 });
 

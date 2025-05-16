@@ -1,17 +1,39 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const { Event } = require('./Event');
-const { Duration } = require('./Duration');
+const { locationSchema } = require('./Location');
+const { durationSchema } = require('./Duration');
+const { commentSchema } = require('./Comment');
 
 const siteSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    info: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     companyName: {
         type: String,
         required: true,
     },
-    realDuration: {
-        type: Duration,
+    location: {
+        type: locationSchema,
+        required: true,
     },
+    duration: {
+        type: durationSchema,
+        required: true,
+    },
+    realDuration: durationSchema,
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    comments: [commentSchema],
 });
 
 siteSchema.set('toJSON', {
@@ -23,8 +45,7 @@ siteSchema.set('toJSON', {
     },
 });
 
-// Site eredita la struttura di Event, aggiungendo nuovi campi
-const Site = Event.discriminator('Site', siteSchema);
+const Site = mongoose.model('Site', siteSchema);
 
 module.exports = {
     siteSchema,

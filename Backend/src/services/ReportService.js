@@ -16,7 +16,6 @@ class ReportService {
             const reports = await query.exec();
             return reports;
         } catch (error) {
-            console.error('Errore durante la lettura:', error);
             throw new Error(error);
         }
     }

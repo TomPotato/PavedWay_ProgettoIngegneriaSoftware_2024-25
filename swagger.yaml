@@ -211,7 +211,6 @@ components:
     Event:
       type: object
       required:
-        - eventType
         - name
         - info
         - location
@@ -220,12 +219,6 @@ components:
         id:
           type: integer
           description: ID dell'evento (generato automaticamente dal server).
-        eventType:
-          type: string
-          enum:
-            - report
-            - site
-          description: Tipo di evento.
         name:
           type: string
           description: Nome dell'evento.
@@ -255,9 +248,6 @@ components:
         - $ref: "#/components/schemas/Event"
         - type: object
           required:
-            - createdBy
-            - rating
-            - status
           properties:
             createdBy:
               type: integer
@@ -270,7 +260,7 @@ components:
               description: Lista delle foto associate alla segnalazione.
             rating:
               type: integer
-              description: Punteggio della segnalazione.
+              description: Punteggio della segnalazione (impostato a 0 per una nuova segnalazione).
             status:
               type: string
               enum:
