@@ -11,7 +11,15 @@ const siteSchema = new Schema({
     },
     realDuration: {
         type: Duration,
-        required: true,
+    },
+});
+
+siteSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
     },
 });
 

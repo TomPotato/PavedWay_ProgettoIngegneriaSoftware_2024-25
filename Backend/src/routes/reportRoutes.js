@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const service = require('../services/ReportService');
 const createError = require('../utils/createError');
 const toValidInt = require('../utils/toValidInt');
-const { ReportService } = require('../services/ReportService');
-
 
 router.get('/', async (req, res) => {
+    offset = toValidInt(req.query.offset);
+    limit = toValidInt(req.query.limit);
+
     try {
-        //const reports = await ReportService.getAllReports();
+        const reports = await service.getReports(offset, limit);
         res.status(200).json(reports);
     } catch (error) {
-        console.error('Error fetching reports:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json(createError('[GET /reports] Errore', 500, error.message));
     }
 });
 

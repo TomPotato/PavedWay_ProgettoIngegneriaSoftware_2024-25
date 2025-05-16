@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const createError = require('../utils/createError');
 const toValidInt = require('../utils/toValidInt');
-const { SiteService } = require('../services/SiteService');
+const service = require('../services/SiteService');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
