@@ -51,6 +51,14 @@ const locationSchema = new Schema({
     },
 });
 
+locationSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+    },
+});
+
 const Location = mongoose.model('Location', locationSchema);
 
 module.exports = {

@@ -1,7 +1,7 @@
 const { Site } = require('../models/Site');
 
 class SiteService {
-    async getSite(offset, limit) {
+    async getSites(offset, limit) {
         try {
             let query = Site.find({});
 
@@ -17,6 +17,17 @@ class SiteService {
             return sites;
         } catch (error) {
             console.error('Errore durante la lettura:', error);
+            throw new Error(error);
+        }
+    }
+
+    async createSite(siteData) {
+        try {
+            const site = new Site(siteData);
+            await site.save();
+            return site;
+        } catch (error) {
+            console.error('Errore durante la creazione:', error);
             throw new Error(error);
         }
     }

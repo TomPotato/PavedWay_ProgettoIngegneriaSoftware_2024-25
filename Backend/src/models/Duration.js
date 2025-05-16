@@ -29,6 +29,14 @@ const durationSchema = new Schema({
     },
 });
 
+durationSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+    },
+});
+
 const Duration = mongoose.model('Duration', durationSchema);
 
 module.exports = {

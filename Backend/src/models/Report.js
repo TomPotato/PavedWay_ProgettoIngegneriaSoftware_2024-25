@@ -22,6 +22,15 @@ const reportSchema = new Schema({
     },
 });
 
+reportSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+    },
+});
+
 // Report eredita la struttura di Event, aggiungendo nuovi campi
 const Report = Event.discriminator('Report', reportSchema);
 

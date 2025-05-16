@@ -69,8 +69,60 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CommonError"
+    post:
+      summary: Crea un nuovo cantiere.
+      description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Site"
+      responses:
+        "201":
+          description: Cantiere creato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: >-
+        Chiave API per l'autenticazione.
+        Deve essere fornita nell'intestazione della richiesta.
+        Deve essere un token JWT valido.
+
   schemas:
     Error:
       type: object
@@ -138,10 +190,13 @@ components:
 
     Comment:
       type: object
+      required:
+        - userId
+        - text
       properties:
         id:
           type: integer
-          description: ID del commento.
+          description: ID del commento (generato automaticamente dal server).
         userId:
           type: integer
           description: ID dell'utente che ha scritto il commento.
@@ -156,17 +211,15 @@ components:
     Event:
       type: object
       required:
-        - id
         - eventType
         - name
-        - description
+        - info
         - location
         - duration
-        - createdAt
       properties:
         id:
           type: integer
-          description: ID dell'evento.
+          description: ID dell'evento (generato automaticamente dal server).
         eventType:
           type: string
           enum:
@@ -176,7 +229,7 @@ components:
         name:
           type: string
           description: Nome dell'evento.
-        description:
+        info:
           type: string
           description: Descrizione dell'evento.
         location:
@@ -188,7 +241,7 @@ components:
         createdAt:
           type: string
           format: date-time
-          description: Data e ora di creazione dell'evento.
+          description: Data e ora di creazione dell'evento (ora attuale se non specificata).
         comments:
           type: array
           items:
