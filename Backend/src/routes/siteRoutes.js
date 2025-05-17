@@ -38,4 +38,24 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
+router.put('/', tokenChecker, async (req, res) => {
+        if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire un cantiere nel corpo della richiesta.'));
+    }
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json(createError('Non autorizzato', 403, 'Devi essere un amministratore per modificare un cantiere.'));
+    }
+
+    try {
+        const site = await service.updateSite(req.body, req._id);
+        res.status(201).json(site);
+    } catch (error) {
+        if (error.code === 400) {
+            return res.status(400).json(error);
+        }
+        res.status(500).json(error);
+    }
+});
+
 module.exports = router;
