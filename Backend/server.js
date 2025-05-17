@@ -9,7 +9,7 @@ const HOST = process.env.HOST || 'localhost';
 
 db.connect().then(() => {
     app.listen(PORT, HOST, () => {
-        console.log(`Server in esecuzione su http://${HOST}:${PORT}/`);
+        console.log(`[Paved Way] Server in esecuzione su http://${HOST}:${PORT}/`);
     });
 });
 

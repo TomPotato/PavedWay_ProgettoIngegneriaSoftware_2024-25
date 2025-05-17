@@ -16,8 +16,8 @@ class SiteService {
             const sites = await query.exec();
             return sites;
         } catch (error) {
-            console.error('Errore durante la lettura:', error);
-            throw new Error(error);
+            const message = 'Errore interno del server durante la lettura dei cantieri.';
+            throw createError('Errore interno del server', 500, message);
         }
     }
 
