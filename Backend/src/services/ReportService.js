@@ -22,6 +22,18 @@ class ReportService {
             throw createError('Errore interno del server', 500, message);
         }
     }
+
+    async getReportById(id) {
+        try {
+            const report = await Report.findById(id);
+            if (!report) {
+                throw new Error('Report not found');
+            }
+            return report;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 }
 
 module.exports = new ReportService();
