@@ -141,36 +141,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /reports/{id}/infos:
-    get:
-      summary: Restituisce le informazioni di una segnalazione specifica.
-      description: Restituisce le informazioni di una segnalazione specifica in base all'ID fornito.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: ID della segnalazione di cui restituire le informazioni.
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Report"
-        "404":
-          description: Segnalazione non trovata.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                
 components:
   securitySchemes:
     ApiKeyAuth:
