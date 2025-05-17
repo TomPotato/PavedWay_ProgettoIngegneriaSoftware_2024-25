@@ -49,9 +49,13 @@ class SiteService {
                 throw createError('Richiesta non valida', 400, message);
             }
 
-            Site.find(siteId) = site;
-            const savedSite = await Site.find(siteId).save();
-            return savedSite;
+            const updatedSite = await Site.findByIdAndUpdate(siteId, siteData, {
+            overwrite: true,
+            new: true,
+            runValidators: true
+            });
+
+            return updatedSite;
         } catch (error){
             console.error('Errore durante la modifica:', error);
             throw new Error(error);
