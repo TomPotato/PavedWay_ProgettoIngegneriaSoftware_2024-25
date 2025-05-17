@@ -5,18 +5,19 @@ class ReportService {
         try {
             let query = Report.find({});
 
-            if (offset) {
+            if (offset && offset > 0) {
                 query = query.skip(offset);
             }
 
-            if (limit) {
+            if (limit && limit > 0) {
                 query = query.limit(limit);
             }
 
             const reports = await query.exec();
             return reports;
         } catch (error) {
-            throw new Error(error);
+            const message = 'Errore interno del server durante la lettura delle segnalazioni.';
+            throw createError('Errore interno del server', 500, message);
         }
     }
 }
