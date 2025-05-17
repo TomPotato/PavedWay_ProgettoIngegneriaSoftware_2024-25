@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const { userSchema } = require('./User');
+const { User } = require('./User');
 
 const citizenSchema = new Schema({
     email: {
@@ -22,7 +22,7 @@ citizenSchema.set('toJSON', {
     },
 });
 
-const Citizen = userSchema.discriminator('citizen', citizenSchema);
+const Citizen = User.discriminator('citizen', citizenSchema);
 
 module.exports = {
     citizenSchema,
