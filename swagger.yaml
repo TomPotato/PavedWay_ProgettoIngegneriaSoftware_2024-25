@@ -111,53 +111,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    put:
-      summary: Modifica di un cantiere.
-      description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
+    /id:
+      put:
+        summary: Modifica di un cantiere.
+        description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
+        security:
+          - ApiKeyAuth: []
+        requestFields:
+          required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Site"
-      requestId:
-        required: true
-        content:
-          _id:
-            type: string
-      responses:
-        "201":
-          description: Cantiere modificato con successo.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Site"
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Non autorizzato. Devi fornire una chiave API valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+            type: object
+            properties:
+              info:
+                type: string
+                description: Descrizione dell'evento.
+              location:
+                $ref: "#/components/schemas/Location"
+                description: Posizione dell'evento.
+              duration:
+                $ref: "#/components/schemas/Duration"
+                description: Durata dell'evento.
+              companyName:
+                type: string
+                description: Nome dell'impresa edile che sta lavorando sul cantiere.
+              realDuration:
+                type: Duration 
+                description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+        responses:
+          "201":
+            description: Cantiere modificato con successo.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Site"
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "401":
+            description: Non autorizzato. Devi fornire una chiave API valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "403":
+            description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:

@@ -38,9 +38,9 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
-router.put('/', tokenChecker, async (req, res) => {
+router.put('./id:', tokenChecker, async (req, res) => {
         if (!req.body) {
-        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire un cantiere nel corpo della richiesta.'));
+        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
 
     if (req.user.role !== 'admin') {

@@ -39,17 +39,9 @@ class SiteService {
         }
     }
 
-    async updateSite(siteData, siteId){
+    async updateSite(updateData,siteId){
         try {
-            const site = new Site(siteData);
-
-            const validationError = site.validateSync();
-            if (validationError) {
-                const message = 'Errore di validazione: alcuni campi non sono corretti.';
-                throw createError('Richiesta non valida', 400, message);
-            }
-
-            const updatedSite = await Site.findByIdAndUpdate(siteId, siteData, {
+            const updatedSite = await Site.findByIdAndUpdate(siteId, updateData, {
             overwrite: true,
             new: true,
             runValidators: true
