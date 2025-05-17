@@ -1,5 +1,5 @@
 <template>
-  <h1>Example</h1>
+  <h1>Example Sites</h1>
   <p>Click the button to fetch data with an HTTP request.</p>
   <p>Each click generates an object with a random user from the API.</p>
   <p>The robot avatars are lovingly delivered by <a href="http://Robohash.org" target="_blank">RoboHash</a>.</p>
