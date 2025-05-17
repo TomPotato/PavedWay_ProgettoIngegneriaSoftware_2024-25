@@ -31,6 +31,18 @@ class SiteService {
             throw new Error(error);
         }
     }
+
+    async updateSite(siteData, siteId){
+        try {
+            const site = new Site(siteData);
+            Site.find(siteId) = site;
+            await Site.find(siteId).save();
+            return site;
+        } catch (error){
+            console.error('Errore durante la modifica:', error);
+            throw new Error(error);
+        }
+    }
 }
 
 module.exports = new SiteService();
