@@ -24,20 +24,34 @@ class SiteService {
     async createSite(siteData) {
         try {
             const site = new Site(siteData);
-            await site.save();
-            return site;
+
+            const validationError = site.validateSync();
+            if (validationError) {
+                const message = 'Errore di validazione: alcuni campi non sono corretti.';
+                throw createError('Richiesta non valida', 400, message);
+            }
+
+            const savedSite = await site.save();
+            return savedSite;
         } catch (error) {
-            console.error('Errore durante la creazione:', error);
-            throw new Error(error);
+            const message = 'Errore interno del server durante il salvataggio del sito.';
+            throw createError('Errore interno del server', 500, message);
         }
     }
 
     async updateSite(siteData, siteId){
         try {
             const site = new Site(siteData);
+
+            const validationError = site.validateSync();
+            if (validationError) {
+                const message = 'Errore di validazione: alcuni campi non sono corretti.';
+                throw createError('Richiesta non valida', 400, message);
+            }
+
             Site.find(siteId) = site;
-            await Site.find(siteId).save();
-            return site;
+            const savedSite = await Site.find(siteId).save();
+            return savedSite;
         } catch (error){
             console.error('Errore durante la modifica:', error);
             throw new Error(error);
