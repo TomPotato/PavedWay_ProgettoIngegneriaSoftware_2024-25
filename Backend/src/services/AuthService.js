@@ -44,7 +44,7 @@ class AuthService {
         }
     }
 
-    async authenticate(username, password) {
+    async login(username, password) {
         try {
             const user = await User.findOne({ username });
             if (!user) {

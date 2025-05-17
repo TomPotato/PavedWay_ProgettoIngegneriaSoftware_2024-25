@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        const token = await service.authenticate(req.body.username, req.body.password);
+        const token = await service.login(req.body.username, req.body.password);
         res.status(200).json({ token });
     } catch (error) {
         res.status(error.code).json(error);
