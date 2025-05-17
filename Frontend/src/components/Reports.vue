@@ -17,7 +17,7 @@
     },
     methods: {
       async getReports() {      
-        const response = await fetch(`${VUE_APP_API_URL}/srites`);
+        const response = await fetch(`${VUE_APP_API_URL}/reports`);
         this.data = await response.json();
         console.log(this.data);
       }   
