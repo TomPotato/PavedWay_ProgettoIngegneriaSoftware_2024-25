@@ -17,4 +17,23 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/', tokenChecker, async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 
+            'Devi fornire una segnalazione nel corpo della richiesta.'));
+    }
+
+    if (req.user.role !== 'citizen') {
+        return res.status(403).json(createError('Non autorizzato', 403, 
+            'Devi essere autenticato per creare un cantiere.'));
+    }
+
+    try {
+        const site = await service.createReport(req.body);
+        res.status(201).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

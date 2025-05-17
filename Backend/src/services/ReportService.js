@@ -1,6 +1,7 @@
 const { Report } = require('../models/Report');
 
 class ReportService {
+    
     async getReports(offset, limit) {
         try {
             let query = Report.find({});
@@ -19,6 +20,25 @@ class ReportService {
             const message = 'Errore interno del server durante la lettura delle segnalazioni.';
             throw createError('Errore interno del server', 500, message);
         }
+    }
+
+    async createReport(reportData) {
+        try{
+            const report =  new Report(reportData);
+
+            const validationError = report.validateSync();
+            if (validationError) {
+                const message = 'Errore di validazione: alcuni campi non sono corretti.';
+                throw createError('Richiesta non valida', 400, message);
+            }
+
+            const savedReport = await report.save();
+            return savedReport;
+            } catch (error) {
+                const message = 'Errore interno del server durante il salvataggio della segnalazione.';
+                throw createError('Errore interno del server', 500, message);
+            }
+
     }
 }
 
