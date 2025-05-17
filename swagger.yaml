@@ -10,6 +10,50 @@ servers:
 
 paths:
   /auth:
+    /register:
+      post:
+        summary: Registrazione di un nuovo utente cittadino
+        description: >-
+          Permette la registrazione di un nuovo utente come cittadino. 
+          L'utente deve fornire nome utente, nome, cognome, email e password.
+          Se la registrazione ha successo, l'utente cittadino viene creato e
+          il server restituisce un token JWT per l'autenticazione.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Citizen"
+        responses:
+          "201":
+            description: Registrazione riuscita.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token JWT per l'autenticazione.
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "409":
+            description: Nome utente o email già in uso.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+
     /login:
       post:
         summary: Autenticazione dell'utente
