@@ -1,5 +1,7 @@
 const { Report } = require('../models/Report');
 
+const createError = require('../utils/createError');
+
 class ReportService {
     async getReports(offset, limit) {
         try {
