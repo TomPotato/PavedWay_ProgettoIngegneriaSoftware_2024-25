@@ -12,7 +12,7 @@
     <p v-if="loading">Caricamento in corso...</p>
     <p v-if="error">{{ error }}</p>
 
-    <h1>Elenco Segnalazioni</h1>
+    <!-- <h1>Elenco Segnalazioni</h1>
     <button @click="loadReports">Carica Segnalazioni</button>
 
     <ul v-if="reports.length">
@@ -22,7 +22,7 @@
     </ul>
 
     <p v-if="loading">Caricamento in corso...</p>
-    <p v-if="error">{{ error }}</p>
+    <p v-if="error">{{ error }}</p> -->
   </div>
 </template>
 
