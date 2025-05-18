@@ -44,23 +44,23 @@ class ReportService {
   
     async createReport(reportData) {
         try{
-            const report =  new Report(reportData);
+                const report =  new Report(reportData);
 
-            const validationError = report.validateSync();
-            if (validationError) {
-                const message = 'Errore di validazione: alcuni campi non sono corretti.';
-                throw createError('Richiesta non valida', 400, message);
-            }
+                const validationError = report.validateSync();
+                if (validationError) {
+                    const message = 'Errore di validazione: alcuni campi non sono corretti.';
+                    throw createError('Richiesta non valida', 400, message);
+                }
 
-            const savedReport = await report.save();
-            return savedReport;
+                const savedReport = await report.save();
+                return savedReport;
             } catch (error) {
-            if (error.code) {
-                throw error;
-            } else {
-                const message = 'Errore interno del server durante il salvataggio del sito.';
-                throw createError('Errore interno del server', 500, message);
-            }
+                if (error.code) {
+                    throw error;
+                } else {
+                    const message = 'Errore interno del server durante il salvataggio del sito.';
+                    throw createError('Errore interno del server', 500, message);
+                }
             }
     }
 }
