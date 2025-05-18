@@ -148,12 +148,6 @@ paths:
       responses:
         "201":
           description: Report creato con successo.
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "401":
           description: Non autorizzato. Devi fornire una chiave API valida.
           content:
