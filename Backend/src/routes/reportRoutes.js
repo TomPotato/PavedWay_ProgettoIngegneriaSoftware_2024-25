@@ -34,11 +34,6 @@ router.post('/', tokenChecker, async (req, res) => {
             'Devi fornire una segnalazione nel corpo della richiesta.'));
     }
 
-    if (req.user.role !== 'citizen') {
-        return res.status(403).json(createError('Non autorizzato', 403, 
-            'Devi essere autenticato per creare un cantiere.'));
-    }
-
     try {
         const site = await service.createReport(req.body);
         res.status(201).json(site);

@@ -55,8 +55,12 @@ class ReportService {
             const savedReport = await report.save();
             return savedReport;
             } catch (error) {
-                const message = 'Errore interno del server durante il salvataggio della segnalazione.';
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante il salvataggio del sito.';
                 throw createError('Errore interno del server', 500, message);
+            }
             }
     }
 }
