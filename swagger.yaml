@@ -134,6 +134,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /reports/{id}:
+    get:
+      summary: Restituisce una segnalazione specifica.
+      description: Restituisce una segnalazione specifica in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /sites:
     get:
       summary: Restituisce la lista dei cantieri esistenti
@@ -206,37 +238,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /reports/{id}:
-    get:
-      summary: Restituisce una segnalazione specifica.
-      description: Restituisce una segnalazione specifica in base all'ID fornito.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID della segnalazione da restituire.
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Report"
-        "404":
-          description: Segnalazione non trovata.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-                
+
 components:
   securitySchemes:
     ApiKeyAuth:

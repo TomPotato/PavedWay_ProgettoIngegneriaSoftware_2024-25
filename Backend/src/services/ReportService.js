@@ -18,13 +18,8 @@ class ReportService {
             const reports = await query.exec();
             return reports;
         } catch (error) {
-
-            if (error.code) {
-                throw error;
-            } else {
-                const message = 'Errore interno del server durante la ricerca.';
-                throw createError('Errore interno del server', 500, message);
-            }
+            const message = 'Errore interno del server durante la ricerca.';
+            throw createError('Errore interno del server', 500, message);
         }
     }
 
@@ -32,7 +27,7 @@ class ReportService {
         try {
             const report = await Report.findById(id);
             if (!report) {
-                throw createError('Ricerca fallita', 404, 'Nessun report trovato con questo ID.');
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
             }
             return report;
         } catch (error) {
