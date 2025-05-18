@@ -139,3 +139,21 @@ dist
 
 # SvelteKit build / generate output
 .svelte-kit
+
+### Vue ###
+# gitignore template for Vue.js projects
+#
+# Recommended template: Node.gitignore
+
+docs/_book
+
+test/
+
+### Vuejs ###
+# Recommended template: Node.gitignore
+
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+.vite
