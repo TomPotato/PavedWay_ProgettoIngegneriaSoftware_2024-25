@@ -38,4 +38,20 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
+router.delete('/:id', tokenChecker, async (req, res) => {
+    const id = req.params.id;
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json(createError('Non autorizzato', 403, 
+            'Devi essere un amministratore per eliminare un cantiere.'));
+    }
+
+    try {
+        const site = await service.deleteSite(id);
+        res.status(200).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+}); 
+
 module.exports = router;
