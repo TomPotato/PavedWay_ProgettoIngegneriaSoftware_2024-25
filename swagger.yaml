@@ -10,6 +10,50 @@ servers:
 
 paths:
   /auth:
+    /register:
+      post:
+        summary: Registrazione di un nuovo utente cittadino
+        description: >-
+          Permette la registrazione di un nuovo utente come cittadino. 
+          L'utente deve fornire nome utente, nome, cognome, email e password.
+          Se la registrazione ha successo, l'utente cittadino viene creato e
+          il server restituisce un token JWT per l'autenticazione.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Citizen"
+        responses:
+          "201":
+            description: Registrazione riuscita.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token JWT per l'autenticazione.
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "409":
+            description: Nome utente o email già in uso.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+
     /login:
       post:
         summary: Autenticazione dell'utente
@@ -104,6 +148,47 @@ paths:
       responses:
         "201":
           description: Report creato con successo.
+                  "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere autenticato per creare una Segnalazione.
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reports/{id}:
+    get:
+      summary: Restituisce una segnalazione specifica.
+      description: Restituisce una segnalazione specifica in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da restituire.
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
@@ -122,6 +207,8 @@ paths:
                 $ref: "#/components/schemas/Error"
         "403":
           description: Accesso negato. Devi essere autenticato per creare una Segnalazione.
+        "404":
+          description: Segnalazione non trovata.
           content:
             application/json:
               schema:
@@ -162,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CommonError"
+                $ref: "#/components/schemas/Error"
     post:
       summary: Crea un nuovo cantiere
       description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
@@ -211,7 +298,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-KEY
+      name: X-API-Key
       description: >-
         Chiave API per l'autenticazione.
         Deve essere fornita nell'intestazione della richiesta.

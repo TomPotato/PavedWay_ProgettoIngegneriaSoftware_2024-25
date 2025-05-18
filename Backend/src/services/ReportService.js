@@ -1,5 +1,7 @@
 const { Report } = require('../models/Report');
 
+const createError = require('../utils/createError');
+
 class ReportService {
     
     async getReports(offset, limit) {
@@ -17,11 +19,29 @@ class ReportService {
             const reports = await query.exec();
             return reports;
         } catch (error) {
-            const message = 'Errore interno del server durante la lettura delle segnalazioni.';
+            const message = 'Errore interno del server durante la ricerca.';
             throw createError('Errore interno del server', 500, message);
         }
     }
-
+  
+  
+    async getReportById(id) {
+        try {
+            const report = await Report.findById(id);
+            if (!report) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            }
+            return report;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la ricerca tramite ID.';
+                throw createError('Errore interno del server', 500, message);
+            }
+          }
+        }
+  
     async createReport(reportData) {
         try{
             const report =  new Report(reportData);
@@ -38,7 +58,6 @@ class ReportService {
                 const message = 'Errore interno del server durante il salvataggio della segnalazione.';
                 throw createError('Errore interno del server', 500, message);
             }
-
     }
 }
 
