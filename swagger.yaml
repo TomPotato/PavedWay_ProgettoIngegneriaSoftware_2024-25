@@ -120,7 +120,7 @@ paths:
           name: id
           required: true
           schema:
-            type: integer
+            type: string
           description: ID della segnalazione da restituire.
       responses:
         "200":
