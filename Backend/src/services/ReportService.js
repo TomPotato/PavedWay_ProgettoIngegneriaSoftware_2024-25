@@ -43,7 +43,7 @@ class ReportService {
 
     async getActiveReports(offset, limit, date) {
         try {
-            let query = Report.find({ start: { $lte: new Date(date) }});
+            let query = Report.find({ start: { $lte: new Date(date) } , end: { $gte: new Date(date) } });
             if (!query) {
                 throw createError('Segnalazioni non trovate', 404, 'Nessuna segnalazione trovata con questa data.');
             }
