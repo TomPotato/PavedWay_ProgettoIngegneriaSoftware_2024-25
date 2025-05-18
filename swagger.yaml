@@ -212,7 +212,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-KEY
+      name: X-API-Key
       description: >-
         Chiave API per l'autenticazione.
         Deve essere fornita nell'intestazione della richiesta.
