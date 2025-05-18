@@ -28,4 +28,20 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/active', async (req, res) => {
+    offset = toValidInt(req.query.offset);
+    limit = toValidInt(req.query.limit);
+    date = req.query.date;
+    if (!date) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire una data.'));
+    }
+
+    try {
+        const reports = await service.getActiveReports(offset, limit, date);
+        res.status(200).json(reports);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

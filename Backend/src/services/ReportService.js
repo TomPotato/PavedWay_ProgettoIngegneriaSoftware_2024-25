@@ -40,6 +40,29 @@ class ReportService {
 
         }
     }
+
+    async getActiveReports(offset, limit, date) {
+        try {
+            let query = Report.find({ start: { $lte: new Date(date) }});
+            if (!query) {
+                throw createError('Segnalazioni non trovate', 404, 'Nessuna segnalazione trovata con questa data.');
+            }
+
+            if (offset && offset > 0) {
+                query = query.skip(offset);
+            }
+
+            if (limit && limit > 0) {
+                query = query.limit(limit);
+            }
+
+            const reports = await query.exec();
+            return reports;
+        } catch (error) {
+            const message = 'Errore interno del server durante la ricerca.';
+            throw createError('Errore interno del server', 500, message);
+        }
+    }
 }
 
 module.exports = new ReportService();
