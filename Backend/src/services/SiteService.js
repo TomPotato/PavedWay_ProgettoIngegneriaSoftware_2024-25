@@ -5,11 +5,11 @@ class SiteService {
         try {
             let query = Site.find({});
 
-            if (offset) {
+            if (offset && offset > 0) {
                 query = query.skip(offset);
             }
 
-            if (limit) {
+            if (limit && limit > 0) {
                 query = query.limit(limit);
             }
 
