@@ -42,5 +42,9 @@ router.post('/', tokenChecker, async (req, res) => {
     try {
         const site = await service.createReport(req.body);
         res.status(201).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
 
 module.exports = router;
