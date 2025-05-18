@@ -9,9 +9,104 @@ servers:
   - url: TODO
 
 paths:
+  /auth:
+    /register:
+      post:
+        summary: Registrazione di un nuovo utente cittadino
+        description: >-
+          Permette la registrazione di un nuovo utente come cittadino. 
+          L'utente deve fornire nome utente, nome, cognome, email e password.
+          Se la registrazione ha successo, l'utente cittadino viene creato e
+          il server restituisce un token JWT per l'autenticazione.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Citizen"
+        responses:
+          "201":
+            description: Registrazione riuscita.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token JWT per l'autenticazione.
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "409":
+            description: Nome utente o email già in uso.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+
+    /login:
+      post:
+        summary: Autenticazione dell'utente
+        description: Restituisce un token JWT se le credenziali sono valide.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - username
+                  - password
+                properties:
+                  username:
+                    type: string
+                    description: Nome utente.
+                  password:
+                    type: string
+                    description: Password.
+        responses:
+          "200":
+            description: Autenticazione riuscita.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token JWT per l'autenticazione.
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "401":
+            description: Credenziali non valide.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+
   /reports:
     get:
-      summary: Restituisce la lista delle segnalazioni.
+      summary: Restituisce la lista delle segnalazioni
       description: Restituisce la lista delle segnalazioni.
       parameters:
         - in: query
@@ -41,7 +136,7 @@ paths:
                 $ref: "#/components/schemas/Error"
   /sites:
     get:
-      summary: Restituisce la lista dei cantieri esistenti.
+      summary: Restituisce la lista dei cantieri esistenti
       description: Restituisce la lista dei cantieri esistenti.
       parameters:
         - in: query
@@ -70,7 +165,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Crea un nuovo cantiere.
+      summary: Crea un nuovo cantiere
       description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
       security:
         - ApiKeyAuth: []
@@ -147,7 +242,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-KEY
+      name: X-API-Key
       description: >-
         Chiave API per l'autenticazione.
         Deve essere fornita nell'intestazione della richiesta.
@@ -166,6 +261,60 @@ components:
         message:
           type: string
           description: Messaggio di errore dettagliato.
+
+    User:
+      type: object
+      required:
+        - username
+        - name
+        - surname
+        - password
+      properties:
+        id:
+          type: integer
+          description: ID dell'utente (generato automaticamente dal server).
+        username:
+          type: string
+          description: Nome utente.
+        name:
+          type: string
+          description: Nome dell'utente.
+        surname:
+          type: string
+          description: Cognome dell'utente.
+        password:
+          type: string
+          description: Password dell'utente.
+        role:
+          type: string
+          enum:
+            - citizen
+            - admin
+          description: Ruolo dell'utente (cittadino o amministratore, assegnato automaticamente alla registrazione).
+
+    Citizen:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          required:
+            - email
+          properties:
+            required:
+            email:
+              type: string
+              format: email
+              description: Indirizzo email del cittadino.
+
+    Admin:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            required:
+              - office
+            office:
+              type: string
+              description: ufficio di competenza dell'amministratore.
 
     Location:
       type: object
@@ -277,7 +426,6 @@ components:
       allof:
         - $ref: "#/components/schemas/Event"
         - type: object
-          required:
           properties:
             createdBy:
               type: integer
@@ -306,9 +454,9 @@ components:
           required:
             - companyName
           properties:
-            companyName: 
+            companyName:
               type: string
               description: Nome dell'impresa edile che sta lavorando sul cantiere.
             realDuration:
-              type: Duration 
+              type: Duration
               description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.

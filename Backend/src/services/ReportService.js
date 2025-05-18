@@ -1,21 +1,24 @@
 const { Report } = require('../models/Report');
 
+const createError = require('../utils/createError');
+
 class ReportService {
     async getReports(offset, limit) {
         try {
             let query = Report.find({});
 
-            if (offset) {
+            if (offset && offset > 0) {
                 query = query.skip(offset);
             }
 
-            if (limit) {
+            if (limit && limit > 0) {
                 query = query.limit(limit);
             }
 
             const reports = await query.exec();
             return reports;
         } catch (error) {
+
             if (error.code) {
                 throw error;
             } else {
@@ -39,6 +42,7 @@ class ReportService {
                 const message = 'Errore interno del server durante la ricerca tramite ID.';
                 throw createError('Errore interno del server', 500, message);
             }
+
         }
     }
 }

@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
+
 const service = require('../services/ReportService');
-const createError = require('../utils/createError');
+
 const toValidInt = require('../utils/toValidInt');
 
 router.get('/', async (req, res) => {
@@ -27,6 +28,7 @@ router.get('/:id', async (req, res) => {
         res.status(200).json(report);
     } catch (error) {
         res.status(error.code).json(error);
+
     }
 });
 

@@ -1,15 +1,17 @@
 const { Site } = require('../models/Site');
 
+const createError = require('../utils/createError');
+
 class SiteService {
     async getSites(offset, limit) {
         try {
             let query = Site.find({});
 
-            if (offset) {
+            if (offset && offset > 0) {
                 query = query.skip(offset);
             }
 
-            if (limit) {
+            if (limit && limit > 0) {
                 query = query.limit(limit);
             }
 
@@ -34,8 +36,12 @@ class SiteService {
             const savedSite = await site.save();
             return savedSite;
         } catch (error) {
-            const message = 'Errore interno del server durante il salvataggio del sito.';
-            throw createError('Errore interno del server', 500, message);
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante il salvataggio del sito.';
+                throw createError('Errore interno del server', 500, message);
+            }
         }
     }
 }

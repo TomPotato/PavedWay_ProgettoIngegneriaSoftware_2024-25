@@ -9,7 +9,7 @@ const createError = require('./createError');
  * @returns {void}
  */
 function tokenChecker(req, res, next) {
-    const token = req.headers['X-API-KEY'];
+    const token = req.headers['x-api-key'];
 
     if (!token) {
         res.status(401).json(createError('Non autorizzato', 401, 'Devi fornire un token di autorizzazione.'));
@@ -25,3 +25,5 @@ function tokenChecker(req, res, next) {
         }
     });
 }
+
+module.exports = tokenChecker;
