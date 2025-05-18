@@ -191,14 +191,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "401":
-          description: Non autorizzato. Devi fornire una chiave API valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Accesso negato. Devi essere autenticato per creare una Segnalazione.
         "404":
           description: Segnalazione non trovata.
           content:
