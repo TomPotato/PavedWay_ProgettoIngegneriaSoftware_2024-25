@@ -39,7 +39,7 @@ router.post('/', tokenChecker, async (req, res) => {
 });
 
 router.put('/:id', tokenChecker, async (req, res) => {
-        if (!req.body) {
+    if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
 

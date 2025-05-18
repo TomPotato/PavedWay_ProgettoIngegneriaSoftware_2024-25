@@ -245,28 +245,26 @@ paths:
       description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
       security:
         - ApiKeyAuth: []
-      requestFields:
+      requestBody:
         required: true
         content:
-        application/json:
-          schema:
-          type: object
-          properties:
-            info:
-              type: string
-              description: Descrizione dell'evento.
-            location:
-              $ref: "#/components/schemas/Location"
-              description: Posizione dell'evento.
-            duration:
-              $ref: "#/components/schemas/Duration"
-              description: Durata dell'evento.
-            companyName:
-              type: string
-              description: Nome dell'impresa edile che sta lavorando sul cantiere.
-            realDuration:
-              type: Duration
-              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+          modifyedSite:
+            schema:
+              info:
+                type: string
+                description: Descrizione dell'evento.
+              location:
+                $ref: "#/components/schemas/Location"
+                description: Posizione dell'evento.
+              duration:
+                $ref: "#/components/schemas/Duration"
+                description: Durata dell'evento.
+              companyName:
+                type: string
+                description: Nome dell'impresa edile che sta lavorando sul cantiere.
+              realDuration:
+                type: Duration
+                description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
       responses:
         "201":
           description: Cantiere creato da risorsa non esistente.
