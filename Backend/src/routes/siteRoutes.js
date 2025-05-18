@@ -38,7 +38,7 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
-router.put('./id:', tokenChecker, async (req, res) => {
+router.put('/:id', tokenChecker, async (req, res) => {
         if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
@@ -48,7 +48,7 @@ router.put('./id:', tokenChecker, async (req, res) => {
     }
 
     try {
-        const site = await service.updateSite(req.body, req._id);
+        const site = await service.updateSite(req.body, req.params.id);
         res.status(201).json(site);
     } catch (error) {
         if (error.code === 400) {
