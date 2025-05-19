@@ -38,7 +38,7 @@ class ReportService {
             throw createError('Errore interno del server', 500, message);
         }
     }
-
+  
     /**
      * Recupera una segnalazione dal database in base all'ID fornito.
      * 
