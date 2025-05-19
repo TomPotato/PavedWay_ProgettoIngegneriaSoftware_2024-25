@@ -21,12 +21,12 @@ router.get('/', async (req, res) => {
 
 router.post('/', tokenChecker, async (req, res) => {
     if (!req.body) {
-        return res.status(400).json(createError('Richiesta non valida', 400, 
+        return res.status(400).json(createError('Richiesta non valida', 400,
             'Devi fornire un cantiere nel corpo della richiesta.'));
     }
 
     if (req.user.role !== 'admin') {
-        return res.status(403).json(createError('Accesso negato. ', 403, 
+        return res.status(403).json(createError('Accesso negato. ', 403,
             'Devi essere un amministratore per creare un cantiere.'));
     }
 
@@ -42,16 +42,16 @@ router.delete('/:id', tokenChecker, async (req, res) => {
     const id = req.params.id;
 
     if (req.user.role !== 'admin') {
-        return res.status(403).json(createError('Accesso negato. ', 403, 
-             'Devi essere un amministratore per eliminare un cantiere.'));
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Devi essere un amministratore per eliminare un cantiere.'));
     }
 
     try {
-        const site = await service.deleteSite(id);
-        res.status(200).json(site);
+        await service.deleteSite(id);
+        res.status(204).json(null);
     } catch (error) {
         res.status(error.code).json(error);
     }
-}); 
+});
 
 module.exports = router;
