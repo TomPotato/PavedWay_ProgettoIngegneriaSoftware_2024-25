@@ -165,6 +165,70 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+    post:
+      summary: Crea una nuova segnalazione
+      description: Crea una nuova segnalazione. Devi essere loggato per poterne creare una nuova.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
+      responses:
+        "201":
+          description: Report creato con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reports/{id}:
+    get:
+      summary: Restituisce una segnalazione specifica.
+      description: Restituisce una segnalazione specifica in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /sites:
     get:
       tags:
@@ -247,7 +311,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-KEY
+      name: X-API-Key
       description: >-
         Chiave API per l'autenticazione.
         Deve essere fornita nell'intestazione della richiesta.
