@@ -4,8 +4,8 @@ const router = express.Router();
 const service = require('../services/ReportService');
 
 const createError = require('../utils/createError');
-const toValidInt = require('../utils/toValidInt');
 const tokenChecker = require('../utils/tokenChecker');
+const toValidInt = require('../utils/toValidInt');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
