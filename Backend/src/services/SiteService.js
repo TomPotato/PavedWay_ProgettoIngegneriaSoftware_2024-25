@@ -44,6 +44,22 @@ class SiteService {
             }
         }
     }
-}
 
+    async deleteSite(id) {
+        try {
+            const site = await Site.findByIdAndDelete(id);
+            if (!site) {
+                throw createError('Eliminazione fallita', 404, 'Nessun cantiere trovato con l\'ID fornito.');
+            }
+            return site;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante l\'eliminazione del cantiere.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
+}
 module.exports = new SiteService();
