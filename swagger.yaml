@@ -164,7 +164,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    delete/{id}:
+    post:
+      summary: Crea un nuovo cantiere
+      description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Site"
+      responses:
+        "201":
+          description: Cantiere creato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /sites/{id}:
+    delete:
       summary: Elimina un cantiere in base all'ID
       description: >-
         Elimina un cantiere esistente in base all'ID fornito.
@@ -208,55 +251,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":  
-          description: Cantiere non trovato.
+          description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "500":  
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      
-    post:
-      summary: Crea un nuovo cantiere
-      description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Site"
-      responses:
-        "201":
-          description: Cantiere creato con successo.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Site"
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Non autorizzato. Devi fornire una chiave API valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
           description: Errore interno del server.
           content:
             application/json:
