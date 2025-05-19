@@ -271,6 +271,56 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+    /sites/active:
+      get:
+        summary: Restituisce la lista dei cantieri attivi in una data fornita
+        description: Restituisce la lista dei cantieri attivi in una data fornita.
+        parameters:
+          - in: query
+            name: date
+            required: true
+            schema:
+              type: string
+              format: date-time
+            description: Data e ora in cui verificare i cantieri attivi.
+          - in: query
+            name: offset
+            schema:
+              type: integer
+            description: Numero di cantieri da saltare prima di restituire i risultati.
+          - in: query
+            name: limit
+            schema:
+              type: integer
+            description: Numero massimo di cantieri da restituire.
+        responses:
+          "200":
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Site"
+          "400":
+            description: Richiesta non valida.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "404":
+            description: Nessun cantiere trovato per la data fornita.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "500":
+            description: Errore interno del server.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     ApiKeyAuth:
