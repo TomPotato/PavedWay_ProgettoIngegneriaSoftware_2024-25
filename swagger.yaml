@@ -137,7 +137,7 @@ paths:
 
   /reports/{id}:
     get:
-      summary: Restituisce una segnalazione specifica.
+      summary: Restituisce una segnalazione specifica
       description: Restituisce una segnalazione specifica in base all'ID fornito.
       parameters:
         - in: path
@@ -241,7 +241,7 @@ paths:
 
   /sites/{id}:
     patch:
-      summary: Modifica di un cantiere.
+      summary: Modifica di un cantiere
       description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
       security:
         - ApiKeyAuth: []
