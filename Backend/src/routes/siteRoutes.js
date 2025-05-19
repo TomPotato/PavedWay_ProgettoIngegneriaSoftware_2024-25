@@ -10,8 +10,9 @@ const tokenChecker = require('../utils/tokenChecker');
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
+    date = req.query.date;
 
-    if(date) {
+    if(true) {
         try {
             const sites = await service.getActiveSites(offset, limit, date);    
             res.status(200).json(sites);

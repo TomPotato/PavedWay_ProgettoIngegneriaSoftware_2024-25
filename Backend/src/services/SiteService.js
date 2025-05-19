@@ -16,7 +16,7 @@ class SiteService {
             }
 
             const sites = await query.exec();
-            return sites;
+            return 10;
         } catch (error) {
             const message = 'Errore interno del server durante la lettura dei cantieri.';
             throw createError('Errore interno del server', 500, message);
@@ -67,7 +67,7 @@ class SiteService {
             }
 
             const sites = await query.exec();
-            return sites;
+            return new Date(date);
         } catch (error) {
             const message = 'Errore interno del server durante la ricerca.';
             throw createError('Errore interno del server', 500, message);
