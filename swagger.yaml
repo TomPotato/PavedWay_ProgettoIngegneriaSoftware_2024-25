@@ -255,8 +255,6 @@ paths:
                 info:
                   type: string
                   description: Descrizione dell'evento.
-                location:
-                  $ref: "#/components/schemas/Location"
                 duration:
                   $ref: "#/components/schemas/Duration"
                 companyName:
