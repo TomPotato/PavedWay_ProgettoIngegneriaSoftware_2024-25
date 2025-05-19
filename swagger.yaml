@@ -13,7 +13,11 @@ tags:
   - name: Autenticazione
     description: >-
       Operazioni relative all'autenticazione degli utenti, 
-      inclusa la registrazione e il login.
+      inclusi la registrazione e il login.
+  - name: Utenti
+    description: >-
+      Operazioni relative alla gestione degli utenti, 
+      inclusi la creazione, la visualizzazione e l'aggiornamento degli utenti.
   - name: Segnalazioni
     description: >-
       Operazioni relative alla gestione delle segnalazioni degli utenti, 
@@ -133,6 +137,51 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /users/{id}/reports:
+    get:
+      tags:
+        - Utenti
+      summary: Restituisce la lista delle segnalazioni di un utente
+      description: Restituisce la lista delle segnalazioni di un utente specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente di cui restituire le segnalazioni.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di segnalazioni da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di segnalazioni da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /reports:
     get:
       tags:
@@ -167,6 +216,8 @@ paths:
                 $ref: "#/components/schemas/Error"
 
     post:
+      tags:
+        - Segnalazioni
       summary: Crea una nuova segnalazione
       description: Crea una nuova segnalazione. Devi essere loggato per poterne creare una nuova.
       security:
@@ -195,6 +246,8 @@ paths:
 
   /reports/{id}:
     get:
+      tags:
+        - Segnalazioni
       summary: Restituisce una segnalazione specifica
       description: Restituisce una segnalazione specifica in base all'ID fornito.
       parameters:
@@ -224,6 +277,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
+      tags:
+        - Segnalazioni
       summary: Elimina una segnalazione specifica.
       description: >-
         Elimina una segnalazione specifica in base all'ID fornito. 
@@ -349,6 +404,8 @@ paths:
 
   /sites/{id}:
     patch:
+      tags:
+        - Cantieri
       summary: Modifica di un cantiere
       description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
       security:
@@ -407,8 +464,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-                
+
     delete:
+      tags:
+        - Cantieri
       summary: Elimina una cantiere specifico.
       description: >-
         Elimina un cantiere specifico in base all'ID fornito. 

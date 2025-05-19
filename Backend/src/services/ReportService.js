@@ -1,5 +1,7 @@
 const { Report } = require('../models/Report');
 
+const userService = require('./UserService');
+
 const createError = require('../utils/createError');
 
 class ReportService {
@@ -38,7 +40,7 @@ class ReportService {
             throw createError('Errore interno del server', 500, message);
         }
     }
-  
+
     /**
      * Recupera una segnalazione dal database in base all'ID fornito.
      * 
@@ -56,18 +58,60 @@ class ReportService {
      */
     async getReportById(id) {
         try {
-            const report = await Report.exists(id);
-
+            const report = await Report.exists({ _id: id });
             if (!report) {
                 throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
             }
-
             return await Report.findById(id);;
         } catch (error) {
             if (error.code) {
                 throw error;
             } else {
                 const message = 'Errore interno del server durante la ricerca tramite ID.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
+
+    /**
+     * Recupera le segnalazioni create da un utente specifico in base all'ID fornito.
+     * 
+     * @async
+     * @param {string} userId - L'ID dell'utente di cui recuperare le segnalazioni.
+     * @param {number} offset - Il numero di segnalazioni da saltare.
+     * @param {number} limit - Il numero massimo di segnalazioni da recuperare.
+     * @returns {Promise<Array<Report>>} Un array di segnalazioni create dall'utente specificato.
+     * @throws {Error} Se si verifica un errore durante la ricerca delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se l'utente esiste nel database in base all'ID fornito.
+     * 2. Se l'utente non esiste, solleva un errore 404 (Not Found).
+     * 3. Se l'utente esiste, crea una query per recuperare le segnalazioni create da quell'utente.
+     * 4. Se è fornito un offset e un limite, applica questi parametri alla query.
+     * 5. Esegue la query e restituisce le segnalazioni recuperate.
+     * 6. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+     */
+    async getReportsByUserId(userId, offset, limit) {
+        try {
+            const user = await userService.getUserById(userId);
+            let query = Report.find({ createdBy: userId });
+
+            if (offset && offset > 0) {
+                query = query.skip(offset);
+            }
+
+            if (limit && limit > 0) {
+                query = query.limit(limit);
+            }
+
+            const reports = await query.exec();
+            return reports;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la ricerca.';
                 throw createError('Errore interno del server', 500, message);
             }
         }
@@ -128,7 +172,7 @@ class ReportService {
      */
     async deleteReport(id) {
         try {
-            const report = await Report.exists(id);
+            const report = await Report.exists({ _id: id });
 
             if (!report) {
                 throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');

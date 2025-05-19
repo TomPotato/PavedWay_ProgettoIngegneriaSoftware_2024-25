@@ -36,6 +36,8 @@ router.post('/', tokenChecker, async (req, res) => {
             'Devi fornire una segnalazione nel corpo della richiesta.'));
     }
 
+    req.body.createdBy = req.user.id;
+
     try {
         const site = await service.createReport(req.body);
         res.status(201).json(site);
