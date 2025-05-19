@@ -47,21 +47,23 @@ class SiteService {
 
     async updateSite(updateData,siteId){
         try {
-            if(Site.findById(siteId)) {
+
+            const siteExists = await Site.findById(siteId);
+
+            if(!siteExists) {
 
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
 
-            }else{
-
-                const updatedSite = await Site.findByIdAndUpdate(siteId, updateData, {
-                overwrite: true,
-                new: true,
-                runValidators: true
-                });
-
-                return updatedSite;
-
             }
+
+            const updatedSite = await Site.findByIdAndUpdate(siteId, updateData, {
+            overwrite: true,
+            new: true,
+            runValidators: true
+            });
+
+            return updatedSite;
+
         } catch (error){
             console.error('Errore durante la modifica:', error);
             throw new Error(error);
