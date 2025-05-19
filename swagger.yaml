@@ -240,7 +240,7 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /sites/{id}:
-    put:
+    patch:
       summary: Modifica di un cantiere.
       description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
       security:
@@ -271,6 +271,18 @@ paths:
                 $ref: "#/components/schemas/Site"
         "400":
           description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
           content:
             application/json:
               schema:
