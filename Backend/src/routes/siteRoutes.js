@@ -11,11 +11,20 @@ router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 
-    try {
-        const sites = await service.getSites(offset, limit);
-        res.status(200).json(sites);
-    } catch (error) {
-        res.status(error.code).json(error);
+    if(date) {
+        try {
+            const sites = await service.getActiveSites(offset, limit, date);    
+            res.status(200).json(sites);
+        } catch (error) {
+            res.status(error.code).json(error);
+        }
+    }else {
+        try {
+            const sites = await service.getSites(offset, limit);
+            res.status(200).json(sites);
+        } catch (error) {
+            res.status(error.code).json(error);
+        }
     }
 });
 
@@ -38,19 +47,19 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
-router.get('/active', async (req, res) => {
-    offset = toValidInt(req.query.offset);
-    limit = toValidInt(req.query.limit);
-    date = req.query.date;
-    if (!date) {
-        return res.status(400).json(createError('Richiesta non valida', 400, 
-            'Devi fornire una data nel corpo della richiesta.'));
-    }   
-    try {
-        const sites = await service.getActiveSites(offset, limit, date);    
-        res.status(200).json(activeSites);
-    } catch (error) {
-        res.status(error.code).json(error);
-    }
-});
+// router.get('/', async (req, res) => {
+//     offset = toValidInt(req.query.offset);
+//     limit = toValidInt(req.query.limit);
+//     date = req.query.date;
+//     if (!date) {
+//         return res.status(400).json(createError('Richiesta non valida', 400, 
+//             'Devi fornire una data nel corpo della richiesta.'));
+//     }   
+//     try {
+//         const sites = await service.getActiveSites(offset, limit, date);    
+//         res.status(200).json(activeSites);
+//     } catch (error) {
+//         res.status(error.code).json(error);
+//     }
+// });
 module.exports = router;
