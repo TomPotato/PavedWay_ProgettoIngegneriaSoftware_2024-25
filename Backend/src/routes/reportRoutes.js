@@ -22,13 +22,23 @@ router.get('/:id', async (req, res) => {
 
     try {
         const report = await service.getReportById(id);
-        if (!report) {
-            return res.status(404).json(createError('[GET /reports/:id] Report non trovato', 404, 'Devi fornire un ID valido.'));
-        }
         res.status(200).json(report);
     } catch (error) {
         res.status(error.code).json(error);
+    }
+});
 
+router.post('/', tokenChecker, async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 
+            'Devi fornire una segnalazione nel corpo della richiesta.'));
+    }
+
+    try {
+        const site = await service.createReport(req.body);
+        res.status(201).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
     }
 });
 
