@@ -28,6 +28,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
 router.get('/active', async (req, res) => {
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
@@ -39,6 +40,20 @@ router.get('/active', async (req, res) => {
     try {
         const reports = await service.getActiveReports(offset, limit, date);
         res.status(200).json(reports);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
+router.post('/', tokenChecker, async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 
+            'Devi fornire una segnalazione nel corpo della richiesta.'));
+    }
+
+    try {
+        const site = await service.createReport(req.body);
+        res.status(201).json(site);
     } catch (error) {
         res.status(error.code).json(error);
     }
