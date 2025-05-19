@@ -133,8 +133,9 @@ class SiteService {
             const site = await Site.findByIdAndDelete(id);
             if (!site) {
                 throw createError('Eliminazione fallita', 404, 'Nessun cantiere trovato con l\'ID fornito.');
+            }else{
+                return site;
             }
-            return site;
         } catch (error) {
             if (error.code) {
                 throw error;
