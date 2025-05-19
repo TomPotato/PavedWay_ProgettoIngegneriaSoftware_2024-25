@@ -67,12 +67,14 @@ class SiteService {
             }
 
             const sites = await query.exec();
-            return new Date(date);
+            return sites;
         } catch (error) {
             const message = 'Errore interno del server durante la ricerca.';
             throw createError('Errore interno del server', 500, message);
         }
     }
 }
+
+// realDuration.start && realDuration.end
 
 module.exports = new SiteService();
