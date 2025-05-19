@@ -6,7 +6,8 @@ info:
   version: 1.0.0
 
 servers:
-  - url: TODO
+  - url: http://localhost:3000/api/v1
+    description: Server locale per lo sviluppo e il test.
 
 tags:
   - name: Autenticazione
@@ -210,8 +211,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
-        "400":
-          description: Richiesta non valida.
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Elimina una segnalazione specifica.
+      description: >-
+        Elimina una segnalazione specifica in base all'ID fornito. 
+        Devi essere autenticato per eliminare una segnalazione.
+        Se sei autenticato come amministratore, puoi eliminare qualsiasi segnalazione.
+        Se sei autenticato come cittadino, puoi eliminare solo le segnalazioni che hai creato.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da eliminare.
+      responses:
+        "204":
+          description: Segnalazione eliminata con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: >-
+            Accesso negato. 
+            Devi essere un amministratore per eliminare una segnalazione qualsiasi o
+            un cittadino per eliminare solo le segnalazioni che hai creato.
           content:
             application/json:
               schema:
@@ -368,10 +409,10 @@ paths:
                 $ref: "#/components/schemas/Error"
                 
     delete:
-      summary: Elimina un cantiere in base all'ID
+      summary: Elimina una cantiere specifico.
       description: >-
-        Elimina un cantiere esistente in base all'ID fornito.
-        Per eliminare un cantiere è necessario essere autenticati come amministratore.
+        Elimina un cantiere specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare una cantiere.
       security:
         - ApiKeyAuth: []
       parameters:
@@ -382,7 +423,7 @@ paths:
             type: string
           description: ID del cantiere da eliminare
       responses:
-        "200":
+        "204":
           description: Cantiere eliminato con successo.
           content:
             application/json:
@@ -404,13 +445,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "403":  
+        "403":
           description: Accesso negato. Devi essere un amministratore per eliminare un cantiere.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "404":  
+        "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
           content:
             application/json:
