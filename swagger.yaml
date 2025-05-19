@@ -366,6 +366,62 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+                
+    delete:
+      summary: Elimina un cantiere in base all'ID
+      description: >-
+        Elimina un cantiere esistente in base all'ID fornito.
+        Per eliminare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere da eliminare
+      responses:
+        "200":
+          description: Cantiere eliminato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Messaggio di conferma dell'eliminazione.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":  
+          description: Accesso negato. Devi essere un amministratore per eliminare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":  
+          description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:
