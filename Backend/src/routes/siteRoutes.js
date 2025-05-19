@@ -45,12 +45,9 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
     try {
         const site = await service.updateSite(req.body, req.params.id);
-        res.status(204).json(site);
+        res.status(200).json(site);
     } catch (error) {
-        if (error.code === 400) {
-            return res.status(400).json(error);
-        }
-        res.status(500).json(error);
+        res.status(error.code).json(error);
     }
 });
 

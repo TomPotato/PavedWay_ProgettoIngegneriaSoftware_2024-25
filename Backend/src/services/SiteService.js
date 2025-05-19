@@ -63,8 +63,7 @@ class SiteService {
             }
 
         } catch (error){
-            console.error('Errore durante la modifica:', error);
-            throw new Error(error);
+            throw createError('Errore interno del server', 500, 'Errore interno del server avvenuto durante la modifica.');
         }
     }
   

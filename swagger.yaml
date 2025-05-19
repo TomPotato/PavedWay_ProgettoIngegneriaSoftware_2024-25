@@ -330,7 +330,7 @@ paths:
                 realDuration:
                   $ref: "#/components/schemas/Duration"
       responses:
-        "204":
+        "200":
           description: Cantiere modificato con successo.
           content:
             application/json:
