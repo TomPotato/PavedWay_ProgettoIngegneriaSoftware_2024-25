@@ -75,12 +75,51 @@ class SiteService {
         }
     }
     /**
+     * Modifica un cantiere
+     *
+     * @async
+     * @param {JSON} updateData - documento contenente le informazioni da modificare
+     * @param {int} siteId - Id del cantiere che si vuole modificare
+     * @returns {Promise<{site: query}>} Oggetto che restituisce il messaggio di update del cantiere
+     * @throws {Error} Se si verifica un errore durante la modifica di un cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Legge l'id inserito dall'admin
+     * 2. Legge i dati inseriti dall'admin
+     * 2. Controlla che il cantiere esista
+     * 3. Se non esite manda un messaggio di errore
+     * 4. Se esiste controlla che i dati siano quelli richiesti
+     * 5. Se i dati sono quelli richiesti modifica il cantiere e restituisce il cantiere modificato
+     * */
+    async updateSite(updateData,siteId){
+        try {
+
+            const siteExists = await Site.findById(siteId);
+
+            if(!siteExists) {
+                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+            }else{
+                const updatedSite = await Site.findByIdAndUpdate(siteId, updateData, {
+                overwrite: true,
+                new: true,
+                runValidators: true
+                });
+
+                return updatedSite;
+            }
+
+        } catch (error){
+            throw createError('Errore interno del server', 500, 'Errore interno del server avvenuto durante la modifica.');
+        }
+    }
+    /**
      * Elimina un cantiere
      *
      * @async
      * @param {int} id - Id del cantiere che si vuole eliminare
      * @returns {Promise<{site: Document}>} Oggetto che restituisce il messaggio di eliminazione del cantiere
-     * @throws {Error} Se si verifica un errore durante la creazione della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * @throws {Error} Se si verifica un errore durante l'eliminazione di un cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
      * 
      * @description
      * Questa funzione esegue i seguenti passaggi:
@@ -94,8 +133,9 @@ class SiteService {
             const site = await Site.findByIdAndDelete(id);
             if (!site) {
                 throw createError('Eliminazione fallita', 404, 'Nessun cantiere trovato con l\'ID fornito.');
+            }else{
+                return site;
             }
-            return site;
         } catch (error) {
             if (error.code) {
                 throw error;
