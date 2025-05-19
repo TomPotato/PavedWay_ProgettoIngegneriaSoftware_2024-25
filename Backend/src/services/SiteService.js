@@ -44,6 +44,35 @@ class SiteService {
             }
         }
     }
+
+    async getActiveSites(offset, limit, date) {
+        try {
+            if(realDuration.start && realDuration.end) {
+                let query = Site.find({'realDuration.start': { $lte: new Date(date) } , 
+                                        'realDuration.end': { $gte: new Date(date) }});
+            } else {
+                let query = Site.find({'duration.start': { $lte: new Date(date) } , 
+                                        'duration.end': { $gte: new Date(date) }});
+            }
+            if (!query) {
+                throw createError('Cantieri non trovati', 404, 'Nessun cantiere trovato con questa data.');
+            }
+
+            if (offset && offset > 0) {
+                query = query.skip(offset);
+            }
+
+            if (limit && limit > 0) {
+                query = query.limit(limit);
+            }
+
+            const sites = await query.exec();
+            return sites;
+        } catch (error) {
+            const message = 'Errore interno del server durante la ricerca.';
+            throw createError('Errore interno del server', 500, message);
+        }
+    }
 }
 
 module.exports = new SiteService();

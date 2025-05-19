@@ -309,7 +309,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Nessun cantiere trovato per la data fornita.
+          description: Cantieri non trovati.
           content:
             application/json:
               schema:
