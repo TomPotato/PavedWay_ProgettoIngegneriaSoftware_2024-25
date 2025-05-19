@@ -195,7 +195,7 @@ paths:
 
   /reports/{id}:
     get:
-      summary: Restituisce una segnalazione specifica.
+      summary: Restituisce una segnalazione specifica
       description: Restituisce una segnalazione specifica in base all'ID fornito.
       parameters:
         - in: path
@@ -348,6 +348,66 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /sites/{id}:
+    patch:
+      summary: Modifica di un cantiere
+      description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  description: Descrizione dell'evento.
+                duration:
+                  $ref: "#/components/schemas/Duration"
+                companyName:
+                  type: string
+                  description: Nome dell'impresa edile che sta lavorando sul cantiere.
+                realDuration:
+                  $ref: "#/components/schemas/Duration"
+      responses:
+        "200":
+          description: Cantiere modificato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
     delete:
       summary: Elimina una cantiere specifico.
       description: >-
