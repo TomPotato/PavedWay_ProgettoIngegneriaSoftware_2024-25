@@ -586,8 +586,6 @@ components:
           items:
             $ref: "#/components/schemas/Comment"
           description: Lista dei commenti associati all'evento.
-        discriminator:
-          propertyName: eventType
 
     Report:
       allOf:
