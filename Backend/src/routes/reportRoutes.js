@@ -4,6 +4,7 @@ const router = express.Router();
 const service = require('../services/ReportService');
 
 const toValidInt = require('../utils/toValidInt');
+const tokenChecker = require('../utils/tokenChecker');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
@@ -37,6 +38,19 @@ router.post('/', tokenChecker, async (req, res) => {
     try {
         const site = await service.createReport(req.body);
         res.status(201).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
+router.delete('/:id', tokenChecker, async (req, res) => {
+    const id = req.params.id;
+
+    if (req.user.role === 'user') {}
+
+    try {
+        const report = await service.deleteReport(id);
+        res.status(200).json(report);
     } catch (error) {
         res.status(error.code).json(error);
     }

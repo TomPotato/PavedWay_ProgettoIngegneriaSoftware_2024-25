@@ -210,8 +210,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
-        "400":
-          description: Richiesta non valida.
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Elimina una segnalazione specifica.
+      description: >-
+        Elimina una segnalazione specifica in base all'ID fornito. 
+        Devi essere autenticato per poter eliminare una segnalazione.
+        Se sei autenticato come amministratore, puoi eliminare qualsiasi segnalazione.
+        Se sei autenticato come cittadino, puoi eliminare solo le segnalazioni che hai creato.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da eliminare.
+      responses:
+        "204":
+          description: Segnalazione eliminata con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: >-
+            Accesso negato. 
+            Devi essere un amministratore per eliminare una segnalazione qualsiasi o
+            un cittadino per eliminare solo le segnalazioni che hai creato.
           content:
             application/json:
               schema:
