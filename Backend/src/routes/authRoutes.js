@@ -43,8 +43,8 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        const token = await service.register(req.body.username, req.body.name, req.body.surname, req.body.email, req.body.password);
-        res.status(201).json({ token });
+        const result = await service.register(req.body.username, req.body.name, req.body.surname, req.body.email, req.body.password);
+        res.status(201).json({ result });
     } catch (error) {
         res.status(error.code).json(error);
     }
@@ -61,8 +61,8 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        const token = await service.login(req.body.username, req.body.password);
-        res.status(200).json({ token });
+        const result = await service.login(req.body.username, req.body.password);
+        res.status(200).json({ result });
     } catch (error) {
         res.status(error.code).json(error);
     }

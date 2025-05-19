@@ -7,6 +7,28 @@ const { Citizen } = require('../models/Citizen');
 const createError = require('../utils/createError');
 
 class AuthService {
+    /**
+     * Registra un nuovo utente cittadino (Citizen) con le credenziali fornite.
+     *
+     * @async
+     * @param {string} username - Il nome utente desiderato per il nuovo utente.
+     * @param {string} name - Il nome dell'utente.
+     * @param {string} surname - Il cognome dell'utente.
+     * @param {string} email - L'email dell'utente.
+     * @param {string} password - La password dell'utente.
+     * @returns {Promise<{ token: string, user: { username: string, name: string, surname: string, role: string } }>} Un oggetto contenente il token JWT e i dati dell'utente (username, name, surname, role).
+     * @throws {Error} Se si verifica un errore durante la registrazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se il nome utente è già in uso. Se sì, solleva un errore 409 (Conflict).
+     * 2. Controlla se l'email è già in uso. Se sì, solleva un errore 409 (Conflict).
+     * 3. Crea un nuovo utente cittadino (Citizen) con le credenziali fornite.
+     * 4. Hash della password utilizzando bcrypt.
+     * 5. Salva il nuovo utente nel database.
+     * 6. Genera un token JWT per l'utente appena registrato.
+     * 7. Restituisce il token e i dati dell'utente.
+     */
     async register(username, name, surname, email, password) {
         try {
             const existingUsername = await User.find({ username });
@@ -33,7 +55,15 @@ class AuthService {
                 expiresIn: '24h',
             });
 
-            return token;
+            return {
+                token,
+                user: {
+                    username: newCitizen.username,
+                    name: newCitizen.name,
+                    surname: newCitizen.surname,
+                    role: newCitizen.__t,
+                },
+            };
         } catch (error) {
             if (error.code) {
                 throw error;
@@ -44,6 +74,24 @@ class AuthService {
         }
     }
 
+    /**
+     * Autentica un utente con il nome utente e la password forniti.
+     * Se l'autenticazione ha successo, restituisce un token JWT e i dati dell'utente.
+     * Solleva un errore se l'autenticazione fallisce o se si verifica un errore interno del server.
+     *
+     * @async
+     * @param {string} username - Il nome utente dell'utente che tenta di accedere.
+     * @param {string} password - La password in chiaro dell'utente.
+     * @returns {Promise<{ token: string, user: { username: string, name: string, surname: string, role: string } }>} Un oggetto contenente il token JWT e i dati dell'utente.
+     * @throws {Error} Solleva un errore se l'autenticazione fallisce o se si verifica un errore interno del server.
+     *
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Cerca un utente con il nome utente fornito. Se non esiste, solleva un errore 401 (Unauthorized).
+     * 2. Confronta la password fornita con quella salvata (hash) usando bcrypt. Se non corrisponde, solleva un errore 401.
+     * 3. Genera un token JWT per l'utente autenticato.
+     * 4. Restituisce il token e i dati dell'utente.
+     */
     async login(username, password) {
         try {
             const user = await User.findOne({ username });
@@ -59,7 +107,15 @@ class AuthService {
                 expiresIn: '24h',
             });
 
-            return token;
+            return {
+                token,
+                user: {
+                    username: user.username,
+                    name: user.name,
+                    surname: user.surname,
+                    role: user.__t,
+                },
+            };
         } catch (error) {
             if (error.code) {
                 throw error;
