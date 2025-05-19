@@ -43,13 +43,9 @@ router.put('/:id', tokenChecker, async (req, res) => {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
 
-    if (req.user.role !== 'admin') {
-        return res.status(403).json(createError('Non autorizzato', 403, 'Devi essere un amministratore per modificare un cantiere.'));
-    }
-
     try {
         const site = await service.updateSite(req.body, req.params.id);
-        res.status(201).json(site);
+        res.status(204).json(site);
     } catch (error) {
         if (error.code === 400) {
             return res.status(400).json(error);

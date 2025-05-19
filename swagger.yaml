@@ -248,30 +248,23 @@ paths:
       requestBody:
         required: true
         content:
-          modifyedSite:
+          application/json:
             schema:
-              info:
-                type: string
-                description: Descrizione dell'evento.
-              location:
-                $ref: "#/components/schemas/Location"
-                description: Posizione dell'evento.
-              duration:
-                $ref: "#/components/schemas/Duration"
-                description: Durata dell'evento.
-              companyName:
-                type: string
-                description: Nome dell'impresa edile che sta lavorando sul cantiere.
-              realDuration:
-                type: Duration
-                description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+              type: object
+              properties:
+                info:
+                  type: string
+                  description: Descrizione dell'evento.
+                location:
+                  $ref: "#/components/schemas/Location"
+                duration:
+                  $ref: "#/components/schemas/Duration"
+                companyName:
+                  type: string
+                  description: Nome dell'impresa edile che sta lavorando sul cantiere.
+                realDuration:
+                  $ref: "#/components/schemas/Duration"
       responses:
-        "201":
-          description: Cantiere creato da risorsa non esistente.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Site"
         "204":
           description: Cantiere modificato con successo.
           content:
@@ -280,6 +273,12 @@ paths:
                 $ref: "#/components/schemas/Site"
         "400":
           description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
           content:
             application/json:
               schema:
@@ -353,7 +352,7 @@ components:
           required:
             - email
           properties:
-            required: 
+            required:
             email:
               type: string
               format: email
