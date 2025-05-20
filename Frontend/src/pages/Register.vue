@@ -52,14 +52,6 @@
         </p>
     </div>
     <div class="toast">
-        <div v-if="successMessage" role="alert" class="alert alert-success">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ successMessage }}</span>
-        </div>
         <div v-if="errorMessage" role="alert" class="alert alert-error">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
                 viewBox="0 0 24 24">
@@ -86,7 +78,6 @@ const surname = ref('');
 const password = ref('');
 const passwordVerify = ref('');
 const errorMessage = ref(null);
-const successMessage = ref(null);
 
 const validateUsername = computed(() => {
     return !username.value ? true : validator.validateUsername(username.value);
@@ -134,12 +125,13 @@ const router = useRouter();
 
 const register = async () => {
     errorMessage.value = null;
-    successMessage.value = null;
-
     await store.register(username.value, name.value, surname.value, email.value, password.value);
 
     if (store.isAuthenticated) {
-        successMessage.value = 'Registrazione effettuata con successo!';
+        const redirectPath = store.originalPath || '/';
+        store.clearRedirect();
+        store.setMessage('Registrazione effettuata con successo!');
+        router.push({ path: redirectPath });
     } else {
         errorMessage.value = store.error;
     }

@@ -1,4 +1,5 @@
 <template>
+  <RedirectMessage />
   <h1>Example Reports</h1>
   <p>Click the button to fetch data with an HTTP request.</p>
   <p>Each click generates an object with a random user from the API.</p>
@@ -9,18 +10,20 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        data: null,
-      };
-    },
-    methods: {
-      async getReports() {      
-        const response = await fetch(`${VUE_APP_API_URL}/reports`);
-        this.data = await response.json();
-        console.log(this.data);
-      }   
+import RedirectMessage from '@/components/RedirectMessage.vue';
+
+export default {
+  data() {
+    return {
+      data: null,
+    };
+  },
+  methods: {
+    async getReports() {
+      const response = await fetch(`${VUE_APP_API_URL}/reports`);
+      this.data = await response.json();
+      console.log(this.data);
     }
-  };
+  }
+};
 </script>

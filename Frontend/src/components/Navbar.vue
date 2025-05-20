@@ -54,7 +54,4 @@ import { useAuthStore } from '@/stores/authStores';
 const store = useAuthStore();
 
 defineOptions({ name: 'Navbar' });
-
-
-
 </script>

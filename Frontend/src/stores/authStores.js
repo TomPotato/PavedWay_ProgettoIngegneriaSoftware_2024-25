@@ -7,6 +7,9 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
     const error = ref(null);
 
+    const originalPath = ref(null);
+    const message = ref(null);
+
     const isAuthenticated = computed(() => token.value !== null);
 
     const login = async (username, password) => {
@@ -35,12 +38,34 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    const setRedirect = (path) => {
+        originalPath.value = path;
+    };
+
+    const clearRedirect = () => {
+        originalPath.value = null;
+    };
+
+    const setMessage = (msg) => {
+        message.value = msg;
+    };
+
+    const clearMessage = () => {
+        message.value = null;
+    };
+
     return {
         token,
         user,
         error,
         isAuthenticated,
+        originalPath,
+        message,
         login,
         register,
+        setRedirect,
+        clearRedirect,
+        setMessage,
+        clearMessage,
     };
 });
