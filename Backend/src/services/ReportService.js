@@ -229,6 +229,44 @@ class ReportService {
             throw createError('Errore interno del server', 500, message);
         }
     }
+    /**
+     * Recupera le segnalazioni dal database.
+     *  
+     * @async
+     * @param {string} reportId - Id della segnalazione che si vuole andare a modificare.
+     * @param {object} reportData - Informazioni che si vogliono modificare nella segnalazione.
+     * @returns {Promise<Array<approvedReport>>} Codice se é andata a buon fine la modifica.
+     * @throws {Error} Se si verifica un errore durante la modifica di una segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla che la segnalaizone che si vuole modificare esista nel database
+     * 2. Se esiste la modifica
+     * 3. Ritorna null per segnalare che la modifica é andata a buon fine
+     */
+    async updateReport(reportId, reportData){
+        try {
+            const reportExists = await Report.findById(reportId);
+
+            if (!reportExists) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            } else {
+                const approvedReport = await Report.findByIdAndUpdate(reportId, reportData, {
+                    new: true,
+                    runValidators: true
+                });
+
+                return approvedReport;
+            }
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la ricerca.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new ReportService();
