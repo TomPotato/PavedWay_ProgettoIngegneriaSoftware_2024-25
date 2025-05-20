@@ -167,22 +167,34 @@ class SiteService {
      */
     async getActiveSites(date, offset, limit) {
         try {
-
-            let query =  Site.find( {$or: [ 
-                    {'realDuration.start': { $lte: date }, 'realDuration.end': { $gte: date }},
-                    { 'realDuration': { $exists: false }},
+            
+            let query = Site.find({
+              $or: [
+                {
+                  $and: [
+                    { 'realDuration.start': { $lte: date } },
                     {
-                        $and:[
-                                {'duration.start': { $lte: date },
-                                     { $or: [
-                                         {'duration.end': { $gte: date }},
-                                         {'duration.end': {$exists: false}}
-                                     ]}
-                                }
-                            ]
-                        }
-                    ]
-                });
+                      $or: [
+                        { 'realDuration.end': { $gte: date } },
+                        { 'realDuration.end': { $exists: false } }
+                      ]
+                    }
+                  ]
+                },
+                { 'realDuration': { $exists: false } },
+                {
+                  $and: [
+                    { 'duration.start': { $lte: date } },
+                    {
+                      $or: [
+                        { 'duration.end': { $gte: date } },
+                        { 'duration.end': { $exists: false } }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            });
 
             if (offset && offset > 0) {
                 query = query.skip(offset);
