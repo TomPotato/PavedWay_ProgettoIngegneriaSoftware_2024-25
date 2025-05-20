@@ -21,7 +21,9 @@ class Validator {
 
     validateDate(date) {
         const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
-        return dateRegex.test(date);
+        const dateRegex2 = /^\d{4}-\d{2}-\d{2}/;
+
+        return dateRegex.test(date) || dateRegex2.test(date);
     }
 }
 
