@@ -379,7 +379,7 @@ paths:
           name: offset
           schema:
             type: integer
-          description: Numero di canteiri da saltare prima di restituire i risultati.
+          description: Numero di cantieri da saltare prima di restituire i risultati.
         - in: query
           name: limit
           schema:
