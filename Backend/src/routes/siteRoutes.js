@@ -6,6 +6,7 @@ const service = require('../services/SiteService');
 const createError = require('../utils/createError');
 const toValidInt = require('../utils/toValidInt');
 const tokenChecker = require('../utils/tokenChecker');
+const validator = require('../utils/Validator');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
@@ -27,20 +28,16 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
-    if(date) {
-        try {
-            const sites = await service.getActiveSites(offset, limit, date);    
-            res.status(200).json(sites);
-        } catch (error) {
-            res.status(error.code).json(error);
-        }
-    }else {
-        try {
+    try {
+        if (date) {
+            const sites = await service.getActiveSites(offset, limit, date);
+            return res.status(200).json(sites);
+        } else {
             const sites = await service.getSites(offset, limit);
-            res.status(200).json(sites);
-        } catch (error) {
-            res.status(error.code).json(error);
+            return res.status(200).json(sites);
         }
+    } catch (error) {
+        res.status(error.code).json(error);
     }
 });
 

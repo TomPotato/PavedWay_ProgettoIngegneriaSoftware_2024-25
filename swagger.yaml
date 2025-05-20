@@ -352,25 +352,36 @@ paths:
     get:
       tags:
         - Cantieri
-      summary: Restituisce la lista dei cantieri esistenti
-      description: Restituisce la lista dei cantieri esistenti.
+      summary: Restituisce la lista dei cantieri
+      description: Restituisce la lista dei cantieri.
       parameters:
         - in: query
-          name: offset
+          name: now
           schema:
-            type: integer
-          description: Numero di cantieri da saltare prima di restituire i risultati.
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Numero massimo di cantieri da restituire.
+            type: boolean
+          description: >-
+            Se fornito, filtra i cantieri in corso nell'ora attuale.
+            Il filtro è applicato se il parametro è "true".
+            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
+            Se il parametro è "true", non può essere usato insieme a "date".
         - in: query
           name: date
           schema:
             type: string
             format: date-time
-          description: Data e ora in cui verificare i cantieri attivi.  
+          description: >-
+            Se fornito, filtra i cantieri in corso nella data fornita.
+            Non può essere usato insieme a "now".
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di canteiri da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di cantieri da restituire.
       responses:
         "200":
           description: OK
@@ -382,12 +393,6 @@ paths:
                   $ref: "#/components/schemas/Site"
         "400":
           description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Cantieri non trovati.
           content:
             application/json:
               schema:

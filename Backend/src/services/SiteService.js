@@ -168,11 +168,6 @@ class SiteService {
             }
 
             const sites = await query.exec();
-            
-            if (sites.length === 0) {
-                const message = 'Nessun cantiere trovato con questa data.';
-                throw createError('Cantieri non trovati', 404, message);
-            }
 
             return sites;
         } catch (error) {
