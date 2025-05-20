@@ -253,26 +253,6 @@ paths:
       description: Restituisce la lista delle segnalazioni.
       parameters:
         - in: query
-          name: now
-          schema:
-            type: boolean
-          description: >-
-            Se fornito, filtra le segnalazioni in corso nell'ora attuale.
-            Il filtro è applicato se il parametro è "true".
-            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
-            Se il parametro è "true", non può essere usato insieme a "date".
-        - in: query
-          name: date
-          schema:
-            oneOf:
-              - type: string
-                format: date
-              - type: string
-                format: date-time
-          description: >-
-            Se fornito, filtra le segnalazioni in corso nella data fornita.
-            Non può essere usato insieme a "now".
-        - in: query
           name: offset
           schema:
             type: integer
@@ -291,12 +271,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "500":
           description: Errore interno del server.
           content:
@@ -486,29 +460,9 @@ paths:
     get:
       tags:
         - Cantieri
-      summary: Restituisce la lista dei cantieri
-      description: Restituisce la lista dei cantieri.
+      summary: Restituisce la lista dei cantieri esistenti
+      description: Restituisce la lista dei cantieri esistenti.
       parameters:
-        - in: query
-          name: now
-          schema:
-            type: boolean
-          description: >-
-            Se fornito, filtra i cantieri in corso nell'ora attuale.
-            Il filtro è applicato se il parametro è "true".
-            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
-            Se il parametro è "true", non può essere usato insieme a "date".
-        - in: query
-          name: date
-          schema:
-            oneOf:
-              - type: string
-                format: date
-              - type: string
-                format: date-time
-          description: >-
-            Se fornito, filtra i cantieri in corso nella data fornita.
-            Non può essere usato insieme a "now".
         - in: query
           name: offset
           schema:
@@ -528,12 +482,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Site"
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "500":
           description: Errore interno del server.
           content:

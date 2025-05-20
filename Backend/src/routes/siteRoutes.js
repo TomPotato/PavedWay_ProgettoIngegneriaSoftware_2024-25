@@ -6,36 +6,14 @@ const service = require('../services/SiteService');
 const createError = require('../utils/createError');
 const tokenChecker = require('../utils/tokenChecker');
 const toValidInt = require('../utils/toValidInt');
-const validator = require('../utils/Validator');
 
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 
-    if (req.query.now === 'true' && req.query.date) {
-        return res.status(400).json(createError('Richiesta non valida', 400,
-            'Devi fornire solo una data o il parametro "now" con valore "true".'));
-    }
-
-    let date = null;
-    if (req.query.date) {
-        if (!validator.validateDate(req.query.date)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'Devi fornire una data valida in formato ISO 8601.'));
-        }
-        date = req.query.date;
-    } else if (req.query.now === 'true') {
-        date = new Date().toISOString();
-    }
-
     try {
-        if (date) {
-            const sites = await service.getActiveSites(date, offset, limit);
-            return res.status(200).json(sites);
-        } else {
-            const sites = await service.getSites(offset, limit);
-            return res.status(200).json(sites);
-        }
+        const sites = await service.getSites(offset, limit);
+        res.status(200).json(sites);
     } catch (error) {
         res.status(error.code).json(error);
     }
