@@ -117,7 +117,7 @@ paths:
                   user:
                     allOf:
                       - $ref: "#/components/schemas/UserInfo"
-                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome e ruolo.
+                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome, ruolo e email o ufficio.
         "400":
           description: Richiesta non valida.
           content:
@@ -126,6 +126,69 @@ paths:
                 $ref: "#/components/schemas/Error"
         "401":
           description: Credenziali non valide.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users:
+    post:
+      tags:
+        - Utenti
+      summary: Crea un nuovo utente
+      description: >-
+        Permette l'aggiunta manuale di un nuovo utente senza la registrazione.
+        Solo un amministratore può creare un nuovo utente tramite questa API. 
+        L'amministratore deve fornire nome utente, nome, cognome, password, ruolo 
+        e email o ufficio in base al tipo di utente (rispettivamente cittadino o amministratore).
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/Citizen"
+                - $ref: "#/components/schemas/Admin"
+      responses:
+        "201":
+          description: Utente creato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/UserInfo"
+                    description: Informazioni sull'utente creato. Include nome utente, nome, cognome, ruolo e email o ufficio.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Nome utente o email già in uso.
           content:
             application/json:
               schema:
@@ -382,7 +445,7 @@ paths:
           name: offset
           schema:
             type: integer
-          description: Numero di canteiri da saltare prima di restituire i risultati.
+          description: Numero di cantieri da saltare prima di restituire i risultati.
         - in: query
           name: limit
           schema:

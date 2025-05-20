@@ -17,6 +17,7 @@ citizenSchema.set('toJSON', {
         ret.id = ret._id;
         ret.role = ret.__t;
         delete ret._id;
+        delete ret.__t;
         delete ret.__v;
         return ret;
     },
