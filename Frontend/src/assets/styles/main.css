@@ -7,8 +7,46 @@
 
 @theme {
     --font-lexend: 'Lexend', sans-serif;
-    --color-primary: var(--color-primary);
-    --color-secondary: var(--color-secondary);
-    --color-font: var(--color-font);
-    --color-bg: var(--color-bg);
+    --color-link: var(--color-secondary);
+}
+
+
+@plugin "daisyui/theme" {
+    name: "pavedway-light";
+    default: false;
+    prefersdark: false;
+    color-scheme: "light";
+    --color-base-100: oklch(0.9357 0.008 73.74);
+    --color-base-200: oklch(0.9057 0.018 73.74);
+    --color-base-300: oklch(0.8757 0.028 73.74);
+    --color-base-content: oklch(0.3191 0.0244 231.76);
+    --color-primary: oklch(0.737 0.1593 60.02);
+    --color-primary-content: oklch(0.3191 0.0244 231.76);
+    --color-secondary: oklch(0.3191 0.0244 231.76);
+    --color-secondary-content: oklch(0.9357 0.008 73.74);
+    --color-accent: oklch(0.737 0.1593 60.02);
+    --color-accent-content: oklch(0.3191 0.0244 231.76);
+    --color-neutral: oklch(0.3191 0.0244 231.76);
+    --color-neutral-content: oklch(0.9357 0.008 73.74);
+    --color-info: oklch(71% 0.143 215.221);
+    --color-info-content: oklch(98% 0.019 200.873);
+    --color-success: oklch(72% 0.219 149.579);
+    --color-success-content: oklch(98% 0.018 155.826);
+    --color-warning: oklch(70% 0.213 47.604);
+    --color-warning-content: oklch(98% 0.016 73.684);
+    --color-error: oklch(64% 0.246 16.439);
+    --color-error-content: oklch(96% 0.015 12.422);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.5rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 1;
+    --noise: 1;
+}
+
+#app {
+    min-height: 100vh;
+    height: auto;
 }

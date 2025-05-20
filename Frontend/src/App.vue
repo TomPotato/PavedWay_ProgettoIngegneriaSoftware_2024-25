@@ -1,5 +1,5 @@
 <template>
-	<div id="app" class="font-lexend">
+	<div id="app" class="font-lexend" data-theme="pavedway-light">
 		<Navbar />
 		<main>
 			<router-view />

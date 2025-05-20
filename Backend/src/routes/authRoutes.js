@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
 
     if (!validator.validateUsername(req.body.username)) {
         return res.status(400).json(createError('Richiesta non valida', 400,
-            'Lo username deve contenere solo lettere, numeri o underscore, e avere una lunghezza tra 3 e 20 caratteri.'));
+            'Il nome utente deve contenere solo lettere, numeri o trattini bassi, e avere una lunghezza tra 3 e 20 caratteri.'));
     }
 
     if (!validator.validateName(req.body.name)) {

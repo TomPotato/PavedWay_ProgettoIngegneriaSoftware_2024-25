@@ -20,4 +20,4 @@ class Validator {
     }
 }
 
-module.exports = new Validator();
+export default new Validator();

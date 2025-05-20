@@ -7,27 +7,47 @@ class Api {
         });
     }
 
-    get(path, params = {}, config = {}) {
-        return this.api.get(path, {
-            params,
-            ...config,
-        });
+    async get(path, params = {}, config = {}) {
+        try {
+            return await this.api.get(path, {
+                params,
+                ...config,
+            });
+        } catch (error) {
+            throw error.response;
+        }
     }
 
-    post(path, body = {}, config = {}) {
-        return this.api.post(path, body, config);
+    async post(path, body = {}, config = {}) {
+        try {
+            return await this.api.post(path, body, config);
+        } catch (error) {
+            throw error.response;
+        }
     }
 
-    put(path, body = {}, config = {}) {
-        return this.api.put(path, body, config);
+    async put(path, body = {}, config = {}) {
+        try {
+            return await this.api.put(path, body, config);
+        } catch (error) {
+            throw error.response;
+        }
     }
 
-    patch(path, body = {}, config = {}) {
-        return this.api.patch(path, body, config);
+    async patch(path, body = {}, config = {}) {
+        try {
+            return await this.api.patch(path, body, config);
+        } catch (error) {
+            throw error.response;
+        }
     }
 
-    delete(path, config = {}) {
-        return this.api.delete(path, config);
+    async delete(path, config = {}) {
+        try {
+            return await this.api.delete(path, config);
+        } catch (error) {
+            throw error.response;
+        }
     }
 }
 
