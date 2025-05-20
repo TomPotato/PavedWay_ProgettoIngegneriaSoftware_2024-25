@@ -10,7 +10,22 @@ const tokenChecker = require('../utils/tokenChecker');
 router.get('/', async (req, res) => {
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
-    date = req.query.date;
+
+    if (req.query.now === 'true' && req.query.date) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire solo una data o il parametro "now" con valore "true".'));
+    }
+
+    let date = null;
+    if (req.query.date) {
+        if (!validator.validateDate(req.query.date)) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire una data valida in formato ISO 8601.'));
+        }
+        date = req.query.date;
+    } else if (req.query.now === 'true') {
+        date = new Date().toISOString();
+    }
 
     if(date) {
         try {

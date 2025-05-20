@@ -63,11 +63,6 @@ class SiteService {
                 query = query.limit(limit);
             }
 
-            if (!query) {
-                const message = 'Nessun cantiere trovato con questa data.';
-                throw createError('Cantieri non trovati', 404, message);
-            }
-
             const sites = await query.exec();
             
             if (sites.length === 0) {
