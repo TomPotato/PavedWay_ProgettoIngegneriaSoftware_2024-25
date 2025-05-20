@@ -229,6 +229,46 @@ class ReportService {
             throw createError('Errore interno del server', 500, message);
         }
     }
+    /**
+     * Recupera le segnalazioni dal database.
+     *  
+     * @async
+     * @param {string} date - La data in cui vogliamo vedere quali segnalazioni sono attive
+     * @param {number} offset - Il numero di segnalazioni da saltare.
+     * @param {number} limit - Il numero massimo di segnalazioni da recuperare.
+     * @returns {Promise<Array<Report>>} Un array di segnalazioni.
+     * @throws {Error} Se si verifica un errore durante la ricerca delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Crea una query per recuperare tutte le segnalazioni che sono iniziate prima della data inserita e che terminano dopo, oppure tute quelle senza terminazione che sono ancora attive.
+     * 2. Se è fornito un offset e un limite, applica questi parametri alla query.
+     * 3. Esegue la query e restituisce le segnalazioni recuperate.
+     * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+     */
+    async updateReport(reportId, reportData){
+        try {
+            const reportExists = await Report.findById(reportId);
+
+            if (!reportExists) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            } else {
+                const approvedReport = await Report.findByIdAndUpdate(reportId, reportData, {
+                    new: true,
+                    runValidators: true
+                });
+
+                return approvedReport;
+            }
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la ricerca.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new ReportService();
