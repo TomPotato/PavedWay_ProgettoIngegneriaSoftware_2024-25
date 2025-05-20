@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     try {
         if (date) {
-            const reports = await service.getReportsByDate(date, offset, limit);
+            const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
         } else {
             const reports = await service.getReports(offset, limit);

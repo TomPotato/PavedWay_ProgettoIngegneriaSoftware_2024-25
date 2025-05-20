@@ -201,8 +201,11 @@ paths:
         - in: query
           name: date
           schema:
-            type: string
-            format: date-time
+            oneOf:
+              - type: string
+                format: date
+              - type: string
+                format: date-time
           description: >-
             Se fornito, filtra le segnalazioni in corso nella data fornita.
             Non può essere usato insieme a "now".

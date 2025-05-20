@@ -189,12 +189,14 @@ class ReportService {
         }
     }
 
-    async getActiveReports(offset, limit, date) {
+    async getActiveReports(date, offset, limit) {
         try {
-            let query = Report.find({ start: { $lte: new Date(date) } , end: { $gte: new Date(date) } });
-            if (!query) {
-                throw createError('Segnalazioni non trovate', 404, 'Nessuna segnalazione trovata con questa data.');
-            }
+            let query = Report.find({ $or: [{
+                'start': { $lte: date } , 'end': { $gte: date }},
+                {'end':{ $exists: false }},
+                {'start': { $lte: date }} 
+            ]
+        });
 
             if (offset && offset > 0) {
                 query = query.skip(offset);
