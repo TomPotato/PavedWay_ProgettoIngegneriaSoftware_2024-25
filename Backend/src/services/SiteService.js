@@ -16,7 +16,7 @@ class SiteService {
             }
 
             const sites = await query.exec();
-            return 10;
+            return sites;
         } catch (error) {
             const message = 'Errore interno del server durante la lettura dei cantieri.';
             throw createError('Errore interno del server', 500, message);
@@ -47,16 +47,13 @@ class SiteService {
 
     async getActiveSites(offset, limit, date) {
         try {
-            if(realDuration.start && realDuration.end) {
-                let query = Site.find({'realDuration.start': { $lte: new Date(date) } , 
-                                        'realDuration.end': { $gte: new Date(date) }});
-            } else {
-                let query = Site.find({'duration.start': { $lte: new Date(date) } , 
-                                        'duration.end': { $gte: new Date(date) }});
-            }
-            if (!query) {
-                throw createError('Cantieri non trovati', 404, 'Nessun cantiere trovato con questa data.');
-            }
+
+            let query =  Site.find( {$or: [ 
+                    {'realDuration.start': { $lte: date }, 'realDuration.end': { $gte: date }},
+                    { 'realDuration': { $exists: false }},
+                    {'duration.start': { $lte: date }, 'duration.end': { $gte: date }}
+                ]
+            });
 
             if (offset && offset > 0) {
                 query = query.skip(offset);
@@ -66,7 +63,18 @@ class SiteService {
                 query = query.limit(limit);
             }
 
+            if (!query) {
+                const message = 'Nessun cantiere trovato con questa data.';
+                throw createError('Cantieri non trovati', 404, message);
+            }
+
             const sites = await query.exec();
+            
+            if (sites.length === 0) {
+                const message = 'Nessun cantiere trovato con questa data.';
+                throw createError('Cantieri non trovati', 404, message);
+            }
+
             return sites;
         } catch (error) {
             const message = 'Errore interno del server durante la ricerca.';
