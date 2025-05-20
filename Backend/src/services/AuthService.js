@@ -11,13 +11,14 @@ class AuthService {
      * Registra un nuovo utente cittadino (Citizen) con le credenziali fornite.
      *
      * @async
-     * @param {string} username - Il nome utente desiderato per il nuovo utente.
-     * @param {string} name - Il nome dell'utente.
-     * @param {string} surname - Il cognome dell'utente.
-     * @param {string} email - L'email dell'utente.
-     * @param {string} password - La password dell'utente.
-     * @returns {Promise<{ token: string, user: { username: string, name: string, surname: string, role: string } }>} Un oggetto contenente il token JWT e i dati dell'utente (username, name, surname, role).
-     * @throws {Error} Se si verifica un errore durante la registrazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * @param {Object} citizenData - I dati del cittadino da registrare.
+     * @param {string} citizenData.username - Il nome utente desiderato per il nuovo cittadino.
+     * @param {string} citizenData.name - Il nome del cittadino.
+     * @param {string} citizenData.surname - Il cognome del cittadino.
+     * @param {string} citizenData.email - L'email del cittadino.
+     * @param {string} citizenData.password - La password del cittadino.
+     * @returns {Promise<{ token: string, user: { username: string, name: string, surname: string, role: string } }>} Un oggetto contenente il token JWT e i dati del cittadino.
+     * @throws {Error} Solleva un errore se la registrazione fallisce o se si verifica un errore interno del server.
      * 
      * @description
      * Questa funzione esegue i seguenti passaggi:
@@ -29,8 +30,10 @@ class AuthService {
      * 6. Genera un token JWT per l'utente appena registrato.
      * 7. Restituisce il token e i dati dell'utente.
      */
-    async register(username, name, surname, email, password) {
+    async register(citizenData) {
         try {
+            const { username, name, surname, email, password } = citizenData;
+
             const existingUsername = await User.find({ username });
             if (existingUsername.length > 0) {
                 throw createError('Registrazione fallita', 409, 'Nome utente già in uso.');
@@ -107,14 +110,22 @@ class AuthService {
                 expiresIn: '24h',
             });
 
+            const userInfo = {
+                username: user.username,
+                name: user.name,
+                surname: user.surname,
+                role: user.__t,
+            }
+
+            if (user.__t === 'admin') {
+                userInfo.office = user.office;
+            } else {
+                userInfo.email = user.email;
+            }
+
             return {
                 token,
-                user: {
-                    username: user.username,
-                    name: user.name,
-                    surname: user.surname,
-                    role: user.__t,
-                },
+                user: userInfo,
             };
         } catch (error) {
             if (error.code) {

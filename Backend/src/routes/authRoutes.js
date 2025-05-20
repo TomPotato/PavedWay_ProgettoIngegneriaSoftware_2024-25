@@ -9,7 +9,7 @@ const validator = require('../utils/Validator');
 router.post('/register', async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400,
-            'Il corpo della richiesta non può essere vuoto. Devi fornire nome utente e password.'));
+            'Il corpo della richiesta non può essere vuoto. Devi fornire nome utente, nome, cognome, email e password.'));
     }
 
     if (!req.body.username || !req.body.name || !req.body.surname || !req.body.email || !req.body.password) {
@@ -43,8 +43,8 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        const result = await service.register(req.body.username, req.body.name, req.body.surname, req.body.email, req.body.password);
-        res.status(201).json({ result });
+        const result = await service.register(req.body);
+        res.status(201).json(result);
     } catch (error) {
         res.status(error.code).json(error);
     }
@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
 
     try {
         const result = await service.login(req.body.username, req.body.password);
-        res.status(200).json({ result });
+        res.status(200).json(result);
     } catch (error) {
         res.status(error.code).json(error);
     }
