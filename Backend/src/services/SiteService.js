@@ -171,9 +171,18 @@ class SiteService {
             let query =  Site.find( {$or: [ 
                     {'realDuration.start': { $lte: date }, 'realDuration.end': { $gte: date }},
                     { 'realDuration': { $exists: false }},
-                    {'duration.start': { $lte: date }, 'duration.end': { $gte: date }}
-                ]
-            });
+                    {
+                        $and:[
+                                {'duration.start': { $lte: date },
+                                     { $or: [
+                                         {'duration.end': { $gte: date }},
+                                         {'duration.end': {$exists: false}}
+                                     ]}
+                                }
+                            ]
+                        }
+                    ]
+                });
 
             if (offset && offset > 0) {
                 query = query.skip(offset);
