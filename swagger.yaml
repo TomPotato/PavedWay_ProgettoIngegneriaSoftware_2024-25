@@ -276,7 +276,7 @@ paths:
           name: offset
           schema:
             type: integer
-          description: Numero di segnalazioni da saltare prima di restituire i risultati.
+          description: Numero di segnalazioni da saltare prima di restituirle.
         - in: query
           name: limit
           schema:
