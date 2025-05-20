@@ -276,7 +276,7 @@ paths:
           name: offset
           schema:
             type: integer
-          description: Numero di segnalazioni da saltare prima di restituirle.
+          description: Numero di segnalazioni da saltare prima di restituire i risultati.
         - in: query
           name: limit
           schema:
@@ -397,74 +397,6 @@ paths:
             Accesso negato. 
             Devi essere un amministratore per eliminare una segnalazione qualsiasi o
             un cittadino per eliminare solo le segnalazioni che hai creato.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Segnalazione non trovata.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    patch:
-      tags:
-        - Segnalazioni
-      summary: Approva una segnalazione specifica.
-      description: >-
-          Approva una segnalazione dopo che gli é stato fornito l'id della segnalazione,
-          per poterla approvare devi essere autenticato come amministratore.
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: Nome dell'evento.
-                info:
-                  type: string
-                  description: Descrizione dell'evento.
-                duration:
-                  allOf:
-                    - $ref: "#/components/schemas/Duration"
-                  description: Durata dell'evento.
-                photos:
-                  type: array
-                  items:
-                    type: string
-                    format: uri
-                  description: Lista degli URL delle foto associate alla segnalazione.
-                status:
-                  type: string
-                  enum:
-                    - pending
-                    - approved
-                    - rejected
-                  description: Stato della segnalazione.
-      responses:
-        "204":
-          description: Segnalazione approvata con successo.
-        "401":
-          description: Non autorizzato. Devi fornire una chiave API valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: >-
-            Accesso negato.
-            Devi essere un amministratore per modificare questo campo.
           content:
             application/json:
               schema:
