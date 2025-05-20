@@ -148,49 +148,5 @@ class SiteService {
             }
         }
     }
-
-    /**
-     * Mostra una lista di cantieri dal database in base alla data fornita o alla data del giorno.
-     * @async
-     * @param {date-time} date - Data in cui ricercare un cantiere.
-     * @param {number} offset - Il numero di cantieri da saltare.
-     * @param {number} limit - Il numero massimo di cantieri da recuperare.
-     * @returns {Promise<Array<Site>>} Un array di cantieri.
-     * @throws {Error} Se si verifica un errore durante la ricerca dei cantieri, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-     * 
-     * @description
-     * Questa funzione esegue i seguenti passaggi:
-     * 1. Crea una query per recuperare i cantieri che soddisfano la ricerca secondo realDuratione duration.
-     * 2. Se è fornito un offset e un limite, applica questi parametri alla query.
-     * 3. Esegue la query e restituisce i cantieri recuperati.
-     * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
-     */
-    async getActiveSites(date, offset, limit) {
-        try {
-
-            let query =  Site.find( {$or: [ 
-                    {'realDuration.start': { $lte: date }, 'realDuration.end': { $gte: date }},
-                    { 'realDuration': { $exists: false }},
-                    {'duration.start': { $lte: date }, 'duration.end': { $gte: date }}
-                ]
-            });
-
-            if (offset && offset > 0) {
-                query = query.skip(offset);
-            }
-
-            if (limit && limit > 0) {
-                query = query.limit(limit);
-            }
-
-            const sites = await query.exec();
-
-            return sites;
-        } catch (error) {
-            const message = 'Errore interno del server durante la ricerca.';
-            throw createError('Errore interno del server', 500, message);
-        }
-    }
 }
-
 module.exports = new SiteService();
