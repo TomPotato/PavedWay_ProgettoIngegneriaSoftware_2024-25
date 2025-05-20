@@ -6,106 +6,186 @@ info:
   version: 1.0.0
 
 servers:
-  - url: TODO
+  - url: http://localhost:3000/api/v1
+    description: Server locale per lo sviluppo e il test.
+
+tags:
+  - name: Autenticazione
+    description: >-
+      Operazioni relative all'autenticazione degli utenti, 
+      inclusi la registrazione e il login.
+  - name: Utenti
+    description: >-
+      Operazioni relative alla gestione degli utenti, 
+      inclusi la creazione, la visualizzazione e l'aggiornamento degli utenti.
+  - name: Segnalazioni
+    description: >-
+      Operazioni relative alla gestione delle segnalazioni degli utenti, 
+      inclusi la creazione, la visualizzazione e l'aggiornamento delle segnalazioni.
+  - name: Cantieri
+    description: >-
+      Operazioni relative alla gestione dei cantieri, 
+      inclusi la creazione, la visualizzazione e l'aggiornamento dei cantieri.
 
 paths:
-  /auth:
-    /register:
-      post:
-        summary: Registrazione di un nuovo utente cittadino
-        description: >-
-          Permette la registrazione di un nuovo utente come cittadino. 
-          L'utente deve fornire nome utente, nome, cognome, email e password.
-          Se la registrazione ha successo, l'utente cittadino viene creato e
-          il server restituisce un token JWT per l'autenticazione.
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Citizen"
-        responses:
-          "201":
-            description: Registrazione riuscita.
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    token:
-                      type: string
-                      description: Token JWT per l'autenticazione.
-          "400":
-            description: Richiesta non valida.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-          "409":
-            description: Nome utente o email già in uso.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-          "500":
-            description: Errore interno del server.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-
-    /login:
-      post:
-        summary: Autenticazione dell'utente
-        description: Restituisce un token JWT se le credenziali sono valide.
-        requestBody:
-          required: true
+  /auth/register:
+    post:
+      tags:
+        - Autenticazione
+      summary: Registrazione di un nuovo utente cittadino
+      description: >-
+        Permette la registrazione di un nuovo utente come cittadino. 
+        L'utente deve fornire nome utente, nome, cognome, email e password.
+        Se la registrazione ha successo, l'utente cittadino viene creato e
+        restituito insieme a un token JWT per l'autenticazione.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Citizen"
+      responses:
+        "201":
+          description: Registrazione riuscita.
           content:
             application/json:
               schema:
                 type: object
-                required:
-                  - username
-                  - password
                 properties:
-                  username:
+                  token:
                     type: string
-                    description: Nome utente.
-                  password:
+                    description: Token JWT per l'autenticazione.
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/UserInfo"
+                    description: Informazioni sull'utente registrato. Include nome utente, nome, cognome e ruolo.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Nome utente o email già in uso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/login:
+    post:
+      tags:
+        - Autenticazione
+      summary: Autenticazione dell'utente
+      description: >-
+        Permette l'autenticazione di un utente esistente. 
+        L'utente deve fornire nome utente e password.
+        Se l'autenticazione ha successo, viene restituito l'utente inseme a un token JWT per l'autenticazione.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Nome utente.
+                password:
+                  type: string
+                  description: Password.
+      responses:
+        "200":
+          description: Autenticazione riuscita.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
                     type: string
-                    description: Password.
-        responses:
-          "200":
-            description: Autenticazione riuscita.
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    token:
-                      type: string
-                      description: Token JWT per l'autenticazione.
-          "400":
-            description: Richiesta non valida.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-          "401":
-            description: Credenziali non valide.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-          "500":
-            description: Errore interno del server.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
+                    description: Token JWT per l'autenticazione.
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/UserInfo"
+                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome e ruolo.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Credenziali non valide.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}/reports:
+    get:
+      tags:
+        - Utenti
+      summary: Restituisce la lista delle segnalazioni di un utente
+      description: Restituisce la lista delle segnalazioni di un utente specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente di cui restituire le segnalazioni.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di segnalazioni da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di segnalazioni da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /reports:
     get:
+      tags:
+        - Segnalazioni
       summary: Restituisce la lista delle segnalazioni
       description: Restituisce la lista delle segnalazioni.
       parameters:
@@ -134,7 +214,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
     post:
+      tags:
+        - Segnalazioni
       summary: Crea una nuova segnalazione
       description: Crea una nuova segnalazione. Devi essere loggato per poterne creare una nuova.
       security:
@@ -163,7 +246,9 @@ paths:
 
   /reports/{id}:
     get:
-      summary: Restituisce una segnalazione specifica.
+      tags:
+        - Segnalazioni
+      summary: Restituisce una segnalazione specifica
       description: Restituisce una segnalazione specifica in base all'ID fornito.
       parameters:
         - in: path
@@ -179,8 +264,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
-        "400":
-          description: Richiesta non valida.
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Segnalazioni
+      summary: Elimina una segnalazione specifica.
+      description: >-
+        Elimina una segnalazione specifica in base all'ID fornito. 
+        Devi essere autenticato per eliminare una segnalazione.
+        Se sei autenticato come amministratore, puoi eliminare qualsiasi segnalazione.
+        Se sei autenticato come cittadino, puoi eliminare solo le segnalazioni che hai creato.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da eliminare.
+      responses:
+        "204":
+          description: Segnalazione eliminata con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: >-
+            Accesso negato. 
+            Devi essere un amministratore per eliminare una segnalazione qualsiasi o
+            un cittadino per eliminare solo le segnalazioni che hai creato.
           content:
             application/json:
               schema:
@@ -248,6 +375,8 @@ paths:
                 $ref: "#/components/schemas/Error"
   /sites:
     get:
+      tags:
+        - Cantieri
       summary: Restituisce la lista dei cantieri esistenti
       description: Restituisce la lista dei cantieri esistenti.
       parameters:
@@ -277,6 +406,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
+      tags:
+        - Cantieri
       summary: Crea un nuovo cantiere
       description: Crea un nuovo cantiere. Per creare un cantiere è necessario essere autenticati come amministratore.
       security:
@@ -308,6 +439,127 @@ paths:
                 $ref: "#/components/schemas/Error"
         "403":
           description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sites/{id}:
+    patch:
+      tags:
+        - Cantieri
+      summary: Modifica di un cantiere
+      description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  description: Descrizione dell'evento.
+                duration:
+                  $ref: "#/components/schemas/Duration"
+                companyName:
+                  type: string
+                  description: Nome dell'impresa edile che sta lavorando sul cantiere.
+                realDuration:
+                  $ref: "#/components/schemas/Duration"
+      responses:
+        "200":
+          description: Cantiere modificato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - Cantieri
+      summary: Elimina una cantiere specifico.
+      description: >-
+        Elimina un cantiere specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare una cantiere.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere da eliminare
+      responses:
+        "204":
+          description: Cantiere eliminato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Messaggio di conferma dell'eliminazione.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per eliminare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
           content:
             application/json:
               schema:
@@ -381,7 +633,6 @@ components:
           required:
             - email
           properties:
-            required:
             email:
               type: string
               format: email
@@ -391,12 +642,48 @@ components:
       allOf:
         - $ref: "#/components/schemas/User"
         - type: object
+          required:
+            - office
           properties:
-            required:
-              - office
             office:
               type: string
               description: ufficio di competenza dell'amministratore.
+
+    UserInfo:
+      type: object
+      required:
+        - username
+        - name
+        - surname
+        - role
+      properties:
+        username:
+          type: string
+          description: Nome utente.
+        name:
+          type: string
+          description: Nome dell'utente.
+        surname:
+          type: string
+          description: Cognome dell'utente.
+        role:
+          type: string
+          enum:
+            - citizen
+            - admin
+          description: Ruolo dell'utente.
+      oneOf:
+        - required: [email]
+          properties:
+            email:
+              type: string
+              format: email
+              description: Indirizzo email del cittadino.
+        - required: [office]
+          properties:
+            office:
+              type: string
+              description: Ufficio di competenza dell'amministratore.
 
     Location:
       type: object
@@ -431,9 +718,9 @@ components:
           description: Nome della città.
         code:
           type: string
-          description: Codice di Avviamento Postale.
           minLength: 5
           maxLength: 5
+          description: Codice di Avviamento Postale.
 
     Duration:
       type: object
@@ -487,10 +774,12 @@ components:
           type: string
           description: Descrizione dell'evento.
         location:
-          $ref: "#/components/schemas/Location"
+          allOf:
+            - $ref: "#/components/schemas/Location"
           description: Posizione dell'evento.
         duration:
-          $ref: "#/components/schemas/Duration"
+          allOf:
+            - $ref: "#/components/schemas/Duration"
           description: Durata dell'evento.
         createdAt:
           type: string
@@ -501,11 +790,9 @@ components:
           items:
             $ref: "#/components/schemas/Comment"
           description: Lista dei commenti associati all'evento.
-        discriminator:
-          propertyName: eventType
 
     Report:
-      allof:
+      allOf:
         - $ref: "#/components/schemas/Event"
         - type: object
           properties:
@@ -516,8 +803,8 @@ components:
               type: array
               items:
                 type: string
-                format: binary
-              description: Lista delle foto associate alla segnalazione.
+                format: uri
+              description: Lista degli URL delle foto associate alla segnalazione.
             rating:
               type: integer
               description: Punteggio della segnalazione (impostato a 0 per una nuova segnalazione).
@@ -530,7 +817,7 @@ components:
               description: Stato della segnalazione.
 
     Site:
-      allof:
+      allOf:
         - $ref: "#/components/schemas/Event"
         - type: object
           required:
@@ -540,5 +827,6 @@ components:
               type: string
               description: Nome dell'impresa edile che sta lavorando sul cantiere.
             realDuration:
-              type: Duration
+              allOf:
+                - $ref: "#/components/schemas/Duration"
               description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
