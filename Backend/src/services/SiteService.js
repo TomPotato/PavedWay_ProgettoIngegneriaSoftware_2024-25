@@ -82,7 +82,7 @@ class SiteService {
      * Modifica un cantiere esistente nel database.
      * 
      * @async
-     * @param {Object} updateData - I dati da aggiornare.
+     * @param {Object} siteData - I dati da aggiornare.
      * @param {string} siteId - L'ID del cantiere da modificare.
      * @returns {Promise<Site>} Il cantiere aggiornato.
      * @throws {Error} Se si verifica un errore durante la modifica del cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
@@ -95,14 +95,14 @@ class SiteService {
      * 4. Se si verifica un errore durante l'aggiornamento, solleva un errore 500 (Internal Server Error).
      * 5. Restituisce il cantiere aggiornato.
      */
-    async updateSite(updateData, siteId) {
+    async updateSite(siteId, siteData) {
         try {
             const siteExists = await Site.findById(siteId);
 
             if (!siteExists) {
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             } else {
-                const updatedSite = await Site.findByIdAndUpdate(siteId, updateData, {
+                const updatedSite = await Site.findByIdAndUpdate(siteId, siteData, {
                     overwrite: true,
                     new: true,
                     runValidators: true
