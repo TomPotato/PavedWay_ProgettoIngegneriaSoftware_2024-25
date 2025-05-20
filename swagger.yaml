@@ -190,6 +190,23 @@ paths:
       description: Restituisce la lista delle segnalazioni.
       parameters:
         - in: query
+          name: now
+          schema:
+            type: boolean
+          description: >-
+            Se fornito, filtra le segnalazioni in corso nell'ora attuale.
+            Il filtro è applicato se il parametro è "true".
+            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
+            Se il parametro è "true", non può essere usato insieme a "date".
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Se fornito, filtra le segnalazioni in corso nella data fornita.
+            Non può essere usato insieme a "now".
+        - in: query
           name: offset
           schema:
             type: integer
@@ -208,6 +225,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "500":
           description: Errore interno del server.
           content:
@@ -324,55 +347,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /reports/active:
-    get:
-      summary: Restituisce la lista delle segnalazioni attive in una data fornita
-      description: Restituisce la lista delle segnalazioni attive in una data fornita.
-      parameters:
-        - in: query
-          name: date
-          required: true
-          schema:
-            type: string
-            format: date-time
-          description: Data e ora in cui verificare le segnalazioni attive.
-        - in: query
-          name: offset
-          schema:
-            type: integer
-          description: Numero di segnalazioni da saltare prima di restituire i risultati.
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Numero massimo di segnalazioni da restituire.
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Report"
-        "400":  
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":  
-          description: Nessuna segnalazione trovata per la data fornita.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
   /sites:
     get:
       tags:
