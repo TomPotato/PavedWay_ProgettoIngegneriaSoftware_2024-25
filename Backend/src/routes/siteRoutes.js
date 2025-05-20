@@ -4,8 +4,8 @@ const router = express.Router();
 const service = require('../services/SiteService');
 
 const createError = require('../utils/createError');
-const toValidInt = require('../utils/toValidInt');
 const tokenChecker = require('../utils/tokenChecker');
+const toValidInt = require('../utils/toValidInt');
 const validator = require('../utils/Validator');
 
 router.get('/', async (req, res) => {
@@ -66,7 +66,7 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 
     try {
-        const site = await service.updateSite(req.body, req.params.id);
+        const site = await service.updateSite(req.params.id, req.body);
         res.status(200).json(site);
     } catch (error) {
         res.status(error.code).json(error);
