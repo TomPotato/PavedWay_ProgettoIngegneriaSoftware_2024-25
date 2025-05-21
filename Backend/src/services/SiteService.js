@@ -98,7 +98,7 @@ class SiteService {
     async updateSite(siteId, siteData) {
         try {
             const siteExists = await Site.findById(siteId);
-            
+
             if (!siteExists) {
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             } else {
@@ -111,6 +111,7 @@ class SiteService {
             }
 
         } catch (error) {
+            console.log(error);
             throw createError('Errore interno del server', 500, 'Errore interno del server avvenuto durante la modifica.');
         }
     }

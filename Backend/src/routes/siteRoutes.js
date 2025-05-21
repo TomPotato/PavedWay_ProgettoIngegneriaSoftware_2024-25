@@ -55,14 +55,12 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
     try {
 
-        //inserire un json(?)/array(?) per il contro controllo che non stia cercando di inserire altro oltre ai dati che vogliamo,
-        // for each per ogni valore nell'array per riempire data e passarglielo al posto di req.body
-
         let data = {
-            info:null,
-            duration:null,
-            companyName:null,
-            realDuration:null
+            'name':null,
+            'info':null,
+            'duration':null,
+            'companyName':null,
+            'realDuration':null
         }
 
         Object.keys(data).forEach(key => {
