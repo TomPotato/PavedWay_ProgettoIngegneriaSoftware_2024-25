@@ -65,10 +65,8 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-
-        //inserire un json(?)/array(?) per il contro controllo che non stia cercando di inserire altro oltre ai dati che vogliamo,
-        // for each per ogni valore nell'array per riempire data e passarglielo al posto di req.body, nel caso sia admin si modifica
-        //  solamente lo status della segnalazione e se cittadino può modificare solamente dei campi definiti
+        // Check if the user is authenticated and has the right role to modify the report or if the user is the creator of the report
+        
         const id = req.params.id;
 
         if (!req.body) {
