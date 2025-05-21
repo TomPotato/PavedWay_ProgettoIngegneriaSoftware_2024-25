@@ -53,6 +53,11 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             'Non sei autorizzato a modificare questa informazione.'));
         }
 
+    if (!validator.validateUsername(req.body)) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
+    }
+
     try {
 
         let data = {
