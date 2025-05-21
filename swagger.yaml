@@ -391,11 +391,8 @@ paths:
       tags:
         - Segnalazioni
       summary: Approva/Modifica una segnalazione specifica.
-      description: >-
-          Approva una segnalazione dopo che gli é stato fornito l'id della segnalazione,
-          per poterla approvare devi essere autenticato come amministratore.
-          Modifica una segnalazione dopo che gli è stato fornito l'id della segnalazione,
-          per poterla modificare devi essere autenticato come citizen e aver creato quella segnalazione.
+      description: Permette la modifica di una segnalazione. Per modificare una segnalazione 
+                    è necessario essere autenticati come citizen e averla creata.
       security:
         - ApiKeyAuth: []
       requestBody:

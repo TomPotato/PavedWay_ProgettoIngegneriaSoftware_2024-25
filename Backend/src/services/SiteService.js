@@ -111,7 +111,6 @@ class SiteService {
             }
 
         } catch (error) {
-            console.log(error);
             throw createError('Errore interno del server', 500, 'Errore interno del server avvenuto durante la modifica.');
         }
     }
