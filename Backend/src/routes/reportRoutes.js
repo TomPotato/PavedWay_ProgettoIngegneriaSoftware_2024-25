@@ -65,19 +65,17 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-    const id = req.params.id;
 
     try {
 
+        //inserire un json(?)/array(?) per il contro controllo che non stia cercando di inserire altro oltre ai dati che vogliamo,
+        // for each per ogni valore nell'array per riempire data e passarglielo al posto di req.body, nel caso sia admin si modifica
+        //  solamente lo status della segnalazione e se cittadino può modificare solamente dei campi definiti
+
+        const id = req.params.id;
+
         if (!req.body) {
             return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
-        }
-
-        const report = await service.getReportById(id);
-
-        if (req.user.role === 'citizen' && req.user.id !== report.userId) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Puoi modificare solo le segnalazioni che hai creato.'));
         }
 
         if (req.user.role !== 'admin' && req.body.status !== null) {
@@ -85,6 +83,12 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 'Devi essere un amministratore per modificare questo dato'));
         }
 
+        if (req.user.role === 'citizen' && req.user.id !== report.userId) {
+            return res.status(403).json(createError('Accesso negato. ', 403,
+                'Puoi modificare solo le segnalazioni che hai creato.'));
+        }
+
+        const report = await service.getReportById(id);
         await service.updateReport(id, req.body);
         res.status(204).json(null);
     } catch (error) {

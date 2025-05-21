@@ -390,10 +390,12 @@ paths:
     patch:
       tags:
         - Segnalazioni
-      summary: Approva una segnalazione specifica.
+      summary: Approva/Modifica una segnalazione specifica.
       description: >-
           Approva una segnalazione dopo che gli é stato fornito l'id della segnalazione,
           per poterla approvare devi essere autenticato come amministratore.
+          Modifica una segnalazione dopo che gli è stato fornito l'id della segnalazione,
+          per poterla modificare devi essere autenticato come citizen e aver creato quella segnalazione.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -401,31 +403,9 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: Nome dell'evento.
-                info:
-                  type: string
-                  description: Descrizione dell'evento.
-                duration:
-                  allOf:
-                    - $ref: "#/components/schemas/Duration"
-                  description: Durata dell'evento.
-                photos:
-                  type: array
-                  items:
-                    type: string
-                    format: uri
-                  description: Lista degli URL delle foto associate alla segnalazione.
-                status:
-                  type: string
-                  enum:
-                    - pending
-                    - approved
-                    - rejected
-                  description: Stato della segnalazione.
+              oneof:
+              - $ref: "#/components/schemas/UpdateReportCitizen" 
+              - $ref: "#/components/schemas/UpdateReportAdmin"
       responses:
         "204":
           description: Segnalazione approvata con successo.
@@ -898,6 +878,38 @@ components:
                 - approved
                 - rejected
               description: Stato della segnalazione.
+      
+    UpdateReportCitizen:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome dell'evento.
+        info:
+          type: string
+          description: Descrizione dell'evento.
+        duration:
+          allOf:
+            - $ref: "#/components/schemas/Duration"
+          description: Durata dell'evento.
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Lista degli URL delle foto associate alla segnalazione.
+
+    UpdateReportAdmin:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+          description: Stato della segnalazione.
+
 
     Site:
       allOf:
