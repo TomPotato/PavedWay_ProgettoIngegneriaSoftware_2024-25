@@ -66,12 +66,9 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 
 router.patch('/:id', tokenChecker, async (req, res) => {
 
-    try {
-
         //inserire un json(?)/array(?) per il contro controllo che non stia cercando di inserire altro oltre ai dati che vogliamo,
         // for each per ogni valore nell'array per riempire data e passarglielo al posto di req.body, nel caso sia admin si modifica
         //  solamente lo status della segnalazione e se cittadino può modificare solamente dei campi definiti
-
         const id = req.params.id;
 
         if (!req.body) {
@@ -88,9 +85,52 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 'Puoi modificare solo le segnalazioni che hai creato.'));
         }
 
-        const report = await service.getReportById(id);
-        await service.updateReport(id, req.body);
-        res.status(204).json(null);
+        if (req.user.role === 'admin' && (req.body.name || req.body.info ||
+            req.body.duration || req.body.photos )) {
+            return res.status(403).json(createError('Accesso negato. ', 403,
+                'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
+        }
+        try {
+
+            let data = null;
+
+            if(req.user.role === 'citizen'){
+
+                let dataCit = {
+                    'name':null,
+                    'info':null,
+                    'duration':null,
+                    'photos':null
+                }
+                
+                Object.keys(dataCit).forEach(key => {
+                    if(req.body.hasOwnProperty(key)){
+                        dataCit[key] = req.body[key];
+                    }
+                });
+
+                data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
+
+            }else if (req.user.role === 'admin'){
+
+                let dataAdm = {
+                    'status':null
+                }
+
+                Object.keys(dataAdm).forEach(key => {
+                    if(req.body.hasOwnProperty(key)){
+                        dataAdm[key] = req.body[key];
+                    }
+                });
+
+                data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
+
+            }else 
+            return res.status(403).json(createError('Accesso negato. ', 403,
+                'Non puoi modificare segnalazioni senza essere autenticato.'));
+
+            await service.updateReport(id, data);
+            res.status(204).json(null);
     } catch (error) {
         res.status(error.code).json(error);
     }
