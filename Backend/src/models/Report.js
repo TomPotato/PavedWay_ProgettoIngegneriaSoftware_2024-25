@@ -30,6 +30,7 @@ const reportSchema = new Schema({
     },
     createdBy: {
         type: Schema.Types.ObjectId,
+        required: true,
     },
     photos: {
         type: [String],

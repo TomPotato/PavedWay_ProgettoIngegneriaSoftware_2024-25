@@ -18,6 +18,13 @@ class Validator {
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=\-[\]{};':"\\|,.<>/?`~]).{8,}$/;
         return passwordRegex.test(password);
     }
+
+    validateDate(date) {
+        const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+        const dateRegex2 = /^\d{4}-\d{2}-\d{2}/;
+
+        return dateRegex.test(date) || dateRegex2.test(date);
+    }
 }
 
 module.exports = new Validator();

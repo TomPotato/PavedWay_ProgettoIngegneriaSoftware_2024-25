@@ -6,13 +6,18 @@ info:
   version: 1.0.0
 
 servers:
-  - url: TODO
+  - url: http://localhost:3000/api/v1
+    description: Server locale per lo sviluppo e il test.
 
 tags:
   - name: Autenticazione
     description: >-
       Operazioni relative all'autenticazione degli utenti, 
-      inclusa la registrazione e il login.
+      inclusi la registrazione e il login.
+  - name: Utenti
+    description: >-
+      Operazioni relative alla gestione degli utenti, 
+      inclusi la creazione, la visualizzazione e l'aggiornamento degli utenti.
   - name: Segnalazioni
     description: >-
       Operazioni relative alla gestione delle segnalazioni degli utenti, 
@@ -112,7 +117,7 @@ paths:
                   user:
                     allOf:
                       - $ref: "#/components/schemas/UserInfo"
-                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome e ruolo.
+                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome, ruolo e email o ufficio.
         "400":
           description: Richiesta non valida.
           content:
@@ -132,13 +137,82 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /reports:
+  /users:
+    post:
+      tags:
+        - Utenti
+      summary: Crea un nuovo utente
+      description: >-
+        Permette l'aggiunta manuale di un nuovo utente senza la registrazione.
+        Solo un amministratore può creare un nuovo utente tramite questa API. 
+        L'amministratore deve fornire nome utente, nome, cognome, password, ruolo 
+        e email o ufficio in base al tipo di utente (rispettivamente cittadino o amministratore).
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/Citizen"
+                - $ref: "#/components/schemas/Admin"
+      responses:
+        "201":
+          description: Utente creato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/UserInfo"
+                    description: Informazioni sull'utente creato. Include nome utente, nome, cognome, ruolo e email o ufficio.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Nome utente o email già in uso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}/reports:
     get:
       tags:
-        - Segnalazioni
-      summary: Restituisce la lista delle segnalazioni
-      description: Restituisce la lista delle segnalazioni.
+        - Utenti
+      summary: Restituisce la lista delle segnalazioni di un utente
+      description: Restituisce la lista delle segnalazioni di un utente specifico in base all'ID fornito.
       parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente di cui restituire le segnalazioni.
         - in: query
           name: offset
           schema:
@@ -158,6 +232,71 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reports:
+    get:
+      tags:
+        - Segnalazioni
+      summary: Restituisce la lista delle segnalazioni
+      description: Restituisce la lista delle segnalazioni.
+      parameters:
+        - in: query
+          name: now
+          schema:
+            type: boolean
+          description: >-
+            Se fornito, filtra le segnalazioni in corso nell'ora attuale.
+            Il filtro è applicato se il parametro è "true".
+            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
+            Se il parametro è "true", non può essere usato insieme a "date".
+        - in: query
+          name: date
+          schema:
+            oneOf:
+              - type: string
+                format: date
+              - type: string
+                format: date-time
+          description: >-
+            Se fornito, filtra le segnalazioni in corso nella data fornita.
+            Non può essere usato insieme a "now".
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di segnalazioni da saltare prima di restituirle.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di segnalazioni da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "500":
           description: Errore interno del server.
           content:
@@ -166,6 +305,8 @@ paths:
                 $ref: "#/components/schemas/Error"
 
     post:
+      tags:
+        - Segnalazioni
       summary: Crea una nuova segnalazione
       description: Crea una nuova segnalazione. Devi essere loggato per poterne creare una nuova.
       security:
@@ -194,7 +335,9 @@ paths:
 
   /reports/{id}:
     get:
-      summary: Restituisce una segnalazione specifica.
+      tags:
+        - Segnalazioni
+      summary: Restituisce una segnalazione specifica
       description: Restituisce una segnalazione specifica in base all'ID fornito.
       parameters:
         - in: path
@@ -210,8 +353,95 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
-        "400":
-          description: Richiesta non valida.
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Segnalazioni
+      summary: Elimina una segnalazione specifica.
+      description: >-
+        Elimina una segnalazione specifica in base all'ID fornito. 
+        Devi essere autenticato per eliminare una segnalazione.
+        Se sei autenticato come amministratore, puoi eliminare qualsiasi segnalazione.
+        Se sei autenticato come cittadino, puoi eliminare solo le segnalazioni che hai creato.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da eliminare.
+      responses:
+        "204":
+          description: Segnalazione eliminata con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: >-
+            Accesso negato. 
+            Devi essere un amministratore per eliminare una segnalazione qualsiasi o
+            un cittadino per eliminare solo le segnalazioni che hai creato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - Segnalazioni
+      summary: Approva/Modifica una segnalazione specifica.
+      description: Permette la modifica di una segnalazione. Per modificare una segnalazione 
+                    è necessario essere autenticati come citizen e averla creata.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneof:
+              - $ref: "#/components/schemas/UpdateReportCitizen" 
+              - $ref: "#/components/schemas/UpdateReportAdmin"
+      responses:
+        "204":
+          description: Segnalazione approvata con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: >-
+            Accesso negato.
+            Devi essere un amministratore per modificare questo campo.
           content:
             application/json:
               schema:
@@ -233,9 +463,29 @@ paths:
     get:
       tags:
         - Cantieri
-      summary: Restituisce la lista dei cantieri esistenti
-      description: Restituisce la lista dei cantieri esistenti.
+      summary: Restituisce la lista dei cantieri
+      description: Restituisce la lista dei cantieri.
       parameters:
+        - in: query
+          name: now
+          schema:
+            type: boolean
+          description: >-
+            Se fornito, filtra i cantieri in corso nell'ora attuale.
+            Il filtro è applicato se il parametro è "true".
+            Il filtro è ignorato se il parametro è "false" oppure non è un valore booleano.
+            Se il parametro è "true", non può essere usato insieme a "date".
+        - in: query
+          name: date
+          schema:
+            oneOf:
+              - type: string
+                format: date
+              - type: string
+                format: date-time
+          description: >-
+            Se fornito, filtra i cantieri in corso nella data fornita.
+            Non può essere usato insieme a "now".
         - in: query
           name: offset
           schema:
@@ -255,6 +505,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "500":
           description: Errore interno del server.
           content:
@@ -307,11 +563,75 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /sites/{id}:
+    patch:
+      tags:
+        - Cantieri
+      summary: Modifica di un cantiere
+      description: Permette la modifica di un cantiere. Per modificare un cantiere è necessario essere autenticati come amministratore.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  description: Descrizione dell'evento.
+                duration:
+                  $ref: "#/components/schemas/Duration"
+                companyName:
+                  type: string
+                  description: Nome dell'impresa edile che sta lavorando sul cantiere.
+                realDuration:
+                  $ref: "#/components/schemas/Duration"
+      responses:
+        "200":
+          description: Cantiere modificato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare un cantiere.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
     delete:
-      summary: Elimina un cantiere in base all'ID
+      tags:
+        - Cantieri
+      summary: Elimina una cantiere specifico.
       description: >-
-        Elimina un cantiere esistente in base all'ID fornito.
-        Per eliminare un cantiere è necessario essere autenticati come amministratore.
+        Elimina un cantiere specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare una cantiere.
       security:
         - ApiKeyAuth: []
       parameters:
@@ -322,7 +642,7 @@ paths:
             type: string
           description: ID del cantiere da eliminare
       responses:
-        "200":
+        "204":
           description: Cantiere eliminato con successo.
           content:
             application/json:
@@ -332,37 +652,37 @@ paths:
                   message:
                     type: string
                     description: Messaggio di conferma dell'eliminazione.
-        "400":  
+        "400":
           description: Richiesta non valida.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "401":  
+        "401":
           description: Non autorizzato. Devi fornire una chiave API valida.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "403":  
+        "403":
           description: Accesso negato. Devi essere un amministratore per eliminare un cantiere.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "404":  
+        "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "500":  
+        "500":
           description: Errore interno del server.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-            
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -582,8 +902,6 @@ components:
           items:
             $ref: "#/components/schemas/Comment"
           description: Lista dei commenti associati all'evento.
-        discriminator:
-          propertyName: eventType
 
     Report:
       allOf:
@@ -609,6 +927,38 @@ components:
                 - approved
                 - rejected
               description: Stato della segnalazione.
+      
+    UpdateReportCitizen:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome dell'evento.
+        info:
+          type: string
+          description: Descrizione dell'evento.
+        duration:
+          allOf:
+            - $ref: "#/components/schemas/Duration"
+          description: Durata dell'evento.
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Lista degli URL delle foto associate alla segnalazione.
+
+    UpdateReportAdmin:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+          description: Stato della segnalazione.
+
 
     Site:
       allOf:

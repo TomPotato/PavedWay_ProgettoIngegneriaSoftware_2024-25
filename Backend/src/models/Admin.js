@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const { userSchema } = require('./User');
+const { User } = require('./User');
 
 const adminSchema = new Schema({
     office: {
@@ -16,14 +16,15 @@ adminSchema.set('toJSON', {
         ret.id = ret._id;
         ret.role = ret.__t;
         delete ret._id;
+        delete ret.__t;
         delete ret.__v;
         return ret;
     },
 });
 
-const Citizen = userSchema.discriminator('admin', citizenSchema);
+const Admin = User.discriminator('admin', adminSchema);
 
 module.exports = {
-    citizenSchema,
-    Citizen,
+    adminSchema,
+    Admin,
 };

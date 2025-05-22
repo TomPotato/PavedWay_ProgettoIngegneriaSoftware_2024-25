@@ -4,20 +4,20 @@ const createError = require('../utils/createError');
 
 class SiteService {
     /**
-     * Restituisce i cantieri esistenti
-     *
+     * Recupera i cantieri dal database.
+     * 
      * @async
-     * @param {int} offset - Quanti cantieri saltare prima di mostrarli
-     * @param {int} limit - Quanti cantieri deve mostrare
-     * @returns {Promise<{sites: query}>} Un oggetto contenente la lista dei cantieri esistenti.
-     * @throws {Error} Se si verifica un errore durante la lettura delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * @param {number} offset - Il numero di cantieri da saltare.
+     * @param {number} limit - Il numero massimo di cantieri da recuperare.
+     * @returns {Promise<Array<Site>>} Un array di cantieri.
+     * @throws {Error} Se si verifica un errore durante la ricerca dei cantieri, viene sollevato un errore con un messaggio e un codice di stato appropriati.
      * 
      * @description
      * Questa funzione esegue i seguenti passaggi:
-     * 1. Richiama i cantieri dal database
-     * 2. Legge i parametri offset e limit come integer
-     * 3. Scarta i cantieri iniziali e finali rispetto a offset e limit
-     * 4. Restituisce una lista di cantieri. 
+     * 1. Crea una query per recuperare tutti i cantieri.
+     * 2. Se è fornito un offset e un limite, applica questi parametri alla query.
+     * 3. Esegue la query e restituisce i cantieri recuperati.
+     * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
      */
     async getSites(offset, limit) {
         try {
@@ -38,21 +38,24 @@ class SiteService {
             throw createError('Errore interno del server', 500, message);
         }
     }
+
     /**
-     * Crea un cantiere
-     *
+     * Crea un nuovo cantiere nel database.
+     * 
      * @async
-     * @param {JSON} sitetData - Dati del cantiere che si vuole creare
-     * @returns {Promise<{savedSite: Document}>} Un oggetto che restituisce il messaggio di creazione del cantiere
-     * @throws {Error} Se si verifica un errore durante la creazione della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * @param {Object} siteData - I dati del cantiere da creare.
+     * @returns {Promise<Site>} Il cantiere creato.
+     * @throws {Error} Se si verifica un errore durante la creazione del cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
      * 
      * @description
      * Questa funzione esegue i seguenti passaggi:
-     * 1. Legge i dati del JSON che viene consegnato
-     * 2. Valida se i dati contenuti sono quelli richiesti per creare il cantiere
-     * 3. Salva il cantiere sul database
-     * 4. Restotiosce un messaggio di avvenuto salvataggio
-    */
+     * 1. Crea un nuovo oggetto cantiere con i dati forniti.
+     * 2. Esegue la validazione del cantiere.
+     * 3. Se la validazione fallisce, solleva un errore 400 (Bad Request).
+     * 4. Se la validazione ha successo, salva il cantiere nel database.
+     * 5. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
+     * 6. Restituisce il cantiere salvato.
+     */
     async createSite(siteData) {
         try {
             const site = new Site(siteData);
@@ -74,36 +77,140 @@ class SiteService {
             }
         }
     }
+
     /**
-     * Elimina un cantiere
-     *
+     * Modifica un cantiere esistente nel database.
+     * 
      * @async
-     * @param {int} id - Id del cantiere che si vuole eliminare
-     * @returns {Promise<{site: Document}>} Oggetto che restituisce il messaggio di eliminazione del cantiere
-     * @throws {Error} Se si verifica un errore durante la creazione della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * @param {Object} siteData - I dati da aggiornare.
+     * @param {string} siteId - L'ID del cantiere da modificare.
+     * @returns {Promise<Site>} Il cantiere aggiornato.
+     * @throws {Error} Se si verifica un errore durante la modifica del cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
      * 
      * @description
      * Questa funzione esegue i seguenti passaggi:
-     * 1. Legge l'id inserito dall'admin
-     * 2. Controlla che esista
-     * 3. Se non esite manda un messaggio di errore
-     * 4. Se esiste manda messaggio di avvenuta eliminazione
-    */
+     * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+     * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+     * 3. Se il cantiere esiste, aggiorna il cantiere con i nuovi dati.
+     * 4. Se si verifica un errore durante l'aggiornamento, solleva un errore 500 (Internal Server Error).
+     * 5. Restituisce il cantiere aggiornato.
+     */
+    async updateSite(siteId, siteData) {
+        try {
+            const siteExists = await Site.findById(siteId);
+
+            if (!siteExists) {
+                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+            } else {
+                const updatedSite = await Site.findByIdAndUpdate(siteId, siteData, {
+                    new: true,
+                    runValidators: true
+                });
+
+                return updatedSite;
+            }
+
+        } catch (error) {
+            throw createError('Errore interno del server', 500, 'Errore interno del server avvenuto durante la modifica.');
+        }
+    }
+
+    /**
+     * Elimina un cantiere dal database in base all'ID fornito.
+     * 
+     * @async
+     * @param {string} id - L'ID del cantiere da eliminare.
+     * @throws {Error} Se si verifica un errore durante l'eliminazione del cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+     * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+     * 3. Se il cantiere esiste, elimina il cantiere dal database.
+     * 4. Se si verifica un errore durante l'eliminazione, solleva un errore 500 (Internal Server Error).
+     */
     async deleteSite(id) {
         try {
-            const site = await Site.findByIdAndDelete(id);
+            const site = await Site.exists({ _id: id });
+
             if (!site) {
-                throw createError('Eliminazione fallita', 404, 'Nessun cantiere trovato con l\'ID fornito.');
+                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             }
-            return site;
+
+            await Site.findByIdAndDelete(id);
         } catch (error) {
             if (error.code) {
                 throw error;
             } else {
-                const message = 'Errore interno del server durante l\'eliminazione del cantiere.';
+                const message = 'Errore interno del server durante l\'eliminazione.';
                 throw createError('Errore interno del server', 500, message);
             }
         }
     }
+
+    /**
+     * Mostra una lista di cantieri dal database in base alla data fornita o alla data del giorno.
+     * @async
+     * @param {date-time} date - Data in cui ricercare un cantiere.
+     * @param {number} offset - Il numero di cantieri da saltare.
+     * @param {number} limit - Il numero massimo di cantieri da recuperare.
+     * @returns {Promise<Array<Site>>} Un array di cantieri.
+     * @throws {Error} Se si verifica un errore durante la ricerca dei cantieri, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Crea una query per recuperare i cantieri che soddisfano la ricerca secondo realDuratione duration.
+     * 2. Se è fornito un offset e un limite, applica questi parametri alla query.
+     * 3. Esegue la query e restituisce i cantieri recuperati.
+     * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+     */
+    async getActiveSites(date, offset, limit) {
+        try {
+            
+            let query = Site.find({
+              $or: [
+                {
+                  $and: [
+                    { 'realDuration.start': { $lte: date } },
+                    {
+                      $or: [
+                        { 'realDuration.end': { $gte: date } },
+                        { 'realDuration.end': { $exists: false } }
+                      ]
+                    }
+                  ]
+                },
+                { 'realDuration': { $exists: false } },
+                {
+                  $and: [
+                    { 'duration.start': { $lte: date } },
+                    {
+                      $or: [
+                        { 'duration.end': { $gte: date } },
+                        { 'duration.end': { $exists: false } }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            });
+
+            if (offset && offset > 0) {
+                query = query.skip(offset);
+            }
+
+            if (limit && limit > 0) {
+                query = query.limit(limit);
+            }
+
+            const sites = await query.exec();
+
+            return sites;
+        } catch (error) {
+            const message = 'Errore interno del server durante la ricerca.';
+            throw createError('Errore interno del server', 500, message);
+        }
+    }
 }
+
 module.exports = new SiteService();
