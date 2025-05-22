@@ -65,8 +65,40 @@ router.patch('/:id', tokenChecker, async (req, res) => {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
 
+    if (req.user.role !== 'admin') {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Devi essere un amministratore per modificare un cantiere.'));
+    }
+
+    if(req.body.id || req.body.location || req.body.createdAt || req.body.comments ){
+        return res.status(403).json(createError('Accesso Negato',403, 
+            'Non sei autorizzato a modificare questa informazione.'));
+        }
+
+    if (!validator.validateUsername(req.body)) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
+    }
+
     try {
-        const site = await service.updateSite(req.params.id, req.body);
+
+        let data = {
+            'name':null,
+            'info':null,
+            'duration':null,
+            'companyName':null,
+            'realDuration':null
+        }
+
+        Object.keys(data).forEach(key => {
+            if(req.body.hasOwnProperty(key)){
+                data[key] = req.body[key];
+            }
+        });
+
+        data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null));
+
+        const site = await service.updateSite(req.params.id, data);
         res.status(200).json(site);
     } catch (error) {
         res.status(error.code).json(error);

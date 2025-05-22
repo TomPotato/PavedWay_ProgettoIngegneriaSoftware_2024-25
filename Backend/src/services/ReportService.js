@@ -230,20 +230,25 @@ class ReportService {
         }
     }
     /**
-     * Recupera le segnalazioni dal database.
-     *  
-     * @async
-     * @param {string} reportId - Id della segnalazione che si vuole andare a modificare.
-     * @param {object} reportData - Informazioni che si vogliono modificare nella segnalazione.
-     * @returns {Promise<Array<approvedReport>>} Codice se é andata a buon fine la modifica.
-     * @throws {Error} Se si verifica un errore durante la modifica di una segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-     * 
-     * @description
-     * Questa funzione esegue i seguenti passaggi:
-     * 1. Controlla che la segnalaizone che si vuole modificare esista nel database
-     * 2. Se esiste la modifica
-     * 3. Ritorna null per segnalare che la modifica é andata a buon fine
-     */
+    * Modifica una segnalazione nel database in base all'ID fornito.
+    *
+    * @async
+    * @param {string} reportId - L'ID della segnalazione da modificare.
+    * @param {Object} reportData - I dati della segnalazione da modificare.
+    * @returns {Promise<Report>} La segnalazione modificata.
+    * @throws {Error} Se si verifica un errore durante la modifica della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+    * 3. Se la segnalazione esiste, aggiorna la segnalazione nel database con i nuovi dati forniti.
+    * 4. Esegue la validazione dei dati della segnalazione.
+    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
+    * 6. Se la validazione ha successo, salva la segnalazione nel database.
+    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
+    * 8. Restituisce la segnalazione modificata.
+    */
     async updateReport(reportId, reportData){
         try {
             const reportExists = await Report.findById(reportId);

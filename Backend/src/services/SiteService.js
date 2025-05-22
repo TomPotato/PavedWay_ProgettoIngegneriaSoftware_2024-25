@@ -98,7 +98,7 @@ class SiteService {
     async updateSite(siteId, siteData) {
         try {
             const siteExists = await Site.findById(siteId);
-            
+
             if (!siteExists) {
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             } else {
