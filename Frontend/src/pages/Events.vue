@@ -1,5 +1,5 @@
 <template>
-	<div class="tabs tabs-lift tabs-s h-[78vh] overflow-hidden">
+	<div class="tabs tabs-lift tabs-s">
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri" />
 		<div class="tab-content bg-base-200 border-base-400 h-auto w-full p-6">
 			<div class="flex h-auto">
@@ -66,7 +66,7 @@
 
 
 			<div class="drawer drawer-end h-full center-0">
-				<input id="my-drawer-Cantieri" type="checkbox" class="drawer-toggle" />
+				<input id="my-drawer-Cantieri" type="checkbox" class="drawer-toggle"/>
 				<div class="drawer-side">
 					<label for="my-drawer-Cantieri" aria-label="close sidebar" class="drawer-overlay"></label>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
@@ -87,7 +87,7 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<button class="btn btn-neutral mt-4" @click="getSitesByInfo">Cerca!</button>
+							<label for="my-drawer-Cantieri" class="btn btn-neutral mt-4" @click="getSitesByInfo">Cerca!</label>
 						</fieldset>
 					</div>
 				</div>
@@ -126,8 +126,8 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button class="btn btn-neutral w-full" @click="createSites"
-								:disabled="name || info || latitude || longitude || street || stNumber || city || code || startDuration || companyName">Crea</button>
+							<label for="my_modal_Cantieri" class="btn btn-neutral w-full" @click="createSites"
+								:disabled="name || info || latitude || longitude || street || stNumber || city || code || startDuration || companyName">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -229,7 +229,7 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<button class="btn btn-neutral mt-4" @click="getReportsByInfo">Cerca!</button>
+							<label for="my-drawer-Segnalazioni" class="btn btn-neutral mt-4" @click="getReportsByInfo">Cerca!</label>
 						</fieldset>
 					</div>
 				</div>
@@ -259,8 +259,8 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button class="btn btn-neutral w-full" @click="createReports"
-								:disabled="name || info || latitude || longitude || street || stNumber || city || code">Crea</button>
+							<label for="my_modal_Segnalazioni" class="btn btn-neutral w-full" @click="createReports"
+								:disabled="name || info || latitude || longitude || street || stNumber || city || code">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
