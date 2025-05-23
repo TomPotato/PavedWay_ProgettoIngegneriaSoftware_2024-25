@@ -1,14 +1,15 @@
 <template>
-	<div class="tabs tabs-lift h-auto">
-		<input type="radio" name="my_tabs_3" class="tab" aria-label="Cantieri" />
+	<div class="tabs tabs-lift tabs-s h-[78vh] overflow-hidden">
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri" />
 		<div class="tab-content bg-base-200 border-base-400 h-auto w-full p-6">
 			<div class="flex h-auto">
-				<div class="w-auto space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-1 w-xs">
+				<div class="w-[30vh] space-y-2 flex items-center">
+					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
 						<button class="btn btn-neutral mt-4 w-full" @click="getSites" :disabled=false>Mostra tutti i
 							Cantieri!</button>
 						<pre v-if="data">{{ data }}</pre>
-						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca Cantieri!</label>
+						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
+							Cantieri!</label>
 						<label for="my_modal_Cantieri" class="btn btn-primary w-full">Crea un cantiere!</label>
 					</div>
 				</div>
@@ -76,7 +77,8 @@
 							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
 							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui cercare.</label>
+							<label class="label">Oppure inserisci la posizione e il raggio entro cui
+								cercare.</label>
 							<label class="label">Posizione per lat/long</label>
 							<input v-model="latitude" type="text" class="input" placeholder="latitudine" />
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
@@ -85,7 +87,7 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<button class="btn btn-neutral mt-4" @click="getSites">Cerca!</button>
+							<button class="btn btn-neutral mt-4" @click="getSitesByInfo">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -137,16 +139,20 @@
 			</dialog>
 		</div>
 
-		<input type="radio" name="my_tabs_3" class="tab" aria-label="Segnalazioni" checked="checked" />
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:lack]" aria-label="Segnalazioni"
+			checked="checked" />
 		<div class="tab-content bg-base-200 border-base-400 p-6">
 			<div class="flex h-auto">
-				<div class="w-auto space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-1 w-xs">
-						<button class="btn btn-neutral mt-4 w-full" @click="getSites" :disabled=false>Mostra tutte le
+				<div class="w-[30vh] space-y-2 flex items-center">
+					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
+						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getSites" :disabled=false>Mostra
+							tutte le
 							Segnalazioni!</button>
 						<pre v-if="data">{{ data }}</pre>
-						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una Segnalazione!</label>
-						<label for="my_modal_Segnalazioni" class="btn btn-primary w-full">Crea una Segnalazione!</label>
+						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
+							Segnalazione!</label>
+						<label for="my_modal_Segnalazioni" class="btn btn-primary w-full">Crea una
+							Segnalazione!</label>
 					</div>
 				</div>
 				<div class="flex-1 p-6 overflow-y-auto min-h-full flex flex-col max-h-[80vh]">
@@ -204,7 +210,7 @@
 			<div class="drawer drawer-end h-full center-0">
 				<input id="my-drawer-Segnalazioni" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="my-drawer-Sengnalazioni" aria-label="close sidebar" class="drawer-overlay"></label>
+					<label for="my-drawer-Segnalazioni" aria-label="close sidebar" class="drawer-overlay"></label>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<label class="label">Cerca la segnalazione per informazioni</label>
@@ -213,32 +219,34 @@
 							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
 							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui cercare.</label>
+							<label class="label">Oppure inserisci la posizione e il raggio entro cui
+								cercare.</label>
 							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="latitudine" />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
 							<label class="label">Posizione per via</label>
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<button class="btn btn-neutral mt-4" @click="getSites">Cerca!</button>
+							<button class="btn btn-neutral mt-4" @click="getReportsByInfo">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
 			</div>
 
 			<input type="checkbox" id="my_modal_Segnalazioni" class="modal-toggle" />
-			<dialog id="my_modal_id" class="modal" role="dialog">
+			<dialog id="my_modal_id1" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione" required />
+							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione"
+								required />
 
 							<label class="label">Informazioni sulla Segnalazione</label>
-							<input v-model="info" type="text" class="input" placeholder="Informazioni della Segnalazione"
-								required />
+							<input v-model="info" type="text" class="input"
+								placeholder="Informazioni della Segnalazione" required />
 
 							<label class="label">Posizione della Segnalazione</label>
 							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
@@ -251,8 +259,8 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button class="btn btn-neutral w-full" @click="createSites"
-								:disabled="name || info || latitude || longitude || street || stNumber || city || code || startDuration || companyName">Crea</button>
+							<button class="btn btn-neutral w-full" @click="createReports"
+								:disabled="name || info || latitude || longitude || street || stNumber || city || code">Crea</button>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -266,5 +274,6 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+
 </script>
