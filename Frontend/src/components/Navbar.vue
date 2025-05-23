@@ -13,10 +13,7 @@
                     <RouterLink to="/">Home</RouterLink>
                 </li>
                 <li>
-                    <RouterLink to="/sites">Cantieri</RouterLink>
-                </li>
-                <li>
-                    <RouterLink to="/reports">Segnalazioni</RouterLink>
+                    <RouterLink to="/events">Eventi</RouterLink>
                 </li>
                 <li>
                     <div class="dropdown dropdown-end">

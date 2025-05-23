@@ -5,15 +5,13 @@ import { useAuthStore } from '../stores/authStores';
 import Home from '../pages/Home.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
-import Reports from '../pages/Reports.vue';
-import Sites from '../pages/Sites.vue';
+import Events from '../pages/Events.vue';
 
 const routes = [
     { path: '/', name: 'home', component: Home },
     { path: '/login', name: 'login', component: Login },
     { path: '/register', name: 'register', component: Register },
-    { path: '/reports', name: 'reports', component: Reports },
-    { path: '/sites', name: 'sites', component: Sites},
+    { path: '/events', name: 'events', component: Events },
     { path: '/:pathMatch(.*)*', redirect: '/' }, // Redirect to home for any unmatched routes
 ];
 
