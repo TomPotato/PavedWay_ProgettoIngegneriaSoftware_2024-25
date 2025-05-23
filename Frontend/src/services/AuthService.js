@@ -9,7 +9,7 @@ class AuthService {
             });
             return response.data;
         } catch (error) {
-            throw error.data;
+            throw error.data  || error;
         }
     }
 

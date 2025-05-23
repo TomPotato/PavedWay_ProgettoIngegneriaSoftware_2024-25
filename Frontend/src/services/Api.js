@@ -22,7 +22,7 @@ class Api {
         try {
             return await this.api.post(path, body, config);
         } catch (error) {
-            throw error.response;
+            throw error.response || { message: 'Impossibile contattare il server...' };
         }
     }
 
