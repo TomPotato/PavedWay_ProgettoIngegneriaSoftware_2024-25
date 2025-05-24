@@ -1,68 +1,27 @@
 <template>
 	<div class="tabs tabs-lift tabs-s">
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri" />
-		<div class="tab-content bg-base-200 border-base-400 h-auto w-full p-6">
-			<div class="flex h-auto">
+		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
+			<div class="flex">
 				<div class="w-[30vh] space-y-2 flex items-center">
 					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full" @click="getSites" :disabled=false>Mostra tutti i
+						<button class="btn btn-neutral mt-4 w-full" @click="getAllSites">Mostra tutti i
 							Cantieri!</button>
-						<pre v-if="data">{{ data }}</pre>
 						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
 							Cantieri!</label>
 						<label v-if="visibleAdmin()" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
-							cantiere!</label> <label v-if="visibleAdmin()" for="my_modal_CantieriModifica"
+							cantiere!</label>
+						<label v-if="visibleAdmin()" for="my_modal_CantieriModifica"
 							class="btn btn-primary w-full">Modifica un
+							cantiere!</label>
+						<label v-if="visibleAdmin()" class="btn btn-primary w-full">Elimina un
 							cantiere!</label>
 					</div>
 				</div>
-				<div class="flex-1 p-6 overflow-y-auto min-h-full flex flex-col max-h-[80vh]">
+				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 1</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
+						<pre v-if="dataSites">{{ dataSites }}</pre>
 					</div>
 				</div>
 			</div>
@@ -194,69 +153,28 @@
 			<div class="flex h-auto">
 				<div class="w-[30vh] space-y-2 flex items-center">
 					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getSites" :disabled=false>Mostra
+						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getReports">Mostra
 							tutte le
 							Segnalazioni!</button>
-						<pre v-if="data">{{ data }}</pre>
 						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
 							Segnalazione!</label>
-						<label v-if="visibleCitizen()" for="my_modal_Segnalazioni" class="btn btn-primary w-full">Crea
+						<label v-if="visibleCitizen()" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
 							una
-							Segnalazione!</label> <label v-if="visibleCitizen()" for="my_modal_SegnalazioniModifica"
+							Segnalazione!</label>
+						<label v-if="visibleCitizen()" for="my_modal_SegnalazioniModifica"
 							class="btn btn-primary w-full">Modifica una
+							Segnalazione!</label>
+						<label v-if="visibleCitizen()" class="btn btn-primary w-full">Elimina una
 							Segnalazione!</label>
 						<label v-if="visibleAdmin()" class="btn btn-primary w-full">Approva
 							una
 							Segnalazione!</label>
 					</div>
 				</div>
-				<div class="flex-1 p-6 overflow-y-auto min-h-full flex flex-col max-h-[80vh]">
+				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 1</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
-						<div class="card bg-base-300 shadow-md p-4">
-							<h2 class="text-lg font-semibold">Risultato 2</h2>
-							<p>Descrizione o dati associati al risultato.</p>
-						</div>
+						<pre v-if="data">{{ data }}</pre>
 					</div>
 				</div>
 			</div>
@@ -378,17 +296,25 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStores';
+import { useSitesStore } from '@/stores/sitesStores';	
 
 const errorMessage = ref(null);
 
-const store = useAuthStore();
+const authStore = useAuthStore();
+const siteStore = useSitesStore();
 
 const visibleAdmin = () => {
-	store.isAdmin;
+	authStore.isAdmin;
 };
 
 const visibleCitizen = () => {
-	store.isCitizen;	
+	authStore.isCitizen;
 };
+
+const getAllSites = () => {
+	const dataSites = siteStore.getSites;
+	return dataSites;
+};
+
 
 </script>

@@ -1,4 +1,5 @@
 import api from './Api';
+
 class SitesService {
     async getSites() {
         try {
