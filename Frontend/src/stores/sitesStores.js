@@ -9,7 +9,7 @@ export const useSitesStore = defineStore("sites", () => {
   const getSites = async () => {
     try {
       const response = await service.getSites();
-      sites.value = response.value;
+      sites = response;
       console.log("Sites fetched successfully:", sites.value);
       error.value = null;
     } catch (e) {
