@@ -12,6 +12,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => token.value !== null);
 
+    const isAdmin = computed(() => user.value?.role === 'admin');
+
+    const isCitizen = computed(() => user.value?.role === 'citizen');
+
     const login = async (username, password) => {
         try {
             const response = await service.login(username, password);
@@ -54,27 +58,13 @@ export const useAuthStore = defineStore('auth', () => {
         message.value = null;
     };
 
-    const isAdmin = () => {
-        if(user.value.role === 'admin'){
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    const isCitizen = () => {
-        if(user.value.role === 'user'){
-            return true;
-        } else {
-            return false;
-        }
-    };
-
     return {
         token,
         user,
         error,
         isAuthenticated,
+        isAdmin,
+        isCitizen,
         originalPath,
         message,
         login,
@@ -83,7 +73,5 @@ export const useAuthStore = defineStore('auth', () => {
         clearRedirect,
         setMessage,
         clearMessage,
-        isAdmin,
-        isCitizen,
     };
 });

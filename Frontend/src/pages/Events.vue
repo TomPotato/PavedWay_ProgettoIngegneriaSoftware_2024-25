@@ -5,23 +5,30 @@
 			<div class="flex">
 				<div class="w-[30vh] space-y-2 flex items-center">
 					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full" @click="getAllSites">Mostra tutti i
+						<button class="btn btn-neutral mt-4 w-full" @click="getSites">Mostra tutti i
 							Cantieri!</button>
 						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
 							Cantieri!</label>
-						<label v-if="visibleAdmin()" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
+						<label v-if="isAdmin" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
 							cantiere!</label>
-						<label v-if="visibleAdmin()" for="my_modal_CantieriModifica"
-							class="btn btn-primary w-full">Modifica un
+						<label v-if="isAdmin" for="my_modal_CantieriModifica" class="btn btn-primary w-full">Modifica un
 							cantiere!</label>
-						<label v-if="visibleAdmin()" class="btn btn-primary w-full">Elimina un
+						<label v-if="isAdmin" class="btn btn-primary w-full">Elimina un
 							cantiere!</label>
 					</div>
 				</div>
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
-						<pre v-if="dataSites">{{ dataSites }}</pre>
+						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
+							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
+							<i>{{ site.info }}</i>
+							<p>Posizione: {{ site.location.latitude }}N, {{ site.location.longitude }}E</p>
+							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{ site.location.city }} ({{ site.location.code }})</p>
+							<p>Durata: {{ site.duration.start }} {{ site.duration.end}}</p>
+							<p>Impresa Edile: {{ site.companyName }}</p>
+							<hr />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -158,15 +165,15 @@
 							Segnalazioni!</button>
 						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
 							Segnalazione!</label>
-						<label v-if="visibleCitizen()" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
+						<label v-if="isCitizen" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
 							una
 							Segnalazione!</label>
-						<label v-if="visibleCitizen()" for="my_modal_SegnalazioniModifica"
+						<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
 							class="btn btn-primary w-full">Modifica una
 							Segnalazione!</label>
-						<label v-if="visibleCitizen()" class="btn btn-primary w-full">Elimina una
+						<label v-if="isCitizen" class="btn btn-primary w-full">Elimina una
 							Segnalazione!</label>
-						<label v-if="visibleAdmin()" class="btn btn-primary w-full">Approva
+						<label v-if="isAdmin" class="btn btn-primary w-full">Approva
 							una
 							Segnalazione!</label>
 					</div>
@@ -291,30 +298,33 @@
 			<span>{{ errorMessage }}</span>
 		</div>
 	</div>
+	<RedirectMessage />
 </template>
 
 <script setup>
+
 import { ref } from 'vue';
+import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
-import { useSitesStore } from '@/stores/sitesStores';	
+import { useSitesStore } from '@/stores/sitesStores';
 
 const errorMessage = ref(null);
 
 const authStore = useAuthStore();
 const siteStore = useSitesStore();
 
-const visibleAdmin = () => {
-	authStore.isAdmin;
-};
+const sites = ref([]);
 
-const visibleCitizen = () => {
-	authStore.isCitizen;
-};
+const isAdmin = authStore.isAdmin;
+const isCitizen = authStore.isCitizen;
 
-const getAllSites = () => {
-	const dataSites = siteStore.getSites;
-	return dataSites;
+const getSites = async () => {
+	try {
+		await siteStore.getSites(0, 0);
+		sites.value = siteStore.sites;
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
 };
-
 
 </script>

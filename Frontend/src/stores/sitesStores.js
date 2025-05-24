@@ -4,18 +4,18 @@ import service from "../services/SitesService";
 
 export const useSitesStore = defineStore("sites", () => {
   const error = ref(null);
-  const sites = ref(null);
+  const sites = ref([]);
 
-  const getSites = async () => {
+  const getSites = async (offset,limit) => {
     try {
-      const response = await service.getSites();
-      sites = response;
-      console.log("Sites fetched successfully:", sites.value);
+      const response = await service.getSites(offset, limit);
+      sites.value = response;
       error.value = null;
     } catch (e) {
       error.value = e.message;
     }
   };
+
   return {
     error,
     sites,

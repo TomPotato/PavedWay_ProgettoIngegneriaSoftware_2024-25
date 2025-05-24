@@ -1,9 +1,15 @@
 import api from './Api';
 
 class SitesService {
-    async getSites() {
+    async getSites(offset, limit) {
         try {
-            const response = await api.get('/sites');
+            const response = await api.get('/sites', {
+                params: {
+                    // Assuming the API supports pagination with offset and limit
+                    offset: offset,
+                    limit: limit
+                }
+            });
             return response.data;
         } catch (error) {
             throw error.data;
