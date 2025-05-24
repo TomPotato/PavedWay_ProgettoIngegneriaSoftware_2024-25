@@ -5,7 +5,6 @@ class SitesService {
         try {
             const response = await api.get('/sites', {
                 params: {
-                    // Assuming the API supports pagination with offset and limit
                     offset: offset,
                     limit: limit
                 }

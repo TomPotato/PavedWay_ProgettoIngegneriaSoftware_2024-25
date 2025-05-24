@@ -16,9 +16,20 @@ export const useSitesStore = defineStore("sites", () => {
     }
   };
 
+  const createSite = async (siteData) => {
+    try {
+      const response = await service.createSite(siteData);
+      sites.value.push(response);
+      error.value = null;
+    } catch (e) {
+      error.value = e.message;
+    }
+  };
+
   return {
     error,
     sites,
     getSites,
+    createSite,
   };
 });

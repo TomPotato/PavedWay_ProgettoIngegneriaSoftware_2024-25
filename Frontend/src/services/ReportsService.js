@@ -1,9 +1,14 @@
 import api from './Api';
 
 class ReportsService {
-    async getReports() {
+    async getReports(offset, limit) {
         try {
-            const response = await api.get(`/reports`);
+            const response = await api.get(`/reports`, {
+                params: {
+                    offset: offset,
+                    limit: limit
+                }
+            });
             return response.data;
         } catch (error) {
             throw error.data;

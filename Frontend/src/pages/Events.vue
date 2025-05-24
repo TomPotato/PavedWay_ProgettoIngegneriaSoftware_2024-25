@@ -27,7 +27,6 @@
 							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{ site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: {{ site.duration.start }} {{ site.duration.end}}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
-							<hr />
 						</div>
 					</div>
 				</div>
@@ -69,35 +68,35 @@
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<input v-model="csName" type="text" class="input" placeholder="Titolo Cantiere" required />
 
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="csInfo" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<input v-model="csLatitude" type="text" class="input" placeholder="Latitudine" required />
+							<input v-model="csLongitude" type="text" class="input" placeholder="Longitudine" required />
+							<input v-model="csStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<input v-model="csStNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<input v-model="csCity" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="csCode" type="text" class="input" placeholder="Codice Postale" required />
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="startDuration" type="text" class="input" placeholder="Data di Inizio"
+							<input v-model="csStartDuration" type="text" class="input" placeholder="Data di Inizio"
 								required />
-							<input v-model="endDuration" type="text" class="input"
+							<input v-model="csEndDuration" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="csCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
 							<label for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !startDuration || !companyName">Crea</label>
+								:disabled="!csName || !csInfo || !csLatitude || !csLongitude || !csStreet || !csStNumber || !csCity || !csCode || !csStartDuration || !csCompanyName">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -114,35 +113,35 @@
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<input v-model="msName" type="text" class="input" placeholder="Titolo Cantiere" required />
 
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="msInfo" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<input v-model="msLatitude" type="text" class="input" placeholder="Latitudine" required />
+							<input v-model="msLongitude" type="text" class="input" placeholder="Longitudine" required />
+							<input v-model="msStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<input v-model="msStNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<input v-model="msCity" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="msCode" type="text" class="input" placeholder="Codice Postale" required />
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="startDuration" type="text" class="input" placeholder="Data di Inizio"
+							<input v-model="msStartDuration" type="text" class="input" placeholder="Data di Inizio"
 								required />
-							<input v-model="endDuration" type="text" class="input"
+							<input v-model="msEndDuration" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="msCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<label for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !startDuration || !companyName">Crea</label>
+							<label for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
+								:disabled="!msName || !msInfo || !msLatitude || !msLongitude || !msStreet || !msStNumber || !msCity || !msCode || !msStartDuration || !msCompanyName">Modifica</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -181,7 +180,14 @@
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
-						<pre v-if="data">{{ data }}</pre>
+						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports" :key="report.id">
+							<h2 class="text-xl font-semibold">{{ report.name }}</h2>
+							<i>{{ report.info }}</i>
+							<p>Posizione: {{ report.location.latitude }}N, {{ report.location.longitude }}E</p>
+							<p>Indirizzo: {{ report.location.street }}, {{ report.location.stNumber }} in {{ report.location.city }} ({{ report.location.code }})</p>
+							<p>Durata: {{ report.duration.start }} {{ report.duration.end}}</p>
+							<hr />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -307,13 +313,16 @@ import { ref } from 'vue';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import { useSitesStore } from '@/stores/sitesStores';
+import { useReportsStore } from '@/stores/reportsStores';
 
 const errorMessage = ref(null);
 
 const authStore = useAuthStore();
 const siteStore = useSitesStore();
+const reportStore = useReportsStore();
 
 const sites = ref([]);
+const reports = ref([]);
 
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
@@ -321,6 +330,41 @@ const isCitizen = authStore.isCitizen;
 const getSites = async () => {
 	try {
 		await siteStore.getSites(0, 0);
+		sites.value = siteStore.sites;
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const getReports = async () => {
+	try {
+		await reportStore.getReports(0, 0);
+		reports.value = reportStore.reports;
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const createSites = async () => {
+	try {
+		await siteStore.createSite({
+			name: csName.value,
+			info: csInfo.value,
+			location: {
+				latitude: csLatitude.value,
+				longitude: csLongitude.value,
+				street: csStreet.value,
+				stNumber: csStNumber.value,
+				city: csCity.value,
+				code: csCode.value
+			},
+			duration: {
+				start: csStartDuration.value,
+				end: csEndDuration.value
+			},
+			companyName: csCompanyName.value
+		});
+		await getSites();
 		sites.value = siteStore.sites;
 	} catch (error) {
 		errorMessage.value = error.message;
