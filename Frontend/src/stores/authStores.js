@@ -54,6 +54,22 @@ export const useAuthStore = defineStore('auth', () => {
         message.value = null;
     };
 
+    const isAdmin = () => {
+        if(user.value.role === 'admin'){
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const isCitizen = () => {
+        if(user.value.role === 'user'){
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     return {
         token,
         user,
@@ -67,5 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
         clearRedirect,
         setMessage,
         clearMessage,
+        isAdmin,
+        isCitizen,
     };
 });
