@@ -12,6 +12,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => token.value !== null);
 
+    const isAdmin = computed(() => user.value?.role === 'admin');
+
+    const isCitizen = computed(() => user.value?.role === 'citizen');
+
     const login = async (username, password) => {
         try {
             const response = await service.login(username, password);
@@ -59,6 +63,8 @@ export const useAuthStore = defineStore('auth', () => {
         user,
         error,
         isAuthenticated,
+        isAdmin,
+        isCitizen,
         originalPath,
         message,
         login,
