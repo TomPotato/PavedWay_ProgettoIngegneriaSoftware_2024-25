@@ -15,6 +15,9 @@
                 <li>
                     <RouterLink to="/events">Eventi</RouterLink>
                 </li>
+                <li v-if="store.isAdmin">
+                    <RouterLink to="/users">Utenti</RouterLink>
+                </li>
                 <li>
                     <div class="dropdown dropdown-end">
                         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
@@ -50,8 +53,8 @@
             <p class="py-2">Sei sicuro di volerti disconnettere?</p>
             <div class="modal-action">
                 <form method="dialog" class="flex flex-row gap-2">
-                    <button class="btn btn-primary" @click="logout">Disconnettiti</button>
-                    <button class="btn btn-primary" @click="closeModal">Annulla</button>
+                    <button class="btn btn-neutral" @click="logout">Disconnettiti</button>
+                    <button class="btn btn-neutral" @click="closeModal">Annulla</button>
                 </form>
             </div>
         </div>

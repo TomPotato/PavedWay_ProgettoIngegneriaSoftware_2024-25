@@ -1,15 +1,15 @@
 <template>
     <div class="flex flex-col items-center">
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4" @keyup.enter="submit">
             <legend class="fieldset-legend">Accedi</legend>
 
             <label class="label">Nome utente</label>
-            <input v-model="username" type="text" class="input" placeholder="Nome utente" required />
+            <input id="default" v-model="username" type="text" class="input" placeholder="Nome utente" required />
 
             <label class="label">Password</label>
             <input v-model="password" type="password" class="input" placeholder="Password" required />
 
-            <button class="btn btn-neutral mt-4" @click="login" :disabled="!username || !password">
+            <button class="btn btn-neutral mt-4" @click="submit" :disabled="!enableSubmit()">
                 Accedi
             </button>
         </fieldset>
@@ -32,6 +32,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStores';
+import { onMounted } from 'vue';
 
 const username = ref('');
 const password = ref('');
@@ -53,4 +54,22 @@ const login = async () => {
         errorMessage.value = store.error;
     }
 };
+
+const enableSubmit = () => {
+    return username.value && password.value;
+};
+
+const submit = () => {
+    if (enableSubmit()) {
+        login();
+    }
+};
+
+onMounted(() => {
+    if (store.isAuthenticated) {
+        router.replace({ path: '/' });
+    }
+
+    document.getElementById('default').focus();
+});
 </script>

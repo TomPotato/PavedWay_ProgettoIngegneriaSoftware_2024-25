@@ -6,6 +6,7 @@ import Home from '../pages/Home.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
 import Events from '../pages/Events.vue';
+import Users from '../pages/Users.vue';
 import Refresh from '../pages/Refresh.vue';
 
 const routes = [
@@ -14,6 +15,7 @@ const routes = [
     { path: '/register', name: 'register', component: Register },
     { path: '/events', name: 'events', component: Events },
     { path: '/refresh', name: 'refresh', component: Refresh },
+    { path: '/users', name: 'users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
@@ -24,12 +26,20 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const authPages = ['/login', '/register'];
+    const store = useAuthStore();
 
     const fromAuth = authPages.includes(from.path);
     const toAuth = authPages.includes(to.path);
 
+    if (to.meta.requiresAuth && !store.isAuthenticated) {
+        store.setRedirect(from.path);
+        return next({ name: 'login' });
+    } else if (to.meta.requiresAdmin && (!store.isAuthenticated || !store.isAdmin)) {
+        store.setRedirect(from.path);
+        return next({ name: 'home' });
+    }
+
     if (toAuth && !fromAuth) {
-        const store = useAuthStore();
         store.setRedirect(from.path);
     }
 
