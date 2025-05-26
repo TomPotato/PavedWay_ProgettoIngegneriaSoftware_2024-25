@@ -59,7 +59,6 @@ class SiteService {
     async createSite(siteData) {
         try {
             const site = new Site(siteData);
-
             const validationError = site.validateSync();
             if (validationError) {
                 const message = 'Errore di validazione: alcuni campi non sono corretti.';

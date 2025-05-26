@@ -26,7 +26,7 @@ class SiteService {
     try {
       const response = await api.post(
         "/sites",
-        { params: siteData  },
+        siteData,
         {
           headers: { "x-api-key": token },
         }

@@ -9,12 +9,11 @@
 							Cantieri!</button>
 						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
 							Cantieri!</label>
-						<label v-if="isAdmin" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
-							cantiere!</label>
+						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-full">Crea un
+							cantiere!</button>
 					</div>
 				</div>
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
-					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
@@ -28,12 +27,12 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<label @click="updateSite(site.id)" v-if="isAdmin" for="my_modal_CantieriModifica"
+								<button v-if="isAdmin" @click="openModal('CantieriModifica')"
 									class="btn btn-primary w-full">Modifica il
-									cantiere!</label>
-								<label @click="deleteSite(site.id)" v-if="isAdmin"
+									cantiere!</button>
+								<button @click="deleteSite(site.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina il
-									cantiere!</label>
+									cantiere!</button>
 							</div>
 						</div>
 					</div>
@@ -70,8 +69,7 @@
 				</div>
 			</div>
 
-			<input type="checkbox" id="my_modal_CantieriCrea" class="modal-toggle" />
-			<dialog id="my_modal_CantieriCrea" class="modal" role="dialog">
+			<dialog id="CantieriCrea" class="modal">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
@@ -141,20 +139,19 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSite"
+							<button class="btn btn-neutral w-full" @click="createSite"
 								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_CantieriCrea">Annulla</label>
+							<button class="modal-backdrop btn btn-neutral text-white w-full"
+								@click = "closeModal('CantieriCrea')">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_CantieriCrea">Close</label>
+				<button class="modal-backdrop" @click = "closeModal('CantieriCrea')">Close</button>
 			</dialog>
 
-			<input type="checkbox" id="my_modal_CantieriModifica" class="modal-toggle" />
-			<dialog id="my_modal_1" class="modal" role="dialog">
+			<dialog id="CantieriModifica" class="modal">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
@@ -185,16 +182,15 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
+							<button class="btn btn-neutral w-full" @click="updateSites"
 								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Modifica</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_CantieriModifica">Annulla</label>
+							<button @click="closeModal('CantieriModifica')" class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_CantieriModifica">Close</label>
+				<button class="modal-backdrop" @click = "closeModal('CantieriCrea')">Close</button>
 			</dialog>
 		</div>
 
@@ -369,8 +365,8 @@
 import { ref, computed } from 'vue';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
-import defaultSite from '@/services/SiteService';
-import defaultReport from '@/services/ReportService';
+import siteService from '@/services/SiteService';
+import reportService from '@/services/ReportService';
 import defaultValidate from '@/utils/Validator';
 
 const errorMessage = ref(null);
@@ -379,6 +375,17 @@ const authStore = useAuthStore();
 
 const sites = ref([]);
 const reports = ref([]);
+
+const openModal = (id) => {
+	console.log('Opening modal with id:', id);
+	document.getElementById(id).showModal();
+};
+
+const closeModal = (id) => {
+	console.log('Closing modal with id:', id);
+	console.log(document.getElementById(id))
+	document.getElementById(id).close();
+};
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -464,32 +471,32 @@ const validateForm = computed(() => {
 });
 
 const resetForm = () => {
-	title = '';
-	info = '';
-	latitude = '';
-	longitude = '';
-	street = '';
-	stNumber = '';
-	city = '';
-	code = '';
-	start = '';
-	end = '';
-	companyName = '';
+	title.value = '';
+	info.value = '';
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	stNumber.value = '';
+	city.value = '';
+	code.value = '';
+	start.value = '';
+	end.value = '';
+	companyName.value = '';
 };
 
 const getSites = async () => {
 	try {
-		sites.value = await defaultSite.getSites(0, 0);
+		sites.value = await siteService.getSites(0, 0);
 	} catch (error) {
-		errorMessage.value = defaultSite.error;
+		errorMessage.value = siteService.error;
 	}
 };
 
 const getReports = async () => {
 	try {
-		reports.value = await defaultReport.getReports(0, 0);
+		reports.value = await reportService.getReports(0, 0);
 	} catch (error) {
-		errorMessage.value = defaultReport.error;
+		errorMessage.value = reportService.error;
 	}
 };
 
@@ -499,40 +506,38 @@ const createSite = async () => {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
 			const siteData = {
-				'name': title,
-				'info': info,
+				'name': title.value,
+				'info': info.value,
 				'location': {
-					'latitude': latitude,
-					'longitude': longitude,
-					'street': street,
-					'stNumber': stNumber,
-					'city': city,
-					'code': code
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'street': street.value,
+					'number': stNumber.value,
+					'city': city.value,
+					'code': code.value
 				},
 				'duration': {
-					'start': start,
-					'end': end
+					'start': start.value,
+					'end': end.value
 				},
-				'conmpanyName': companyName
+				'companyName': companyName.value
 			};
-			const check = await defaultSite.createSite(authStore.token, siteData);
-			if (check) {
-				errorMessage.value = "Cantiere creato";
-			}
+			await siteService.createSite(authStore.token, siteData);
 			resetForm();
+			document.getElementById('CantieriCrea').close();
 			await getSites();
 		}
 	} catch (error) {
-		errorMessage.value = defaultSite.error;
+		errorMessage.value = error.value;
 	}
 };
 
 const deleteSite = async (id) => {
 	try {
-		await defaultSite.deleteSite(authStore.token, id);
+		await siteService.deleteSite(authStore.token, id);
 		await getSites();
 	} catch (error) {
-		errorMessage.value = defaultSite.error;
+		errorMessage.value = siteService.error;
 	}
 };
 
@@ -555,10 +560,10 @@ const updateSite = async (id) => {
 			},
 			"conmpanyName": companyName
 		};
-		await defaultSite.updateSite(authStore.token, id, siteData);
+		await siteService.updateSite(authStore.token, id, siteData);
 		await getSites();
 	} catch (error) {
-		errorMessage.value = defaultSite.error;
+		errorMessage.value = siteService.error;
 	}
 };
 
@@ -577,30 +582,30 @@ const createReport = async () => {
 					"code": code
 				}
 			};
-			await defaultReport.createReport(authStore.token, reportData);
+			await reportService.createReport(authStore.token, reportData);
 			resetForm();
 			await getReports();
 		} catch (error) {
-			errorMessage.value = defaultReport.error;
+			errorMessage.value = reportService.error;
 		}
 	}
 };
 
 const deleteReport = async (userId, id) => {
 	try {
-		await defaultReport.deleteReport(authStore.user.id, userId, id);
+		await reportService.deleteReport(authStore.user.id, userId, id);
 		await getReports();
 	} catch (error) {
-		errorMessage.value = defaultReport.error;
+		errorMessage.value = reportService.error;
 	}
 };
 
 const statusReport = async (id, status) => {
 	try {
-		await defaultReport.statusReport(authStore.token, id, status);
+		await reportService.statusReport(authStore.token, id, status);
 		await getReports();
 	} catch (error) {
-		errorMessage.value = defaultReport.error;
+		errorMessage.value = reportService.error;
 	}
 };
 
