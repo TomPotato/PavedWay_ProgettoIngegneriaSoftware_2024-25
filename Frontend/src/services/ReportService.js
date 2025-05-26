@@ -15,25 +15,54 @@ class ReportService {
 
   async createReport(reportData) {
     try {
-      const response = await api.post(`/reports`, reportData);
+      const response = await api.post(
+        `/reports`,
+        { params: reportData },
+        {
+          headers: { "x-api-key": token },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async updateReport(reportId, reportData) {
+  async updateReport(userId, userCreatedId, reportId, reportData) {
     try {
-      const response = await api.put(`/reports/${reportId}`, reportData);
+      const response = await api.put(`/reports/${reportId}`, reportData, {
+        headers: {
+          "x-user-id": userId,
+          "x-user-created-id": userCreatedId,
+        },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async deleteReport(reportId) {
+  async deleteReport(userId, userCreatedId, reportId) {
     try {
-      const response = await api.delete(`/reports/${reportId}`);
+      const response = await api.delete(
+        `/reports/${reportId}`,
+        {},
+        {
+          headers: {
+            "x-user-id": userId,
+            "x-user-created-id": userCreatedId,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+  async statusReport(reportId, status) {
+    try {
+      const response = await api.patch(`/reports/${reportId}`, { status });
       return response.data;
     } catch (error) {
       throw error.data;

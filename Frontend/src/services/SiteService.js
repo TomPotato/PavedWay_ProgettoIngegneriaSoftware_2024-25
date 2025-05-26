@@ -3,7 +3,7 @@ import api from "./Api";
 class SiteService {
   async getSites(offset, limit) {
     try {
-      const response = await api.get('/sites', {
+      const response = await api.get("/sites", {
         offset,
         limit,
       });
@@ -24,8 +24,11 @@ class SiteService {
 
   async createSite(token, siteData) {
     try {
-      const response = await api.post('/sites', { params: siteData }, {
-          headers: { 'x-api-key': token },
+      const response = await api.post(
+        "/sites",
+        { params: siteData  },
+        {
+          headers: { "x-api-key": token },
         }
       );
       return response.data;
@@ -36,9 +39,13 @@ class SiteService {
 
   async updateSite(token, id, siteData) {
     try {
-      const response = await api.patch(`/sites/${id}`,{ params: siteData }, {
-        headers: { 'x-api-key': token },
-      });
+      const response = await api.patch(
+        `/sites/${id}`,
+        { params: siteData },
+        {
+          headers: { "x-api-key": token },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.data;
@@ -48,7 +55,7 @@ class SiteService {
   async deleteSite(token, id) {
     try {
       const response = await api.delete(`/sites/${id}`, {
-        headers: { 'x-api-key': token },
+        headers: { "x-api-key": token },
       });
       return response.data;
     } catch (error) {

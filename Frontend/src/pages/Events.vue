@@ -77,27 +77,66 @@
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
 							<input v-model="title" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<p v-if="!validateTitle" class="text-error">
+								Il titolo deve essere lungo tra 1 e 20 caratteri.
+							</p>
 
 							<label class="label">Informazioni sul Cantiere</label>
 							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 50 caratteri.
+							</p>
 
 							<label class="label">Posizione del Cantiere</label>
 							<input v-model="longitude" type="text" class="input" placeholder="Latitudine" required />
+							<p v-if="!validateLatitude" class="text-error">
+								La latitudine deve essere compresa tra -90 e 90.
+							</p>
+
 							<input v-model="latitude" type="text" class="input" placeholder="Longitudine" required />
+							<p v-if="!validateLongitude" class="text-error">
+								La longitudine deve essere compresa tra -180 e 180.
+							</p>
+
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<p v-if="!validateStreet" class="text-error">
+								La via deve essere lunga tra 1 e 15 caratteri.
+							</p>
+
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<p v-if="!validateStNumber" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
 							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<p v-if="!validateCity" class="text-error">
+								La città deve essere lunga tra 1 e 15 caratteri.
+							</p>
+
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateCode" class="text-error">
+								Il codice postale deve essere lungo tra 1 e 5 caratteri.
+							</p>
 
 							<label class="label">Durata del cantiere</label>
 							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<p v-if="!validateStart" class="text-error">
+								La data di inizio deve essere nel formato ISO 8631.
+							</p>
+
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
+							<p v-if="!validateEnd" class="text-error">
+								La data di fine deve essere nel formato ISO 8631.
+							</p>
 
 							<label class="label">Impresa Edile</label>
 							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
+							<p v-if="!validateCompanyName" class="text-error">
+								Il nome dell'impresa deve essere lungo tra 1 e 20 caratteri.
+							</p>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
@@ -198,12 +237,15 @@
 								<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
 									class="btn btn-primary w-full">Modifica la
 									Segnalazione!</label>
-								<label v-if="isCitizen" class="btn btn-primary w-full">Elimina la
+								<label @click="deleteReport(report.createdBy, report.id)" v-if="isCitizen"
+									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</label>
-								<label v-if="isAdmin" class="btn btn-primary w-full">Approva
+								<label @click="statusReport(report.id, 'approved')" v-if="isAdmin"
+									class="btn btn-primary w-full">Approva
 									la
 									Segnalazione!</label>
-								<label v-if="isAdmin" class="btn btn-primary w-full">Rifiuta
+								<label @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
+									class="btn btn-primary w-full">Rifiuta
 									la
 									Segnalazione!</label>
 							</div>
@@ -330,12 +372,14 @@
 
 <script setup>
 
-import { ref } from 'vue';
+import { ref , computed} from 'vue';
 import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import defaultSite from '@/services/SiteService';
 import defaultReport from '@/services/ReportService';
+import defaultValidate from '@/utils/Validator';
+import { get } from 'express/lib/response';
 
 const router = useRouter();
 
@@ -347,19 +391,87 @@ const sites = ref([]);
 const reports = ref([]);
 
 const title = ref('');
+const validateTitle = () => {
+	return ( title.value.length > 0 && title.value.length <= 20 );
+};
+
 const info = ref('');
+const validateInfo = () => {
+	return ( info.value.length > 0 && info.value.length <= 50 );
+};
+
 const latitude = ref('');
+const validateLatitude = () => {
+	return ( latitude.value >= 0 && latitude.value <= 90 );
+};
+
 const longitude = ref('');
+const validateLongitude = () => {
+	return ( longitude.value >= -0 && longitude.value <= 180 );
+};
+
 const street = ref('');
+const validateStreet = () => {
+	return ( street.value.length > 0 && street.value.length <= 15 ); 
+};
+
 const stNumber = ref('');
+const validateStNumber = () => {
+	return ( stNumber.value.length > 0 && stNumber.value.length <= 4 );
+};
+
 const city = ref('');
+const validateCity = () => {
+	return ( city.value.length > 0 && city.value.length <= 15 );
+};
+
 const code = ref('');
+const validateCode = () => {
+	return ( code.value.length > 0 && code.value.length <= 5 );
+};
+
 const start = ref('');
+const validateStart = () => {
+	return ( defaultValidate.validateDate(start.value) );
+};
+
 const end = ref('');
+const validateEnd = () => {
+	return ( defaultValidate.validateDate(end.value) );
+};
+
 const companyName = ref('');
+const validateCompanyName = () => {
+	return ( companyName.value.length > 0 && companyName.value.length <= 20 );
+};
 
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
+
+const validateForm = computed(() => {
+	return (title.value &&
+		info.value &&
+		latitude.value &&
+		longitude.value &&
+		street.value &&
+		stNumber.value &&
+		city.value &&
+		code.value &&
+		start.value &&
+		companyName.value &&
+		validateTitle() &&
+		validateInfo() &&
+		validateLatitude() &&
+		validateLongitude() &&
+		validateStreet() &&
+		validateStNumber() &&
+		validateCity() &&
+		validateCode() &&
+		validateStart() &&
+		validateEnd() &&
+		validateCompanyName()
+	);
+});
 
 const resetForm = () => {
 	title = '';
@@ -392,34 +504,38 @@ const getReports = async () => {
 };
 
 const createSites = async () => {
-	try {
-		const siteData = {
-			"name": title,
-			"info": info,
-			"location": {
-				"latitude": latitude,
-				"longitude": longitude,
-				"street": street,
-				"stNumber": stNumber,
-				"city": city,
-				"code": code
-			},
-			"duration": {
-				"start": start,
-				"end": end
-			},
-			"conmpanyName": companyName
-		};
-		await defaultSite.createSite(authStore.token, siteData);
-		resetForm();
-	} catch (error) {
-		errorMessage.value = error.message;
+	if (validateForm.value) {
+		try {
+			const siteData = {
+				"name": title,
+				"info": info,
+				"location": {
+					"latitude": latitude,
+					"longitude": longitude,
+					"street": street,
+					"stNumber": stNumber,
+					"city": city,
+					"code": code
+				},
+				"duration": {
+					"start": start,
+					"end": end
+				},
+				"conmpanyName": companyName
+			};
+			await defaultSite.createSite(authStore.token, siteData);
+			resetForm();
+			await getSites();
+		} catch (error) {
+			errorMessage.value = error.message;
+		}
 	}
 };
 
 const deleteSite = async (id) => {
 	try {
 		await defaultSite.deleteSite(authStore.token, id);
+		await getSites();
 	} catch (error) {
 		errorMessage.value = error.message;
 	}
@@ -445,6 +561,49 @@ const updateSite = async (id) => {
 			"conmpanyName": companyName
 		};
 		await defaultSite.updateSite(authStore.token, id, siteData);
+		await getSites();
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const createReport = async () => {
+	if (validateForm.value) {
+		try {
+			const reportData = {
+				"name": title,
+				"info": info,
+				"location": {
+					"latitude": latitude,
+					"longitude": longitude,
+					"street": street,
+					"stNumber": stNumber,
+					"city": city,
+					"code": code
+				}
+			};
+			await defaultReport.createReport(authStore.token, reportData);
+			resetForm();
+			await getReports();
+		} catch (error) {
+			errorMessage.value = error.message;
+		}
+	}
+};
+
+const deleteReport = async (userId, id) => {
+	try {
+		await defaultReport.deleteReport(authStore.user.id, userId, id);
+		await getReports();
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const statusReport = async (id, status) => {
+	try {
+		await defaultReport.statusReport(authStore.token, id, status);
+		await getReports();
 	} catch (error) {
 		errorMessage.value = error.message;
 	}
