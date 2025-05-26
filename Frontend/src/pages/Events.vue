@@ -27,7 +27,7 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica')"
+								<button v-if="isAdmin" @click="openModal('CantieriModifica'), passId = site.id"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
 								<button @click="deleteSite(site.id)" v-if="isAdmin"
@@ -83,7 +83,7 @@
 							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
 							<p v-if="!validateInfo" class="text-error">
-								Le informazioni devono essere lunghe tra 1 e 50 caratteri.
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
 							</p>
 
 							<label class="label">Posizione del Cantiere</label>
@@ -126,7 +126,7 @@
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8631.
+								La data di fine deve essere nel formato ISO 8631 e posteriore alla data di inizio.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -144,53 +144,56 @@
 						</div>
 						<div>
 							<button class="modal-backdrop btn btn-neutral text-white w-full"
-								@click = "closeModal('CantieriCrea')">Annulla</button>
+								@click="closeModal('CantieriCrea')">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click = "closeModal('CantieriCrea')">Close</button>
+				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
 			</dialog>
 
 			<dialog id="CantieriModifica" class="modal">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
-							<label class="label">Titolo del Cantiere</label>
-							<input v-model="title" type="text" class="input" placeholder="Titolo Cantiere" required />
-
 							<label class="label">Informazioni sul Cantiere</label>
 							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
-
-							<label class="label">Posizione del Cantiere</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+							</p>
 
 							<label class="label">Durata del cantiere</label>
 							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<p v-if="!validateStart" class="text-error">
+								La data di inizio deve essere nel formato ISO 8631.
+							</p>
+
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
+							<p v-if="!validateEnd" class="text-error">
+								La data di fine deve essere nel formato ISO 8631.
+							</p>
 
 							<label class="label">Impresa Edile</label>
 							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
+							<p v-if="!validateCompanyName" class="text-error">
+								Il nome dell'impresa deve essere lungo tra 1 e 20 caratteri.
+							</p>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button class="btn btn-neutral w-full" @click="updateSites"
-								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Modifica</button>
+							<button class="btn btn-neutral w-full" @click="updateSite()"
+								:disabled="!info || !start || !companyName">Modifica</button>
 						</div>
 						<div>
-							<button @click="closeModal('CantieriModifica')" class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+							<button @click="closeModal('CantieriModifica')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click = "closeModal('CantieriCrea')">Close</button>
+				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
 			</dialog>
 		</div>
 
@@ -367,7 +370,7 @@ import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
-import defaultValidate from '@/utils/Validator';
+import validateService from '@/utils/Validator';
 
 const errorMessage = ref(null);
 
@@ -394,7 +397,7 @@ const validateTitle = computed(() => {
 
 const info = ref('');
 const validateInfo = computed(() => {
-	return info.value.length > 0 && info.value.length <= 50;
+	return info.value.length > 0 && info.value.length <= 200;
 });
 
 const latitude = ref('');
@@ -429,12 +432,12 @@ const validateCode = computed(() => {
 
 const start = ref('');
 const validateStart = computed(() => {
-	return defaultValidate.validateDate(start.value);
+	return validateService.validateDate(start.value);
 });
 
 const end = ref('');
 const validateEnd = computed(() => {
-	return defaultValidate.validateDate(end.value) || end.value == '';
+	return (validateService.validateDate(end.value) && end.value > start.value) || end.value == '';
 });
 
 const companyName = ref('');
@@ -445,7 +448,7 @@ const validateCompanyName = computed(() => {
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
 
-const validateForm = computed(() => {
+const valCrea = computed(() => {
 	return (title.value &&
 		info.value &&
 		latitude.value &&
@@ -455,6 +458,7 @@ const validateForm = computed(() => {
 		city.value &&
 		code.value &&
 		start.value &&
+		(end.value || null) &&
 		companyName.value &&
 		validateTitle &&
 		validateInfo &&
@@ -470,7 +474,19 @@ const validateForm = computed(() => {
 	);
 });
 
-const resetForm = () => {
+const valMod = computed(() => {
+	return (info.value &&
+		start.value &&
+		(end.value || null) &&
+		companyName.value &&
+		validateInfo &&
+		validateStart &&
+		validateEnd &&
+		validateCompanyName
+	);
+});
+
+const resCrea = () => {
 	title.value = '';
 	info.value = '';
 	latitude.value = '';
@@ -483,6 +499,15 @@ const resetForm = () => {
 	end.value = '';
 	companyName.value = '';
 };
+
+const resMod = () => {
+	info.value = '';
+	start.value = '';
+	end.value = '';
+	companyName.value = '';
+};
+
+const passId  = ref('');
 
 const getSites = async () => {
 	try {
@@ -502,7 +527,7 @@ const getReports = async () => {
 
 const createSite = async () => {
 	try {
-		if (!validateForm.value) {
+		if (!valCrea.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
 			const siteData = {
@@ -523,7 +548,7 @@ const createSite = async () => {
 				'companyName': companyName.value
 			};
 			await siteService.createSite(authStore.token, siteData);
-			resetForm();
+			resCrea();
 			document.getElementById('CantieriCrea').close();
 			await getSites();
 		}
@@ -541,34 +566,33 @@ const deleteSite = async (id) => {
 	}
 };
 
-const updateSite = async (id) => {
+const updateSite = async () => {
 	try {
-		const siteData = {
-			"name": title,
-			"info": info,
-			"location": {
-				"latitude": latitude,
-				"longitude": longitude,
-				"street": street,
-				"stNumber": stNumber,
-				"city": city,
-				"code": code
-			},
-			"duration": {
-				"start": start,
-				"end": end
-			},
-			"conmpanyName": companyName
-		};
-		await siteService.updateSite(authStore.token, id, siteData);
-		await getSites();
+		const id = passId.value;
+		console.log('Updating site with id:', id);
+		if (!valMod.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
+			const siteData = {
+				'info': info.value,
+				'duration': {
+					'start': start.value,
+					'end': end.value
+				},
+				'companyName': companyName.value
+			};
+			await siteService.updateSite(authStore.token, id, siteData);
+			resMod();
+			document.getElementById('CanteriModifica').close();
+			await getSites();
+		}
 	} catch (error) {
-		errorMessage.value = siteService.error;
+		errorMessage.value = error.value;
 	}
 };
 
 const createReport = async () => {
-	if (validateForm.value) {
+	if (valCrea.value) {
 		try {
 			const reportData = {
 				"name": title,
@@ -583,7 +607,7 @@ const createReport = async () => {
 				}
 			};
 			await reportService.createReport(authStore.token, reportData);
-			resetForm();
+			resCrea();
 			await getReports();
 		} catch (error) {
 			errorMessage.value = reportService.error;

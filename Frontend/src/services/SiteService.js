@@ -15,7 +15,9 @@ class SiteService {
 
   async getSiteById(id) {
     try {
-      const response = await api.get(`/sites/${id}`);
+      const response = await api.get(`/sites/${id}`, {} ,{
+        headers: { "x-api-key": token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
@@ -24,13 +26,9 @@ class SiteService {
 
   async createSite(token, siteData) {
     try {
-      const response = await api.post(
-        "/sites",
-        siteData,
-        {
-          headers: { "x-api-key": token },
-        }
-      );
+      const response = await api.post("/sites", siteData, {
+        headers: { "x-api-key": token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
@@ -39,13 +37,9 @@ class SiteService {
 
   async updateSite(token, id, siteData) {
     try {
-      const response = await api.patch(
-        `/sites/${id}`,
-        { params: siteData },
-        {
-          headers: { "x-api-key": token },
-        }
-      );
+      const response = await api.patch(`/sites/${id}`, siteData, {
+        headers: { "x-api-key": token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
