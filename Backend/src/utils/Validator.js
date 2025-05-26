@@ -5,7 +5,7 @@ class Validator {
     }
 
     validateName(name) {
-        const nameRegex = /^[a-zA-ZÀ-ÿ' -]+$/u;
+        const nameRegex = /^[a-zA-ZÀ-ÿ' -]{2,}$/u;
         return nameRegex.test(name);
     }
 
@@ -15,7 +15,7 @@ class Validator {
     }
 
     validatePassword(password) {
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=\-[\]{};':"\\|,.<>/?`~]).{8,}$/;;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=\-[\]{};':"\\|,.<>/?`~]).{8,}$/;
         return passwordRegex.test(password);
     }
 
