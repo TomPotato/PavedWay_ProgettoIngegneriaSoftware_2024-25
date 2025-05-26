@@ -24,15 +24,8 @@ class SiteService {
 
   async createSite(token, siteData) {
     try {
-      const response = await api.post(
-        '/sites',
-        {
-          params: {
-            siteData,
-          },
-        },
-        {
-          headers: { 'x-apy-key': token },
+      const response = await api.post('/sites', { params: siteData }, {
+          headers: { 'x-api-key': token },
         }
       );
       return response.data;
@@ -41,18 +34,22 @@ class SiteService {
     }
   }
 
-  async updateSite(id, siteData) {
+  async updateSite(token, id, siteData) {
     try {
-      const response = await api.put(`/sites/${id}`, siteData);
+      const response = await api.patch(`/sites/${id}`,{ params: siteData }, {
+        headers: { 'x-api-key': token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async deleteSite(id) {
+  async deleteSite(token, id) {
     try {
-      const response = await api.delete(`/sites/${id}`);
+      const response = await api.delete(`/sites/${id}`, {
+        headers: { 'x-api-key': token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;

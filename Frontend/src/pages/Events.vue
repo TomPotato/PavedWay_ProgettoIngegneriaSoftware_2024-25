@@ -28,10 +28,11 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<label @click="modifySite" v-if="isAdmin" for="my_modal_CantieriModifica"
+								<label @click="updateSite(site.id)" v-if="isAdmin" for="my_modal_CantieriModifica"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</label>
-								<label @click="deleteSite" v-if="isAdmin" class="btn btn-primary w-full">Elimina il
+								<label @click="deleteSite(site.id)" v-if="isAdmin"
+									class="btn btn-primary w-full">Elimina il
 									cantiere!</label>
 							</div>
 						</div>
@@ -330,7 +331,6 @@
 <script setup>
 
 import { ref } from 'vue';
-import { toRaw } from 'vue';
 import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
@@ -394,26 +394,57 @@ const getReports = async () => {
 const createSites = async () => {
 	try {
 		const siteData = {
-			params: {
-				"name": title,
-				"info": info,
-				"location": {
-					"latitude": latitude,
-					"longitude": longitude,
-					"street": street,
-					"stNumber": stNumber,
-					"city": city,
-					"code": code
-				},
-				"duration": {
-					"start": start,
-					"end": end
-				},
-				"conmpanyName": companyName
-			}
+			"name": title,
+			"info": info,
+			"location": {
+				"latitude": latitude,
+				"longitude": longitude,
+				"street": street,
+				"stNumber": stNumber,
+				"city": city,
+				"code": code
+			},
+			"duration": {
+				"start": start,
+				"end": end
+			},
+			"conmpanyName": companyName
 		};
 		await defaultSite.createSite(authStore.token, siteData);
 		resetForm();
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const deleteSite = async (id) => {
+	try {
+		await defaultSite.deleteSite(authStore.token, id);
+	} catch (error) {
+		errorMessage.value = error.message;
+	}
+};
+
+const updateSite = async (id) => {
+	try {
+		const siteData = {
+			"name": title,
+			"info": info,
+			"location": {
+				"latitude": latitude,
+				"longitude": longitude,
+				"street": street,
+				"stNumber": stNumber,
+				"city": city,
+				"code": code
+			},
+			"duration": {
+				"start": start,
+				"end": end
+			},
+			"conmpanyName": companyName
+		};
+		await defaultSite.updateSite(authStore.token, id, siteData);
 	} catch (error) {
 		errorMessage.value = error.message;
 	}
