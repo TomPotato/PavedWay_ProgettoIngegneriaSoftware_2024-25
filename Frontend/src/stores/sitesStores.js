@@ -17,9 +17,9 @@ export const useSitesStore = defineStore("sites", () => {
     }
   };
 
-  const createSite = async (siteData) => {
+  const createSite = async (token , siteData) => {
     try {
-      const response = await service.createSite(siteData);
+      const response = await service.createSite(token , siteData);
       if(response){
         check = true;
       }

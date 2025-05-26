@@ -22,9 +22,16 @@ class SitesService {
     }
   }
 
-  async createSite(siteData) {
+  async createSite(token, siteData) {
     try {
-      const response = await api.post("/sites", siteData);
+      const response = await api.post("/sites",{
+        params: {
+        siteData
+      }}, {
+        headers: {
+          "x-apy-key": token
+        },
+    });
       return response.data;
     } catch (error) {
       throw error.data;

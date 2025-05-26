@@ -417,7 +417,7 @@ const createSites = async () => {
 				"conmpanyName": companyName.value
 			}
 		};
-		await siteStore.createSite(siteData);
+		await siteStore.createSite(authStore.token, siteData);
 		if (siteStore.check) {
 			resetForm();
 			message.value = 'Cantiere creato con successo';
