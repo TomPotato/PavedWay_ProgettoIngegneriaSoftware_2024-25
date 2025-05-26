@@ -1,7 +1,16 @@
 import api from './Api';
 
-class ReportsService {
-    async getReports(offset, limit) {
+class ReportService {
+    async createReport(reportData) {
+        try {
+            const response = await api.post(`/reports`, reportData);
+            return response.data;
+        } catch (error) {
+            throw error.data;
+        }
+    }
+
+    async getReports(offset = 0, limit = 0) {
         try {
             const response = await api.get(`/reports`, {
                 params: {
@@ -15,9 +24,15 @@ class ReportsService {
         }
     }
 
-    async createReport(reportData) {
+    async getActiveReports(offset = 0, limit = 0) {
         try {
-            const response = await api.post(`/reports`, reportData);
+            const response = await api.get('/reports', {
+                params: {
+                    now: true,
+                    offset: offset,
+                    limit: limit
+                }
+            });
             return response.data;
         } catch (error) {
             throw error.data;
@@ -43,4 +58,4 @@ class ReportsService {
     }
 }
 
-export default new ReportsService();
+export default new ReportService();

@@ -312,14 +312,10 @@
 import { ref } from 'vue';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
-import { useSitesStore } from '@/stores/sitesStores';
-import { useReportsStore } from '@/stores/reportsStores';
 
 const errorMessage = ref(null);
 
 const authStore = useAuthStore();
-const siteStore = useSitesStore();
-const reportStore = useReportsStore();
 
 const sites = ref([]);
 const reports = ref([]);

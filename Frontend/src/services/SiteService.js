@@ -1,10 +1,34 @@
 import api from './Api';
 
-class SitesService {
-    async getSites(offset, limit) {
+class SiteService {
+    async createSite(siteData) {
+        try {
+            const response = await api.post('/sites', siteData);
+            return response.data;
+        } catch (error) {
+            throw error.data;
+        }
+    }
+
+    async getSites(offset = 0, limit = 0) {
         try {
             const response = await api.get('/sites', {
                 params: {
+                    offset: offset,
+                    limit: limit
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.data;
+        }
+    }
+
+    async getActiveSites(offset = 0, limit = 0) {
+        try {
+            const response = await api.get('/sites', {
+                params: {
+                    now: true,
                     offset: offset,
                     limit: limit
                 }
@@ -24,18 +48,9 @@ class SitesService {
         }
     }
 
-    async createSite(siteData) {
-        try {
-            const response = await api.post('/sites', siteData);
-            return response.data;
-        } catch (error) {
-            throw error.data;
-        }
-    }
-
     async updateSite(id, siteData) {
         try {
-            const response = await api.put(`/sites/${id}`, siteData);
+            const response = await api.patch(`/sites/${id}`, siteData);
             return response.data;
         } catch (error) {
             throw error.data;
@@ -52,4 +67,4 @@ class SitesService {
     }
 }
 
-export default new SitesService();
+export default new SiteService();
