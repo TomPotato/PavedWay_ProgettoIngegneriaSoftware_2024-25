@@ -89,12 +89,12 @@
 							</p>
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="longitude" type="text" class="input" placeholder="Latitudine" required />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
 							<p v-if="!validateLatitude" class="text-error">
 								La latitudine deve essere compresa tra -90 e 90.
 							</p>
 
-							<input v-model="latitude" type="text" class="input" placeholder="Longitudine" required />
+							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
 							<p v-if="!validateLongitude" class="text-error">
 								La longitudine deve essere compresa tra -180 e 180.
 							</p>
@@ -116,7 +116,7 @@
 
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
 							<p v-if="!validateCode" class="text-error">
-								Il codice postale deve essere lungo tra 1 e 5 caratteri.
+								Il codice postale deve essere lungo 5 caratteri.
 							</p>
 
 							<label class="label">Durata del cantiere</label>
@@ -141,7 +141,7 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<button for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
+							<button for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSite"
 								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
 						</div>
 						<div>
@@ -159,37 +159,34 @@
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
-							<input v-model="msName" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<input v-model="title" type="text" class="input" placeholder="Titolo Cantiere" required />
 
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="msInfo" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="msLatitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="msLongitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="msStreet" type="text" class="input" placeholder="Via/Strada/Viale"
-								required />
-							<input v-model="msStNumber" type="text" class="input" placeholder="Numero Civico"
-								required />
-							<input v-model="msCity" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="msCode" type="text" class="input" placeholder="Codice Postale" required />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
+							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="msStartDuration" type="text" class="input" placeholder="Data di Inizio"
-								required />
-							<input v-model="msEndDuration" type="text" class="input"
+							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="msCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
 							<button for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!msName || !msInfo || !msLatitude || !msLongitude || !msStreet || !msStNumber || !msCity || !msCode || !msStartDuration || !msCompanyName">Modifica</button>
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Modifica</button>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -228,8 +225,7 @@
 							<p>Indirizzo: {{ report.location.street }}, {{ report.location?.stNumber || " 0 " }} in {{
 								report.location.city }} ({{ report.location.code }})</p>
 							<p>Durata: da {{ report.duration?.start || " 'non inserita' " }} a {{ report.duration?.end
-								||
-								" 'data da destinarsi' " }}</p>
+								|| " 'data da destinarsi' " }}</p>
 							<i>Rating: {{ report?.rating || "0" }}</i>
 							<p>Foto: {{ report.photos == [] || " 'Non ci sono foto per questa segnalazione' " }}</p>
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
@@ -240,12 +236,10 @@
 								<label @click="deleteReport(report.createdBy, report.id)" v-if="isCitizen"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</label>
-								<label @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-primary w-full">Approva
+								<label @click="" v-if="isAdmin" class="btn btn-primary w-full">Approva
 									la
 									Segnalazione!</label>
-								<label @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-primary w-full">Rifiuta
+								<label @click="" v-if="isAdmin" class="btn btn-primary w-full">Rifiuta
 									la
 									Segnalazione!</label>
 							</div>
@@ -325,7 +319,7 @@
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione"
+							<input v-model="title" type="text" class="input" placeholder="Titolo Segnalazione"
 								required />
 
 							<label class="label">Informazioni sulla Segnalazione</label>
@@ -345,7 +339,7 @@
 						<div>
 							<label for="my_modal_SegnalazioniModifica" class="btn btn-neutral w-full"
 								@click="createReports"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -372,16 +366,12 @@
 
 <script setup>
 
-import { ref , computed} from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import defaultSite from '@/services/SiteService';
 import defaultReport from '@/services/ReportService';
 import defaultValidate from '@/utils/Validator';
-import { get } from 'express/lib/response';
-
-const router = useRouter();
 
 const errorMessage = ref(null);
 
@@ -391,59 +381,59 @@ const sites = ref([]);
 const reports = ref([]);
 
 const title = ref('');
-const validateTitle = () => {
-	return ( title.value.length > 0 && title.value.length <= 20 );
-};
+const validateTitle = computed(() => {
+	return title.value.length > 0 && title.value.length <= 20;
+});
 
 const info = ref('');
-const validateInfo = () => {
-	return ( info.value.length > 0 && info.value.length <= 50 );
-};
+const validateInfo = computed(() => {
+	return info.value.length > 0 && info.value.length <= 50;
+});
 
 const latitude = ref('');
-const validateLatitude = () => {
-	return ( latitude.value >= 0 && latitude.value <= 90 );
-};
+const validateLatitude = computed(() => {
+	return latitude.value >= -90 && latitude.value <= 90;
+});
 
 const longitude = ref('');
-const validateLongitude = () => {
-	return ( longitude.value >= -0 && longitude.value <= 180 );
-};
+const validateLongitude = computed(() => {
+	return longitude.value >= -180 && longitude.value <= 180;
+});
 
 const street = ref('');
-const validateStreet = () => {
-	return ( street.value.length > 0 && street.value.length <= 15 ); 
-};
+const validateStreet = computed(() => {
+	return street.value.length > 0 && street.value.length <= 15;
+});
 
 const stNumber = ref('');
-const validateStNumber = () => {
-	return ( stNumber.value.length > 0 && stNumber.value.length <= 4 );
-};
+const validateStNumber = computed(() => {
+	return stNumber.value.length > 0 && stNumber.value.length <= 4;
+});
 
 const city = ref('');
-const validateCity = () => {
-	return ( city.value.length > 0 && city.value.length <= 15 );
-};
+const validateCity = computed(() => {
+	return city.value.length > 0 && city.value.length <= 15;
+});
 
 const code = ref('');
-const validateCode = () => {
-	return ( code.value.length > 0 && code.value.length <= 5 );
-};
+const validateCode = computed(() => {
+	return code.value.length >= 5 && code.value.length <= 5;
+});
 
 const start = ref('');
-const validateStart = () => {
-	return ( defaultValidate.validateDate(start.value) );
-};
+const validateStart = computed(() => {
+	return defaultValidate.validateDate(start.value);
+});
 
 const end = ref('');
-const validateEnd = () => {
-	return ( defaultValidate.validateDate(end.value) );
-};
+const validateEnd = computed(() => {
+	return defaultValidate.validateDate(end.value) || end.value == '';
+});
 
 const companyName = ref('');
-const validateCompanyName = () => {
-	return ( companyName.value.length > 0 && companyName.value.length <= 20 );
-};
+const validateCompanyName = computed(() => {
+	return companyName.value.length > 0 && companyName.value.length <= 20;
+});
 
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
@@ -459,17 +449,17 @@ const validateForm = computed(() => {
 		code.value &&
 		start.value &&
 		companyName.value &&
-		validateTitle() &&
-		validateInfo() &&
-		validateLatitude() &&
-		validateLongitude() &&
-		validateStreet() &&
-		validateStNumber() &&
-		validateCity() &&
-		validateCode() &&
-		validateStart() &&
-		validateEnd() &&
-		validateCompanyName()
+		validateTitle &&
+		validateInfo &&
+		validateLatitude &&
+		validateLongitude &&
+		validateStreet &&
+		validateStNumber &&
+		validateCity &&
+		validateCode &&
+		validateStart &&
+		validateEnd &&
+		validateCompanyName
 	);
 });
 
@@ -491,7 +481,7 @@ const getSites = async () => {
 	try {
 		sites.value = await defaultSite.getSites(0, 0);
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultSite.error;
 	}
 };
 
@@ -499,36 +489,41 @@ const getReports = async () => {
 	try {
 		reports.value = await defaultReport.getReports(0, 0);
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultReport.error;
 	}
 };
 
-const createSites = async () => {
-	if (validateForm.value) {
-		try {
+const createSite = async () => {
+	try {
+		if (!validateForm.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
 			const siteData = {
-				"name": title,
-				"info": info,
-				"location": {
-					"latitude": latitude,
-					"longitude": longitude,
-					"street": street,
-					"stNumber": stNumber,
-					"city": city,
-					"code": code
+				'name': title,
+				'info': info,
+				'location': {
+					'latitude': latitude,
+					'longitude': longitude,
+					'street': street,
+					'stNumber': stNumber,
+					'city': city,
+					'code': code
 				},
-				"duration": {
-					"start": start,
-					"end": end
+				'duration': {
+					'start': start,
+					'end': end
 				},
-				"conmpanyName": companyName
+				'conmpanyName': companyName
 			};
-			await defaultSite.createSite(authStore.token, siteData);
+			const check = await defaultSite.createSite(authStore.token, siteData);
+			if (check) {
+				errorMessage.value = "Cantiere creato";
+			}
 			resetForm();
 			await getSites();
-		} catch (error) {
-			errorMessage.value = error.message;
 		}
+	} catch (error) {
+		errorMessage.value = defaultSite.error;
 	}
 };
 
@@ -537,7 +532,7 @@ const deleteSite = async (id) => {
 		await defaultSite.deleteSite(authStore.token, id);
 		await getSites();
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultSite.error;
 	}
 };
 
@@ -563,7 +558,7 @@ const updateSite = async (id) => {
 		await defaultSite.updateSite(authStore.token, id, siteData);
 		await getSites();
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultSite.error;
 	}
 };
 
@@ -586,7 +581,7 @@ const createReport = async () => {
 			resetForm();
 			await getReports();
 		} catch (error) {
-			errorMessage.value = error.message;
+			errorMessage.value = defaultReport.error;
 		}
 	}
 };
@@ -596,7 +591,7 @@ const deleteReport = async (userId, id) => {
 		await defaultReport.deleteReport(authStore.user.id, userId, id);
 		await getReports();
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultReport.error;
 	}
 };
 
@@ -605,7 +600,7 @@ const statusReport = async (id, status) => {
 		await defaultReport.statusReport(authStore.token, id, status);
 		await getReports();
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = defaultReport.error;
 	}
 };
 

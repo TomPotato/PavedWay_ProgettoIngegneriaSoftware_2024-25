@@ -1,6 +1,7 @@
 import api from "./Api";
 
 class ReportService {
+
   async getReports(offset, limit) {
     try {
       const response = await api.get(`/reports`, {
@@ -13,7 +14,7 @@ class ReportService {
     }
   }
 
-  async createReport(reportData) {
+  async createReport(token , reportData) {
     try {
       const response = await api.post(
         `/reports`,
