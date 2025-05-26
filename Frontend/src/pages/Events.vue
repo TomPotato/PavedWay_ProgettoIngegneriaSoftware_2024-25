@@ -11,10 +11,6 @@
 							Cantieri!</label>
 						<label v-if="isAdmin" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
 							cantiere!</label>
-						<label v-if="isAdmin" for="my_modal_CantieriModifica" class="btn btn-primary w-full">Modifica un
-							cantiere!</label>
-						<label v-if="isAdmin" class="btn btn-primary w-full">Elimina un
-							cantiere!</label>
 					</div>
 				</div>
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
@@ -23,10 +19,21 @@
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
 							<i>{{ site.info }}</i>
-							<p>Posizione: {{ site.location.latitude }}N, {{ site.location.longitude }}E</p>
-							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{ site.location.city }} ({{ site.location.code }})</p>
-							<p>Durata: {{ site.duration.start }} {{ site.duration.end}}</p>
+							<p>Posizione:</p>
+							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
+							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{
+								site.location.city }} ({{ site.location.code }})</p>
+							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end || "'data da destinarsi'"}}</p>
+							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
+								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
+							<div class="grid grid-cols-2 gap-5 w-auto">
+								<label v-if="isAdmin" for="my_modal_CantieriModifica"
+									class="btn btn-primary w-full">Modifica il
+									cantiere!</label>
+								<label v-if="isAdmin" class="btn btn-primary w-full">Elimina il
+									cantiere!</label>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -63,40 +70,39 @@
 			</div>
 
 			<input type="checkbox" id="my_modal_CantieriCrea" class="modal-toggle" />
-			<dialog id="my_modal_id" class="modal" role="dialog">
+			<dialog id="my_modal_CantieriCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
-							<input v-model="csName" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<input v-model="title" type="text" class="input" placeholder="Titolo Cantiere" required />
 
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="csInfo" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="csLatitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="csLongitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="csStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="csStNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="csCity" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="csCode" type="text" class="input" placeholder="Codice Postale" required />
+							<input v-model="longitude" type="text" class="input" placeholder="Latitudine" required />
+							<input v-model="latitude" type="text" class="input" placeholder="Longitudine" required />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="csStartDuration" type="text" class="input" placeholder="Data di Inizio"
-								required />
-							<input v-model="csEndDuration" type="text" class="input"
+							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="csCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<label for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!csName || !csInfo || !csLatitude || !csLongitude || !csStreet || !csStNumber || !csCity || !csCode || !csStartDuration || !csCompanyName">Crea</label>
+							<button for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -108,7 +114,7 @@
 			</dialog>
 
 			<input type="checkbox" id="my_modal_CantieriModifica" class="modal-toggle" />
-			<dialog id="my_modal_id" class="modal" role="dialog">
+			<dialog id="my_modal_1" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
@@ -122,8 +128,10 @@
 							<label class="label">Posizione del Cantiere</label>
 							<input v-model="msLatitude" type="text" class="input" placeholder="Latitudine" required />
 							<input v-model="msLongitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="msStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="msStNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<input v-model="msStreet" type="text" class="input" placeholder="Via/Strada/Viale"
+								required />
+							<input v-model="msStNumber" type="text" class="input" placeholder="Numero Civico"
+								required />
 							<input v-model="msCity" type="text" class="input" placeholder="Cittá" required />
 							<input v-model="msCode" type="text" class="input" placeholder="Codice Postale" required />
 
@@ -140,8 +148,8 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<label for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!msName || !msInfo || !msLatitude || !msLongitude || !msStreet || !msStNumber || !msCity || !msCode || !msStartDuration || !msCompanyName">Modifica</label>
+							<button for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
+								:disabled="!msName || !msInfo || !msLatitude || !msLongitude || !msStreet || !msStNumber || !msCity || !msCode || !msStartDuration || !msCompanyName">Modifica</button>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -167,26 +175,37 @@
 						<label v-if="isCitizen" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
 							una
 							Segnalazione!</label>
-						<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
-							class="btn btn-primary w-full">Modifica una
-							Segnalazione!</label>
-						<label v-if="isCitizen" class="btn btn-primary w-full">Elimina una
-							Segnalazione!</label>
-						<label v-if="isAdmin" class="btn btn-primary w-full">Approva
-							una
-							Segnalazione!</label>
 					</div>
 				</div>
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
-						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports" :key="report.id">
+						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
+							:key="report.id">
 							<h2 class="text-xl font-semibold">{{ report.name }}</h2>
 							<i>{{ report.info }}</i>
-							<p>Posizione: {{ report.location.latitude }}N, {{ report.location.longitude }}E</p>
-							<p>Indirizzo: {{ report.location.street }}, {{ report.location.stNumber }} in {{ report.location.city }} ({{ report.location.code }})</p>
-							<p>Durata: {{ report.duration.start }} {{ report.duration.end}}</p>
-							<hr />
+							<p>Posizione: Lat: {{ report.location.latitude }}, Lon: {{ report.location.longitude }}</p>
+							<p>Indirizzo: {{ report.location.street }}, {{ report.location?.stNumber || " 0 " }} in {{
+								report.location.city }} ({{ report.location.code }})</p>
+							<p>Durata: da {{ report.duration?.start || " 'non inserita' " }} a {{ report.duration?.end
+								||
+								" 'data da destinarsi' " }}</p>
+							<i>Rating: {{ report?.rating || "0" }}</i>
+							<p>Foto: {{ report.photos == [] || " 'Non ci sono foto per questa segnalazione' " }}</p>
+							<p v-if="isAdmin">Status: {{ report.status }}</p>
+							<div class="grid grid-cols-2 gap-5 w-auto">
+								<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
+									class="btn btn-primary w-full">Modifica la
+									Segnalazione!</label>
+								<label v-if="isCitizen" class="btn btn-primary w-full">Elimina la
+									Segnalazione!</label>
+								<label v-if="isAdmin" class="btn btn-primary w-full">Approva
+									la
+									Segnalazione!</label>
+								<label v-if="isAdmin" class="btn btn-primary w-full">Rifiuta
+									la
+									Segnalazione!</label>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -223,7 +242,7 @@
 			</div>
 
 			<input type="checkbox" id="my_modal_SegnalazioniCrea" class="modal-toggle" />
-			<dialog id="my_modal_id1" class="modal" role="dialog">
+			<dialog id="my_modal_01" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
@@ -246,19 +265,19 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<label for="my_modal_Segnalazioni" class="btn btn-neutral w-full" @click="createReports"
+							<label for="my_modal_SegnalazioniCrea" class="btn btn-neutral w-full" @click="createReports"
 								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_Segnalazioni">Annulla</label>
+								for="my_modal_SegnalazioniCrea">Annulla</label>
 						</div>
 					</div>
 				</div>
 				<label class="modal-backdrop" for="my_modal_SegnalazioniCrea">Close</label>
 			</dialog>
 			<input type="checkbox" id="my_modal_SegnalazioniModifica" class="modal-toggle" />
-			<dialog id="my_modal_id1" class="modal" role="dialog">
+			<dialog id="my_modal_02" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
@@ -281,12 +300,13 @@
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
 						<div>
-							<label for="my_modal_Segnalazioni" class="btn btn-neutral w-full" @click="createReports"
+							<label for="my_modal_SegnalazioniModifica" class="btn btn-neutral w-full"
+								@click="createReports"
 								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_Segnalazioni">Annulla</label>
+								for="my_modal_SegnalazioniModifica">Annulla</label>
 						</div>
 					</div>
 				</div>
@@ -310,10 +330,15 @@
 <script setup>
 
 import { ref } from 'vue';
+import { toRaw } from 'vue';
+import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import { useSitesStore } from '@/stores/sitesStores';
 import { useReportsStore } from '@/stores/reportsStores';
+import { formToJSON } from 'axios';
+
+const router = useRouter();
 
 const errorMessage = ref(null);
 
@@ -324,8 +349,34 @@ const reportStore = useReportsStore();
 const sites = ref([]);
 const reports = ref([]);
 
+const title = ref('');
+const info = ref('');
+const latitude = ref('');
+const longitude = ref('');
+const street = ref('');
+const stNumber = ref('');
+const city = ref('');
+const code = ref('');
+const start = ref('');
+const end = ref('');
+const companyName = ref('');
+
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
+
+const resetForm = () => {
+	title = '';
+	info = '';
+	latitude = '';
+	longitude = '';
+	street = '';
+	stNumber = '';
+	city = '';
+	code = '';
+	start = '';
+	end = '';
+	companyName = '';
+};
 
 const getSites = async () => {
 	try {
@@ -347,25 +398,32 @@ const getReports = async () => {
 
 const createSites = async () => {
 	try {
-		await siteStore.createSite({
-			name: csName.value,
-			info: csInfo.value,
-			location: {
-				latitude: csLatitude.value,
-				longitude: csLongitude.value,
-				street: csStreet.value,
-				stNumber: csStNumber.value,
-				city: csCity.value,
-				code: csCode.value
-			},
-			duration: {
-				start: csStartDuration.value,
-				end: csEndDuration.value
-			},
-			companyName: csCompanyName.value
-		});
-		await getSites();
-		sites.value = siteStore.sites;
+		const siteData = {
+			params: {
+				"name": title.value,
+				"info": info.value,
+				"location": {
+					"latitude": latitude.value,
+					"longitude": longitude.value,
+					"street": street.value,
+					"stNumber": stNumber.value,
+					"city": city.value,
+					"code": code.value
+				},
+				"duration": {
+					"start": start.value,
+					"end": end.value
+				},
+				"conmpanyName": companyName.value
+			}
+		};
+		await siteStore.createSite(siteData);
+		if (siteStore.check) {
+			resetForm();
+			message.value = 'Cantiere creato con successo';
+		} else {
+			errorMessage.value = 'Cantiere non creato';
+		}
 	} catch (error) {
 		errorMessage.value = error.message;
 	}

@@ -5,6 +5,7 @@ import service from "../services/SitesService";
 export const useSitesStore = defineStore("sites", () => {
   const error = ref(null);
   const sites = ref([]);
+  const check = ref(false);
 
   const getSites = async (offset,limit) => {
     try {
@@ -19,7 +20,9 @@ export const useSitesStore = defineStore("sites", () => {
   const createSite = async (siteData) => {
     try {
       const response = await service.createSite(siteData);
-      sites.value.push(response);
+      if(response){
+        check = true;
+      }
       error.value = null;
     } catch (e) {
       error.value = e.message;
@@ -29,6 +32,7 @@ export const useSitesStore = defineStore("sites", () => {
   return {
     error,
     sites,
+    check,
     getSites,
     createSite,
   };
