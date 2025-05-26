@@ -1,9 +1,9 @@
 import api from "./Api";
 
-class SitesService {
+class SiteService {
   async getSites(offset, limit) {
     try {
-      const response = await api.get("/sites", {
+      const response = await api.get('/sites', {
         offset,
         limit,
       });
@@ -24,14 +24,17 @@ class SitesService {
 
   async createSite(token, siteData) {
     try {
-      const response = await api.post("/sites",{
-        params: {
-        siteData
-      }}, {
-        headers: {
-          "x-apy-key": token
+      const response = await api.post(
+        '/sites',
+        {
+          params: {
+            siteData,
+          },
         },
-    });
+        {
+          headers: { 'x-apy-key': token },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.data;
@@ -57,4 +60,4 @@ class SitesService {
   }
 }
 
-export default new SitesService();
+export default new SiteService();

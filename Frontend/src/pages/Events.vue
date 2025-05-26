@@ -28,10 +28,10 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<label v-if="isAdmin" for="my_modal_CantieriModifica"
+								<label @click="modifySite" v-if="isAdmin" for="my_modal_CantieriModifica"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</label>
-								<label v-if="isAdmin" class="btn btn-primary w-full">Elimina il
+								<label @click="deleteSite" v-if="isAdmin" class="btn btn-primary w-full">Elimina il
 									cantiere!</label>
 							</div>
 						</div>
@@ -334,17 +334,14 @@ import { toRaw } from 'vue';
 import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
-import { useSitesStore } from '@/stores/sitesStores';
-import { useReportsStore } from '@/stores/reportsStores';
-import { formToJSON } from 'axios';
+import defaultSite from '@/services/SiteService';
+import defaultReport from '@/services/ReportService';
 
 const router = useRouter();
 
 const errorMessage = ref(null);
 
 const authStore = useAuthStore();
-const siteStore = useSitesStore();
-const reportStore = useReportsStore();
 
 const sites = ref([]);
 const reports = ref([]);
@@ -380,8 +377,7 @@ const resetForm = () => {
 
 const getSites = async () => {
 	try {
-		await siteStore.getSites(0, 0);
-		sites.value = siteStore.sites;
+		sites.value = await defaultSite.getSites(0, 0);
 	} catch (error) {
 		errorMessage.value = error.message;
 	}
@@ -389,8 +385,7 @@ const getSites = async () => {
 
 const getReports = async () => {
 	try {
-		await reportStore.getReports(0, 0);
-		reports.value = reportStore.reports;
+		reports.value = await defaultReport.getReports(0, 0);
 	} catch (error) {
 		errorMessage.value = error.message;
 	}
@@ -400,30 +395,25 @@ const createSites = async () => {
 	try {
 		const siteData = {
 			params: {
-				"name": title.value,
-				"info": info.value,
+				"name": title,
+				"info": info,
 				"location": {
-					"latitude": latitude.value,
-					"longitude": longitude.value,
-					"street": street.value,
-					"stNumber": stNumber.value,
-					"city": city.value,
-					"code": code.value
+					"latitude": latitude,
+					"longitude": longitude,
+					"street": street,
+					"stNumber": stNumber,
+					"city": city,
+					"code": code
 				},
 				"duration": {
-					"start": start.value,
-					"end": end.value
+					"start": start,
+					"end": end
 				},
-				"conmpanyName": companyName.value
+				"conmpanyName": companyName
 			}
 		};
-		await siteStore.createSite(authStore.token, siteData);
-		if (siteStore.check) {
-			resetForm();
-			message.value = 'Cantiere creato con successo';
-		} else {
-			errorMessage.value = 'Cantiere non creato';
-		}
+		await defaultSite.createSite(authStore.token, siteData);
+		resetForm();
 	} catch (error) {
 		errorMessage.value = error.message;
 	}

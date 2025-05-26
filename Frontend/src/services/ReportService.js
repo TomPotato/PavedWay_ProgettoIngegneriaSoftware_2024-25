@@ -1,6 +1,6 @@
 import api from "./Api";
 
-class ReportsService {
+class ReportService {
   async getReports(offset, limit) {
     try {
       const response = await api.get(`/reports`, {
@@ -41,4 +41,4 @@ class ReportsService {
   }
 }
 
-export default new ReportsService();
+export default new ReportService();
