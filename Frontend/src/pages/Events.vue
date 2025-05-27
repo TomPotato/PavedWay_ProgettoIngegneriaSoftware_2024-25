@@ -27,7 +27,7 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica'), passId = site.id"
+								<button v-if="isAdmin" @click="openModal('CantieriModifica'), passEvent = site.id"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
 								<button @click="deleteSite(site.id)" v-if="isAdmin"
@@ -61,7 +61,7 @@
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
-							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
+							<input v-model="end" type="text" class="input" placeholder="Raggio" />
 							<label for="my-drawer-Cantieri" class="btn btn-neutral mt-4"
 								@click="getSitesByInfo">Cerca!</label>
 						</fieldset>
@@ -137,7 +137,7 @@
 							</p>
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<button class="btn btn-neutral w-full" @click="createSite"
 								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
@@ -182,7 +182,7 @@
 							</p>
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<button class="btn btn-neutral w-full" @click="updateSite()"
 								:disabled="!info || !start || !companyName">Modifica</button>
@@ -269,7 +269,7 @@
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
-							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
+							<input v-model="end" type="text" class="input" placeholder="Raggio" />
 							<label for="my-drawer-Segnalazioni" class="btn btn-neutral mt-4"
 								@click="getReportsByInfo">Cerca!</label>
 						</fieldset>
@@ -283,7 +283,7 @@
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione"
+							<input v-model="title" type="text" class="input" placeholder="Titolo Segnalazione"
 								required />
 
 							<label class="label">Informazioni sulla Segnalazione</label>
@@ -299,10 +299,10 @@
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<label for="my_modal_SegnalazioniCrea" class="btn btn-neutral w-full" @click="createReports"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
 						</div>
 						<div>
 							<label class="modal-backdrop btn btn-neutral text-white w-full"
@@ -334,7 +334,7 @@
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<label for="my_modal_SegnalazioniModifica" class="btn btn-neutral w-full"
 								@click="createReports"
@@ -378,17 +378,6 @@ const authStore = useAuthStore();
 
 const sites = ref([]);
 const reports = ref([]);
-
-const openModal = (id) => {
-	console.log('Opening modal with id:', id);
-	document.getElementById(id).showModal();
-};
-
-const closeModal = (id) => {
-	console.log('Closing modal with id:', id);
-	console.log(document.getElementById(id))
-	document.getElementById(id).close();
-};
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -447,6 +436,29 @@ const validateCompanyName = computed(() => {
 
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
+
+const passEvent = ref('');
+
+const openModal = (id) => {
+	console.log('Opening modal with id:', id);
+	if(id === 'CantieriModifica') {
+		console.log('Preparing to pass event data to modal:', passEvent.value);
+		console.log('Current sites:', sites.value);
+		const site = sites.value.find(s => s.id === passEvent.value);
+		console.log('Passing event data to modal:', site);
+		info.value = site.info;
+		start.value = site.duration.start;
+		end.value = site.duration.end || '';
+		companyName.value = site.companyName;
+	}
+	document.getElementById(id).showModal();
+};
+
+const closeModal = (id) => {
+	console.log('Closing modal with id:', id);
+	console.log(document.getElementById(id))
+	document.getElementById(id).close();
+};
 
 const valCrea = computed(() => {
 	return (title.value &&
@@ -507,8 +519,6 @@ const resMod = () => {
 	companyName.value = '';
 };
 
-const passId  = ref('');
-
 const getSites = async () => {
 	try {
 		sites.value = await siteService.getSites(0, 0);
@@ -568,7 +578,7 @@ const deleteSite = async (id) => {
 
 const updateSite = async () => {
 	try {
-		const id = passId.value;
+		const id = passEvent.value.id;
 		console.log('Updating site with id:', id);
 		if (!valMod.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
@@ -595,7 +605,7 @@ const createReport = async () => {
 	if (valCrea.value) {
 		try {
 			const reportData = {
-				"name": title,
+				"title": title,
 				"info": info,
 				"location": {
 					"latitude": latitude,
@@ -615,9 +625,9 @@ const createReport = async () => {
 	}
 };
 
-const deleteReport = async (userId, id) => {
+const deleteReport = async (id) => {
 	try {
-		await reportService.deleteReport(authStore.user.id, userId, id);
+		await reportService.deleteReport(authStore.user.id, id);
 		await getReports();
 	} catch (error) {
 		errorMessage.value = reportService.error;
