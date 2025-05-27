@@ -593,7 +593,7 @@ const getReports = async () => {
 const getActiveReports = async () => {
 	try {
 		ready.value = false;
-		sites.value = await siteService.getActiveReports(0, 0);
+		reports.value = await reportService.getActiveReports(0, 0);
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;

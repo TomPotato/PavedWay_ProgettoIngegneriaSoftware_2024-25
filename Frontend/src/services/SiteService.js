@@ -16,11 +16,9 @@ class SiteService {
   async getActiveSites(offset, limit) {
     try {
       const response = await api.get("/sites", {
-        params: {
           now: true,
           offset: offset,
-          limit: limit,
-        },
+          limit: limit
       });
       return response.data;
     } catch (error) {

@@ -15,12 +15,10 @@ class ReportService {
 
   async getActiveReports(offset, limit) {
     try {
-      const response = await api.get("/reports", {
-        params: {
+      const response = await api.get(`/reports`, {
           now: true,
           offset: offset,
-          limit: limit,
-        },
+          limit: limit
       });
       return response.data;
     } catch (error) {
