@@ -279,7 +279,7 @@ class ReportService {
     * @async
     * @param {string} reportId - L'ID della segnalazione a cui aggiungere il commento.
     * @param {Object} commentData - I dati del commento da aggiungere alla segnalazione.
-    * @returns {Promise<Comment>} La segnalazione modificata.
+    * @returns {Promise<Report>} La segnalazione modificata.
     * @throws {Error} Se si verifica un errore durante l'aggiunta del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
     * 
     * @description

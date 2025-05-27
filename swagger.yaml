@@ -507,7 +507,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-                
+
   /reports/{id}/comments:
     post:
       tags:
@@ -537,7 +537,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Comment"
+                $ref: "#/components/schemas/Report"
         "400":
           description: Richiesta non valida.
           content:
@@ -775,6 +775,61 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sites/{id}/comments:
+    post:
+      tags:
+        - Cantieri
+      summary: Aggiunge un commento a un cantiere
+      description: >-
+        Permette di aggiungere un commento a un cantiere specifico.
+        Devi essere autenticato per aggiungere un commento.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere a cui aggiungere il commento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+      responses:
+        "201":
+          description: Commento aggiunto con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
           content:
             application/json:
               schema:

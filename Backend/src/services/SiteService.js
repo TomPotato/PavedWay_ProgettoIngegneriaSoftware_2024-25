@@ -211,6 +211,46 @@ class SiteService {
             throw createError('Errore interno del server', 500, message);
         }
     }
+
+    /**
+    * Aggiunge un commento a un cantiere esistente nel database.
+    *
+    * @async
+    * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
+    * @param {Object} commentData - I dati del commento da aggiungere al cantiere.
+    * @returns {Promise<Site>} Il cantiere modificato.
+    * @throws {Error} Se si verifica un errore durante l'aggiunta del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+    * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+    * 3. Se il cantiere esiste, aggiunge il commento all'array dei commenti del cantiere.
+    * 4. Esegue la validazione dei dati del cantiere.
+    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
+    * 6. Se la validazione ha successo, salva il cantiere aggiornato nel database.
+    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
+    * 8. Restituisce il cantiere con il commento aggiunto.
+    */
+    async createComment(reportId, commentData) {
+        try {
+            const site = await Site.findById(reportId);
+            if (!site) {
+                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+            }
+
+            site.comments.push(commentData);
+            const updatedSite = await site.save();
+            return updatedSite;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la creazione del commento.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new SiteService();

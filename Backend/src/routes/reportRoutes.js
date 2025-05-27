@@ -197,8 +197,8 @@ router.post('/:id/comments', tokenChecker, async (req, res) => {
     }
 
     try {
-        const comment = await service.createComment(id, req.body);
-        res.status(201).json(comment);
+        const report = await service.createComment(id, req.body);
+        res.status(201).json(report);
     } catch (error) {
         res.status(error.code).json(error);
     }
