@@ -917,6 +917,22 @@ components:
           format: date-time
           description: Data e ora di creazione del commento.
 
+    Notification:
+      type: object
+      required:
+        - message
+      properties:
+        id:
+          type: integer
+          description: ID della notifica (generato automaticamente dal server).
+        message:
+          type: string
+          description: Testo della notifica.
+        createdAt:
+          type: string
+          format: date-time
+          description: Data e ora di creazione della notifica.
+
     Event:
       type: object
       required:
