@@ -25,6 +25,11 @@ class Validator {
 
         return dateRegex.test(date) || dateRegex2.test(date);
     }
+
+    validateNotification(notification) {
+        const notificationRegex = /^[a-zA-ZÀ-ÿ0-9.,:;!?()'"“”‘’\- ]{1,100}$/u;
+        return notificationRegex.test(notification);
+    }
 }
 
 module.exports = new Validator();
