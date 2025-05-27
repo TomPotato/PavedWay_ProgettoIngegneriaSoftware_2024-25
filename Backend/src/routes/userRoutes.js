@@ -102,9 +102,9 @@ router.get('/:id/reports', async (req, res) => {
 router.delete('/:id', tokenChecker, async (req, res) => {
     const userId = req.params.id;
 
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json(createError('Accesso negato', 403,
-            'Devi essere un amministratore per eliminare un utente.'));
+            'Devi essere un amministratore per eliminare un altro utente.'));
     }
 
     try {
