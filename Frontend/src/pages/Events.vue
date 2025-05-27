@@ -7,7 +7,7 @@
 					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
 						<button class="btn btn-neutral mt-4 w-full" @click="getSites">Mostra tutti i
 							Cantieri!</button>
-						<button class="btn btn-neutral mt-4 w-full" @click="getActiveSites">Mostra tutti i
+						<button class="btn btn-neutral mt-4 w-full" @click="getActiveSites">Mostra i
 							Cantieri ancora attivi!</button>
 						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
 							Cantieri!</label>
@@ -212,10 +212,9 @@
 						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getReports">Mostra
 							tutte le
 							Segnalazioni!</button>
-						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getActiveReports">Mostra
-							tutte le
+						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getActiveReports">Mostra le
 							Segnalazioni ancora attive!</button>
-						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
+						<label for="SegnalazioniCerca" class="btn btn-primary drawer-button w-full">Cerca una
 							Segnalazione!</label>
 						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
 							class="btn btn-primary w-full">Crea
@@ -231,31 +230,28 @@
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
-							<h2 class="text-xl font-semibold">{{ report.name }}</h2>
-							<i>{{ report.info }}</i>
-							<p>Posizione: Lat: {{ report.location.latitude }}, Lon: {{ report.location.longitude }}</p>
-							<p>Indirizzo: {{ report.location.street }}, {{ report.location?.stNumber || " 0 " }} in {{
-								report.location.city }} ({{ report.location.code }})</p>
-							<p>Durata: da {{ report.duration?.start || " 'non inserita' " }} a {{ report.duration?.end
-								|| " 'data da destinarsi' " }}</p>
+							<h2 class="text-xl font-semibold">{{
+								report.name }}</h2>
+							<p>{{ report.info }}</p>
 							<i>Rating: {{ report?.rating || "0" }}</i>
-							<p>Foto: {{ report.photos == [] || " 'Non ci sono foto per questa segnalazione' " }}</p>
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
-							<div class="grid grid-cols-4 gap-5 w-auto">
-								<label @click="deleteReport(report.id)" v-if="isAdmin"
+							<div class="grid grid-cols-5 gap-5 w-auto">
+								<button @click="openModal('SegnalazioniInfo', report.id)"
+									class="btn btn-primary w-[10vh]">Info</button>
+								<button @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
-									Segnalazione!</label>
-								<label @click="statusReport(report.id, 'approved')" v-if="isAdmin"
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
 									class="btn btn-success w-full">Approva
 									la
-									Segnalazione!</label>
-								<label @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
 									class="btn btn-error w-full">Rifiuta
 									la
-									Segnalazione!</label>
-								<label @click="statusReport(report.id, 'solved')" v-if="isAdmin"
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
 									class="btn btn-neutral w-full">Contrassegna come
-									Risolta!</label>
+									Risolta!</button>
 							</div>
 						</div>
 					</div>
@@ -264,9 +260,9 @@
 
 
 			<div class="drawer drawer-end h-full center-0">
-				<input id="my-drawer-Segnalazioni" type="checkbox" class="drawer-toggle" />
+				<input id="SegnalazioniCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="my-drawer-Segnalazioni" aria-label="close sidebar" class="drawer-overlay"></label>
+					<label for="SegnalazioniCerca" aria-label="close sidebar" class="drawer-overlay"></label>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<label class="label">Cerca la segnalazione per informazioni</label>
@@ -285,12 +281,28 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="end" type="text" class="input" placeholder="Raggio" />
-							<label for="my-drawer-Segnalazioni" class="btn btn-neutral mt-4"
+							<label for="SegnalazioniCerca" class="btn btn-neutral mt-4"
 								@click="getReportsByInfo">Cerca!</label>
 						</fieldset>
 					</div>
 				</div>
 			</div>
+
+			<dialog id="SegnalazioniInfo" class="modal" role="dialog">
+				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
+					<div class="overflow-y-auto p-4 flex-1">
+						<h2 class="text-xl font-semibold">{{ rInfo.name }}</h2>
+						<p>{{ rInfo.info }}</p>
+						<p>Posizione: Lat: {{ rInfo.location?.latitude }} - Lon: {{ rInfo.location?.longitude }}</p>
+						<p>Indirizzo: {{ rInfo.location?.street }}, {{ rInfo.location?.number }} in {{
+							rInfo.location?.city }} ({{ rInfo.location?.code }})</p>
+						<p>Durata: da {{ rInfo.duration?.start || " 'non inserita' " }} a {{ rInfo.duration?.end
+							|| " 'data da destinarsi' " }}</p>
+						<i>Rating: {{ rInfo?.rating || "0" }}</i>
+					</div>
+				</div>
+				<button class="modal-backdrop" @click="closeModal('SegnalazioniInfo')">Close</button>
+			</dialog>
 
 			<dialog id="SegnalazioniCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
@@ -386,6 +398,8 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
+const rInfo = ref({});
+
 const ready = ref(true);
 
 const title = ref('');
@@ -459,6 +473,8 @@ const openModal = (id, eventId = '') => {
 	} else if (id === 'SegnalazioniCrea') {
 		const date = Date.now();
 		start.value = new Date(date).toISOString().split('T')[0];
+	} else if (id === 'SegnalazioniInfo') {
+		rInfo.value = reports.value.find(r => r.id === eventId);
 	}
 	document.getElementById(id).showModal();
 };
