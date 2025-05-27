@@ -2,7 +2,7 @@
     <div class="navbar px-4 text-font">
         <div class="flex-none">
             <RouterLink to="/" class="flex items-center text-xl font-bold gap-2">
-                <img src="/logo.png" alt="Logo" class="h-20" />
+                <img src="/logo.png" alt="Logo" class="h-[10vh]" />
                 <span>- PAVED WAY -</span>
             </RouterLink>
         </div>
