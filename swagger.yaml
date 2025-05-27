@@ -26,6 +26,10 @@ tags:
     description: >-
       Operazioni relative alla gestione dei cantieri, 
       inclusi la creazione, la visualizzazione e l'aggiornamento dei cantieri.
+  - name: Notifiche
+    description: >-
+      Operazioni relative alla gestione delle notifiche, 
+      inclusa la creazione e la visualizzazione delle notifiche.
 
 paths:
   /auth/register:
@@ -721,6 +725,60 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notifications:
+    post:
+      tags:
+        - Notifiche
+      summary: Crea una nuova notifica
+      description: >-
+        Crea una nuova notifica. 
+        Solo un amministratore può creare una notifica.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Notification"
+      responses:
+        "201":
+          description: Notifica creata con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare una notifica.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Evento non trovato.
           content:
             application/json:
               schema:
