@@ -25,6 +25,11 @@ class Validator {
 
         return dateRegex.test(date) || dateRegex2.test(date);
     }
+
+    validateComment(comment) {
+        const commentRegex = /^[\w\s.,!?'"()\-:;@&$%#*+=/\\]{1,30}$/;
+        return commentRegex.test(comment);
+    }
 }
 
 module.exports = new Validator();

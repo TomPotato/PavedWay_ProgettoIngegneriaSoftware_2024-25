@@ -178,4 +178,30 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 });
 
+router.post('/:id/comments', tokenChecker, async (req, res) => {
+    const id = req.params.id;
+
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire un commento nel corpo della richiesta.'));
+    }
+
+    if(validator.validateDate(req.body.createdAt) === false){
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire una data valida in formato ISO 8601.'));
+    }
+
+    if (!validator.validateComment(req.body.comment)) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Il commento non può essere vuoto, deve contenere al massimo 30 caratteri e può includere lettere, numeri, spazi e alcuni simboli.'));
+    }
+
+    try {
+        const comment = await service.createComment(id, req.body);
+        res.status(201).json(comment);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

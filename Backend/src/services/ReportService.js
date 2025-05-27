@@ -272,6 +272,46 @@ class ReportService {
             }
         }
     }
+
+    /**
+    * Aggiunge un commento a una segnalazione esistente nel database.
+    *
+    * @async
+    * @param {string} reportId - L'ID della segnalazione a cui aggiungere il commento.
+    * @param {Object} commentData - I dati del commento da aggiungere alla segnalazione.
+    * @returns {Promise<Comment>} La segnalazione modificata.
+    * @throws {Error} Se si verifica un errore durante l'aggiunta del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+    * 3. Se la segnalazione esiste, aggiunge il commento all'array dei commenti della segnalazione.
+    * 4. Esegue la validazione dei dati della segnalazione.
+    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
+    * 6. Se la validazione ha successo, salva la segnalazione aggiornata nel database.
+    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
+    * 8. Restituisce la segnalazione con il commento aggiunto.
+    */
+    async createComment(reportId, commentData) {
+        try {
+            const report = await Report.findById(reportId);
+            if (!report) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            }
+
+            report.comments.push(commentData);
+            const updatedReport = await report.save();
+            return updatedReport;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la creazione del commento.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new ReportService();
