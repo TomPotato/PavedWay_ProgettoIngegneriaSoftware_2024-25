@@ -97,7 +97,6 @@ class SiteService {
     async updateSite(siteId, siteData) {
         try {
             const siteExists = await Site.findById(siteId);
-
             if (!siteExists) {
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             } else {
@@ -165,33 +164,33 @@ class SiteService {
      */
     async getActiveSites(date, offset, limit) {
         try {
-            
+
             let query = Site.find({
-              $or: [
-                {
-                  $and: [
-                    { 'realDuration.start': { $lte: date } },
+                $or: [
                     {
-                      $or: [
-                        { 'realDuration.end': { $gte: date } },
-                        { 'realDuration.end': { $exists: false } }
-                      ]
-                    }
-                  ]
-                },
-                { 'realDuration': { $exists: false } },
-                {
-                  $and: [
-                    { 'duration.start': { $lte: date } },
+                        $and: [
+                            { 'realDuration.start': { $lte: date } },
+                            {
+                                $or: [
+                                    { 'realDuration.end': { $gte: date } },
+                                    { 'realDuration.end': { $exists: false } }
+                                ]
+                            }
+                        ]
+                    },
+                    { 'realDuration': { $exists: false } },
                     {
-                      $or: [
-                        { 'duration.end': { $gte: date } },
-                        { 'duration.end': { $exists: false } }
-                      ]
+                        $and: [
+                            { 'duration.start': { $lte: date } },
+                            {
+                                $or: [
+                                    { 'duration.end': { $gte: date } },
+                                    { 'duration.end': { $exists: false } }
+                                ]
+                            }
+                        ]
                     }
-                  ]
-                }
-              ]
+                ]
             });
 
             if (offset && offset > 0) {

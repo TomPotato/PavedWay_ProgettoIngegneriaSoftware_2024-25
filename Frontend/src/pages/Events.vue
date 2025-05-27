@@ -22,7 +22,8 @@
 							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
 							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{
 								site.location.city }} ({{ site.location.code }})</p>
-							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end || "'data da destinarsi'"}}</p>
+							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
+								"\'data da destinarsi\'"}}</p>
 							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
@@ -441,7 +442,7 @@ const passEvent = ref('');
 
 const openModal = (id, eventId = '') => {
 	passEvent.value = eventId;
-	if(id === 'CantieriModifica') {
+	if (id === 'CantieriModifica') {
 		const site = sites.value.find(s => s.id === eventId);
 		info.value = site.info;
 		start.value = site.duration.start;

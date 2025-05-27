@@ -66,32 +66,27 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 
     if (req.user.role !== 'admin') {
-        return res.status(403).json(createError('Accesso negato. ', 403,
+        return res.status(403).json(createError('Accesso negato.', 403,
             'Devi essere un amministratore per modificare un cantiere.'));
     }
 
-    if(req.body.id || req.body.location || req.body.createdAt || req.body.comments ){
-        return res.status(403).json(createError('Accesso Negato',403, 
+    if (req.body.id || req.body.location || req.body.createdAt || req.body.comments) {
+        return res.status(403).json(createError('Accesso Negato', 403,
             'Non sei autorizzato a modificare questa informazione.'));
-        }
-
-    if (!validator.validateUsername(req.body)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
     }
 
     try {
 
         let data = {
-            'name':null,
-            'info':null,
-            'duration':null,
-            'companyName':null,
-            'realDuration':null
+            'name': null,
+            'info': null,
+            'duration': null,
+            'companyName': null,
+            'realDuration': null
         }
 
         Object.keys(data).forEach(key => {
-            if(req.body.hasOwnProperty(key)){
+            if (req.body.hasOwnProperty(key)) {
                 data[key] = req.body[key];
             }
         });
