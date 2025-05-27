@@ -247,6 +247,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+                
+  /users/{id}:
+    delete:
+      tags:
+        - Utenti
+      summary: Elimina un utente specifico
+      description: >-
+        Permette di eliminare un utente specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare un utente.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da eliminare.
+      responses:
+        "204":
+          description: Utente eliminato con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per eliminare un utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /users/{id}/reports:
     get:
