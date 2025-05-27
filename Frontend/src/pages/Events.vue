@@ -27,7 +27,7 @@
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
 							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica'), passEvent = site.id"
+								<button v-if="isAdmin" @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
 								<button @click="deleteSite(site.id)" v-if="isAdmin"
@@ -439,13 +439,10 @@ const isCitizen = authStore.isCitizen;
 
 const passEvent = ref('');
 
-const openModal = (id) => {
-	console.log('Opening modal with id:', id);
+const openModal = (id, eventId = '') => {
+	passEvent.value = eventId;
 	if(id === 'CantieriModifica') {
-		console.log('Preparing to pass event data to modal:', passEvent.value);
-		console.log('Current sites:', sites.value);
-		const site = sites.value.find(s => s.id === passEvent.value);
-		console.log('Passing event data to modal:', site);
+		const site = sites.value.find(s => s.id === eventId);
 		info.value = site.info;
 		start.value = site.duration.start;
 		end.value = site.duration.end || '';
@@ -455,7 +452,6 @@ const openModal = (id) => {
 };
 
 const closeModal = (id) => {
-	console.log('Closing modal with id:', id);
 	console.log(document.getElementById(id))
 	document.getElementById(id).close();
 };
@@ -578,7 +574,7 @@ const deleteSite = async (id) => {
 
 const updateSite = async () => {
 	try {
-		const id = passEvent.value.id;
+		const id = passEvent.value;
 		console.log('Updating site with id:', id);
 		if (!valMod.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
