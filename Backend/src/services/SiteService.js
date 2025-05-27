@@ -168,7 +168,7 @@ class SiteService {
         try {
             
             let query = Site.find({
-              $or: [
+              $and: [
                 {
                   $and: [
                     { 'realDuration.start': { $lte: date } },
