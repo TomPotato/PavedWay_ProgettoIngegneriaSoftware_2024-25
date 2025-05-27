@@ -219,11 +219,11 @@ class ReportService {
     try {
       let query = Report.find({
         $and: [
-          { "duration.start": { $lte: date } },
+          { 'duration.start': { $lte: date } },
           {
             $or: [
-              { "duration.end": { $gte: date } },
-              { "duration.end": { $exists: false } },
+              { 'duration.end': { $gte: date } },
+              { 'duration.end': { $exists: false } },
             ],
           },
         ],
