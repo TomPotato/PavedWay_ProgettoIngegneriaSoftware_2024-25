@@ -212,6 +212,9 @@
 						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getReports">Mostra
 							tutte le
 							Segnalazioni!</button>
+						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getActiveReports">Mostra
+							tutte le
+							Segnalazioni ancora attive!</button>
 						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
 							Segnalazione!</label>
 						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
@@ -584,6 +587,16 @@ const getReports = async () => {
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
+	}
+};
+
+const getActiveReports = async () => {
+	try {
+		ready.value = false;
+		sites.value = await siteService.getActiveReports(0, 0);
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = siteService.error;
 	}
 };
 

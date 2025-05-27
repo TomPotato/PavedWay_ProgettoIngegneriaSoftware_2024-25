@@ -13,6 +13,21 @@ class ReportService {
     }
   }
 
+  async getActiveReports(offset, limit) {
+    try {
+      const response = await api.get("/reports", {
+        params: {
+          now: true,
+          offset: offset,
+          limit: limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async createReport(token, reportData) {
     try {
       const response = await api.post(`/reports`, reportData, {
@@ -37,12 +52,9 @@ class ReportService {
 
   async deleteReport(token, reportId) {
     try {
-      const response = await api.delete(
-        `/reports/${reportId}`,
-        {
-          headers: { "x-api-key": token },
-        }
-      );
+      const response = await api.delete(`/reports/${reportId}`, {
+        headers: { "x-api-key": token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;
@@ -54,7 +66,7 @@ class ReportService {
       const response = await api.patch(
         `/reports/${reportId}`,
         {
-          'status': status,
+          status: status,
         },
         {
           headers: { "x-api-key": token },
