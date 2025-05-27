@@ -1,6 +1,5 @@
 <template>
     <div class="hero bg-base-200 min-h-screen">
-
         <div id="map" style="height: 100vh;"></div>
     </div>
     <RedirectMessage />
