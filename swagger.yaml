@@ -416,7 +416,7 @@ paths:
     patch:
       tags:
         - Segnalazioni
-      summary: Approva/Modifica una segnalazione specifica.
+      summary: Modifica una segnalazione specifica.
       description: Permette la modifica di una segnalazione. Per modificare una segnalazione 
                     è necessario essere autenticati come citizen e averla creata.
       security:
@@ -926,6 +926,7 @@ components:
                 - pending
                 - approved
                 - rejected
+                - solved
               description: Stato della segnalazione.
       
     UpdateReportCitizen:
@@ -957,6 +958,7 @@ components:
             - pending
             - approved
             - rejected
+            - solved
           description: Stato della segnalazione.
 
 

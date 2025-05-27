@@ -126,11 +126,6 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
         }
-
-        if (!validator.validateUsername(req.body)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
-        }
         
         try {
 

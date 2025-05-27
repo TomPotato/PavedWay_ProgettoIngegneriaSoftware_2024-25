@@ -7,6 +7,8 @@
 					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
 						<button class="btn btn-neutral mt-4 w-full" @click="getSites">Mostra tutti i
 							Cantieri!</button>
+						<button class="btn btn-neutral mt-4 w-full" @click="getActiveSites">Mostra tutti i
+							Cantieri ancora attivi!</button>
 						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
 							Cantieri!</label>
 						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-full">Crea un
@@ -124,13 +126,13 @@
 							<label class="label">Durata del cantiere</label>
 							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
 							<p v-if="!validateStart" class="text-error">
-								La data di inizio deve essere nel formato ISO 8631.
+								La data di inizio deve essere nel formato ISO 8601.
 							</p>
 
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8631 e posteriore alla data di inizio.
+								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di inizio.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -169,13 +171,13 @@
 							<label class="label">Durata del cantiere</label>
 							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
 							<p v-if="!validateStart" class="text-error">
-								La data di inizio deve essere nel formato ISO 8631.
+								La data di inizio deve essere nel formato ISO 8601.
 							</p>
 
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8631.
+								La data di fine deve essere nel formato ISO 8601.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -212,13 +214,17 @@
 							Segnalazioni!</button>
 						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
 							Segnalazione!</label>
-						<label v-if="isCitizen" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
+						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
+							class="btn btn-primary w-full">Crea
 							una
-							Segnalazione!</label>
+							Segnalazione!</button>
 					</div>
 				</div>
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
+					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+				</div>
+
 				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
-					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
@@ -232,19 +238,21 @@
 							<i>Rating: {{ report?.rating || "0" }}</i>
 							<p>Foto: {{ report.photos == [] || " 'Non ci sono foto per questa segnalazione' " }}</p>
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
-							<div class="grid grid-cols-2 gap-5 w-auto">
-								<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
-									class="btn btn-primary w-full">Modifica la
-									Segnalazione!</label>
-								<label @click="deleteReport(report.createdBy, report.id)" v-if="isCitizen"
+							<div class="grid grid-cols-4 gap-5 w-auto">
+								<label @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</label>
-								<label @click="" v-if="isAdmin" class="btn btn-primary w-full">Approva
+								<label @click="statusReport(report.id, 'approved')" v-if="isAdmin"
+									class="btn btn-success w-full">Approva
 									la
 									Segnalazione!</label>
-								<label @click="" v-if="isAdmin" class="btn btn-primary w-full">Rifiuta
+								<label @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
+									class="btn btn-error w-full">Rifiuta
 									la
 									Segnalazione!</label>
+								<label @click="statusReport(report.id, 'solved')" v-if="isAdmin"
+									class="btn btn-neutral w-full">Contrassegna come
+									Risolta!</label>
 							</div>
 						</div>
 					</div>
@@ -281,76 +289,68 @@
 				</div>
 			</div>
 
-			<input type="checkbox" id="my_modal_SegnalazioniCrea" class="modal-toggle" />
-			<dialog id="my_modal_01" class="modal" role="dialog">
+			<dialog id="SegnalazioniCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo della Segnalazione</label>
 							<input v-model="title" type="text" class="input" placeholder="Titolo Segnalazione"
 								required />
+							<p v-if="!validateTitle" class="text-error">
+								Il titolo deve essere lungo tra 1 e 20 caratteri.
+							</p>
 
 							<label class="label">Informazioni sulla Segnalazione</label>
 							<input v-model="info" type="text" class="input"
 								placeholder="Informazioni della Segnalazione" required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+							</p>
 
 							<label class="label">Posizione della Segnalazione</label>
 							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
+							<p v-if="!validateLatitude" class="text-error">
+								La latitudine deve essere compresa tra -90 e 90.
+							</p>
+
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
+							<p v-if="!validateLongitude" class="text-error">
+								La longitudine deve essere compresa tra -180 e 180.
+							</p>
+
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<p v-if="!validateStreet" class="text-error">
+								La via deve essere lunga tra 1 e 15 caratteri.
+							</p>
+
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<p v-if="!validateStNumber" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
 							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<p v-if="!validateCity" class="text-error">
+								La città deve essere lunga tra 1 e 15 caratteri.
+							</p>
+
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateCode" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
-							<label for="my_modal_SegnalazioniCrea" class="btn btn-neutral w-full" @click="createReports"
-								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
+							<button class="btn btn-neutral w-full" @click="createReport"
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_SegnalazioniCrea">Annulla</label>
+							<button @click="closeModal('SegnalazioniCrea')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_SegnalazioniCrea">Close</label>
-			</dialog>
-			<input type="checkbox" id="my_modal_SegnalazioniModifica" class="modal-toggle" />
-			<dialog id="my_modal_02" class="modal" role="dialog">
-				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
-					<div class="overflow-y-auto p-4 flex-1">
-						<fieldset class="fieldset gap-2 w-xs">
-							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="title" type="text" class="input" placeholder="Titolo Segnalazione"
-								required />
-
-							<label class="label">Informazioni sulla Segnalazione</label>
-							<input v-model="info" type="text" class="input"
-								placeholder="Informazioni della Segnalazione" required />
-
-							<label class="label">Posizione della Segnalazione</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
-						</fieldset>
-					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
-						<div>
-							<label for="my_modal_SegnalazioniModifica" class="btn btn-neutral w-full"
-								@click="createReports"
-								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
-						</div>
-						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_SegnalazioniModifica">Annulla</label>
-						</div>
-					</div>
-				</div>
-				<label class="modal-backdrop" for="my_modal_SegnalazioniModifica">Close</label>
+				<button class="modal-backdrop" @click="">Close</button>
 			</dialog>
 		</div>
 	</div>
@@ -383,7 +383,7 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
-const ready = ref(false);
+const ready = ref(true);
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -453,6 +453,9 @@ const openModal = (id, eventId = '') => {
 		start.value = site.duration.start;
 		end.value = site.duration.end || '';
 		companyName.value = site.companyName;
+	} else if (id === 'SegnalazioniCrea') {
+		const date = Date.now();
+		start.value = new Date(date).toISOString().split('T')[0];
 	}
 	document.getElementById(id).showModal();
 };
@@ -461,7 +464,7 @@ const closeModal = (id) => {
 	document.getElementById(id).close();
 };
 
-const valCrea = computed(() => {
+const valCreaSite = computed(() => {
 	return (title.value &&
 		info.value &&
 		latitude.value &&
@@ -487,6 +490,28 @@ const valCrea = computed(() => {
 	);
 });
 
+const valCreaReport = computed(() => {
+	return (title.value &&
+		info.value &&
+		latitude.value &&
+		longitude.value &&
+		street.value &&
+		stNumber.value &&
+		city.value &&
+		code.value &&
+		start.value &&
+		validateTitle &&
+		validateInfo &&
+		validateLatitude &&
+		validateLongitude &&
+		validateStreet &&
+		validateStNumber &&
+		validateCity &&
+		validateCode &&
+		validateStart
+	);
+});
+
 const valMod = computed(() => {
 	return (info.value &&
 		start.value &&
@@ -499,7 +524,7 @@ const valMod = computed(() => {
 	);
 });
 
-const resCrea = () => {
+const resCreaSites = () => {
 	title.value = '';
 	info.value = '';
 	latitude.value = '';
@@ -511,6 +536,18 @@ const resCrea = () => {
 	start.value = '';
 	end.value = '';
 	companyName.value = '';
+};
+
+const resCreaReports = () => {
+	title.value = '';
+	info.value = '';
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	stNumber.value = '';
+	city.value = '';
+	code.value = '';
+	start.value = '';
 };
 
 const resMod = () => {
@@ -530,6 +567,16 @@ const getSites = async () => {
 	}
 };
 
+const getActiveSites = async () => {
+	try {
+		ready.value = false;
+		sites.value = await siteService.getActiveSites(0, 0);
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = siteService.error;
+	}
+};
+
 const getReports = async () => {
 	try {
 		ready.value = false;
@@ -542,7 +589,7 @@ const getReports = async () => {
 
 const createSite = async () => {
 	try {
-		if (!valCrea.value) {
+		if (!valCreaSite.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
 			const siteData = {
@@ -563,9 +610,11 @@ const createSite = async () => {
 				'companyName': companyName.value
 			};
 			await siteService.createSite(authStore.token, siteData);
-			resCrea();
-			closeModal('CantieriCrea');
+			resCreaSites();
+			ready.value = false;
 			await getSites();
+			ready.value = true;
+			closeModal('CantieriCrea');
 		}
 	} catch (error) {
 		errorMessage.value = error.value;
@@ -598,7 +647,9 @@ const updateSite = async () => {
 			};
 			await siteService.updateSite(authStore.token, id, siteData);
 			resMod();
+			ready.value = false;
 			await getSites();
+			ready.value = true;
 			closeModal('CantieriModifica');
 		}
 	} catch (error) {
@@ -607,33 +658,45 @@ const updateSite = async () => {
 };
 
 const createReport = async () => {
-	if (valCrea.value) {
-		try {
+	try {
+		if (!valCreaReport.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
 			const reportData = {
-				"title": title,
-				"info": info,
-				"location": {
-					"latitude": latitude,
-					"longitude": longitude,
-					"street": street,
-					"stNumber": stNumber,
-					"city": city,
-					"code": code
+				'name': title.value,
+				'info': info.value,
+				'location': {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'street': street.value,
+					'number': stNumber.value,
+					'city': city.value,
+					'code': code.value
+				},
+				'duration': {
+					'start': start.value
 				}
 			};
+			console.log('Creating report with data:', reportData);
 			await reportService.createReport(authStore.token, reportData);
-			resCrea();
+			resCreaReports();
+			ready.value = false;
 			await getReports();
-		} catch (error) {
-			errorMessage.value = reportService.error;
+			ready.value = true;
+			closeModal('SegnalazioniCrea');
 		}
+	} catch (error) {
+		errorMessage.value = reportService.error;
 	}
+
 };
 
 const deleteReport = async (id) => {
 	try {
-		await reportService.deleteReport(authStore.user.id, id);
+		await reportService.deleteReport(authStore.token, id);
+		ready.value = false;
 		await getReports();
+		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
@@ -642,7 +705,9 @@ const deleteReport = async (id) => {
 const statusReport = async (id, status) => {
 	try {
 		await reportService.statusReport(authStore.token, id, status);
+		ready.value = false;
 		await getReports();
+		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}

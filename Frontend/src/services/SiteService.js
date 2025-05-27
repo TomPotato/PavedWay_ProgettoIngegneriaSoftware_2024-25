@@ -13,11 +13,30 @@ class SiteService {
     }
   }
 
+  async getActiveSites(offset, limit) {
+    try {
+      const response = await api.get("/sites", {
+        params: {
+          now: true,
+          offset: offset,
+          limit: limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async getSiteById(id) {
     try {
-      const response = await api.get(`/sites/${id}`, {} ,{
-        headers: { "x-api-key": token },
-      });
+      const response = await api.get(
+        `/sites/${id}`,
+        {},
+        {
+          headers: { "x-api-key": token },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.data;

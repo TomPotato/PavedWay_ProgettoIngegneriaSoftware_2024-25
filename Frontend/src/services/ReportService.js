@@ -26,7 +26,7 @@ class ReportService {
 
   async updateReport(token, reportId, reportData) {
     try {
-      const response = await api.put(`/reports/${reportId}`, reportData, {
+      const response = await api.patch(`/reports/${reportId}`, reportData, {
         headers: { "x-api-key": token },
       });
       return response.data;
@@ -35,16 +35,12 @@ class ReportService {
     }
   }
 
-  async deleteReport(userId, userCreatedId, reportId) {
+  async deleteReport(token, reportId) {
     try {
       const response = await api.delete(
         `/reports/${reportId}`,
-        {},
         {
-          headers: {
-            "x-user-id": userId,
-            "x-user-created-id": userCreatedId,
-          },
+          headers: { "x-api-key": token },
         }
       );
       return response.data;
@@ -53,9 +49,17 @@ class ReportService {
     }
   }
 
-  async statusReport(reportId, status) {
+  async statusReport(token, reportId, status) {
     try {
-      const response = await api.patch(`/reports/${reportId}`, { 'status': status });
+      const response = await api.patch(
+        `/reports/${reportId}`,
+        {
+          'status': status,
+        },
+        {
+          headers: { "x-api-key": token },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.data;
