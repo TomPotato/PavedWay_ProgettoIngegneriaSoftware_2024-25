@@ -932,6 +932,12 @@ components:
           type: string
           format: date-time
           description: Data e ora di creazione della notifica.
+        report: 
+          allOf:
+            - $ref: "#/components/schemas/Report"
+        site:
+          allOf:
+            - $ref: "#/components/schemas/Site"
 
     Event:
       type: object

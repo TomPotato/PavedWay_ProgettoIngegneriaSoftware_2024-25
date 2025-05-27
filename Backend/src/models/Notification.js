@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const { reportSchema } = require('./Report');
+const { siteSchema } = require('./Site');
+
 const notificationSchema = new Schema({
     message: {
         type: String,
@@ -10,6 +13,12 @@ const notificationSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
+    },
+    report: {
+        type: reportSchema,
+    },
+    site: {
+        type: siteSchema,
     },
 });
 
