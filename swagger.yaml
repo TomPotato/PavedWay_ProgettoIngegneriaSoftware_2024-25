@@ -138,6 +138,54 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /users:
+    get:
+      tags:
+        - Utenti
+      summary: Restituisce la lista degli utenti
+      description: >-
+        Restituisce la lista degli utenti registrati. 
+        Devi essere autenticato come amministratore per vedere la lista degli utenti.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di utenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di utenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserInfo"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per vedere la lista degli utenti.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
     post:
       tags:
         - Utenti
@@ -417,8 +465,9 @@ paths:
       tags:
         - Segnalazioni
       summary: Modifica una segnalazione specifica.
-      description: Permette la modifica di una segnalazione. Per modificare una segnalazione 
-                    è necessario essere autenticati come citizen e averla creata.
+      description:
+        Permette la modifica di una segnalazione. Per modificare una segnalazione
+        è necessario essere autenticati come cittadino e averla creata.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -427,11 +476,11 @@ paths:
           application/json:
             schema:
               oneof:
-              - $ref: "#/components/schemas/UpdateReportCitizen" 
-              - $ref: "#/components/schemas/UpdateReportAdmin"
+                - $ref: "#/components/schemas/UpdateReportCitizen"
+                - $ref: "#/components/schemas/UpdateReportAdmin"
       responses:
         "204":
-          description: Segnalazione approvata con successo.
+          description: Segnalazione modificata con successo.
         "401":
           description: Non autorizzato. Devi fornire una chiave API valida.
           content:
@@ -928,7 +977,7 @@ components:
                 - rejected
                 - solved
               description: Stato della segnalazione.
-      
+
     UpdateReportCitizen:
       type: object
       properties:
@@ -960,7 +1009,6 @@ components:
             - rejected
             - solved
           description: Stato della segnalazione.
-
 
     Site:
       allOf:

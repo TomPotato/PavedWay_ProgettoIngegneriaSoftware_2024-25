@@ -9,6 +9,24 @@ const toValidInt = require('../utils/toValidInt');
 const tokenChecker = require('../utils/tokenChecker');
 const validator = require('../utils/Validator');
 
+router.get('/', tokenChecker, async (req, res) => {
+    const offset = toValidInt(req.query.offset);
+    const limit = toValidInt(req.query.limit);
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Devi essere un amministratore per vedere l\'elenco degli utenti.'));
+    }
+
+    try {
+        const users = await userService.getUsers(offset, limit);
+        res.status(200).json(users);
+    }
+    catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 router.post('/', tokenChecker, async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400,
