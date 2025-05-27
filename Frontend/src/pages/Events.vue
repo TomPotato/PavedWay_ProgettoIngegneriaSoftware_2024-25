@@ -13,7 +13,10 @@
 							cantiere!</button>
 					</div>
 				</div>
-				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
+					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+				</div>
+				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
@@ -23,7 +26,7 @@
 							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{
 								site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
-								"\'data da destinarsi\'"}}</p>
+								"\'data da destinarsi\'" }}</p>
 							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
@@ -380,6 +383,8 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
+const ready = ref(false);
+
 const title = ref('');
 const validateTitle = computed(() => {
 	return title.value.length > 0 && title.value.length <= 20;
@@ -453,7 +458,6 @@ const openModal = (id, eventId = '') => {
 };
 
 const closeModal = (id) => {
-	console.log(document.getElementById(id))
 	document.getElementById(id).close();
 };
 
@@ -518,7 +522,9 @@ const resMod = () => {
 
 const getSites = async () => {
 	try {
+		ready.value = false;
 		sites.value = await siteService.getSites(0, 0);
+		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;
 	}
@@ -526,7 +532,9 @@ const getSites = async () => {
 
 const getReports = async () => {
 	try {
+		ready.value = false;
 		reports.value = await reportService.getReports(0, 0);
+		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
@@ -556,7 +564,7 @@ const createSite = async () => {
 			};
 			await siteService.createSite(authStore.token, siteData);
 			resCrea();
-			document.getElementById('CantieriCrea').close();
+			closeModal('CantieriCrea');
 			await getSites();
 		}
 	} catch (error) {
@@ -590,8 +598,8 @@ const updateSite = async () => {
 			};
 			await siteService.updateSite(authStore.token, id, siteData);
 			resMod();
-			document.getElementById('CanteriModifica').close();
 			await getSites();
+			closeModal('CantieriModifica');
 		}
 	} catch (error) {
 		errorMessage.value = error.value;
