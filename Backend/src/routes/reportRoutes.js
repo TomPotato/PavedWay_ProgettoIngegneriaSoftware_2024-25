@@ -186,7 +186,7 @@ router.post('/:id/comments', tokenChecker, async (req, res) => {
             'Devi fornire un commento nel corpo della richiesta.'));
     }
 
-    if(validator.validateDate(req.body.createdAt) === false){
+    if(req.body.createAt && validator.validateDate(req.body.createdAt) === false){
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Devi fornire una data valida in formato ISO 8601.'));
     }
