@@ -840,6 +840,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Cantieri
+      summary: Restituisce la lista dei commenti di un cantiere
+      description: >-
+        Restituisce la lista dei commenti di un cantiere specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere di cui restituire i commenti.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di commenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di commenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:

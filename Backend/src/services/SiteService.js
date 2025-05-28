@@ -251,6 +251,35 @@ class SiteService {
             }
         }
     }
+
+    async getCommentsBySiteid(siteId, offset, limit) {
+        try {
+            const site = await Site.findById(siteId);
+            if (!site) {
+                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+            }
+
+            let comments = site.comments;
+
+            if (offset && offset > 0) {
+                comments = comments.slice(offset);
+            }
+
+            if (limit && limit > 0) {
+                comments = comments.slice(0, limit);
+            }
+
+            return comments;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la lettura dei commenti.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
+    
 }
 
 module.exports = new SiteService();
