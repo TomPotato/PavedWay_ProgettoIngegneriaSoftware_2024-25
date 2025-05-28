@@ -32,8 +32,6 @@ router.get('/', async (req, res) => {
     let longitude = null;
 	let radius = null;
 
-    console.log(req.query.latitude ,req.query.longitude);
-
     if(req.query.latitude && req.query.longitude){
         if (!validator.validateLocation(toValidInt(req.query.latitude) , toValidInt(req.query.longitude))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
@@ -43,8 +41,6 @@ router.get('/', async (req, res) => {
         longitude = req.query.longitude;
     }
 
-    console.log(req.query.radius);
-
 	if(req.query.radius){
 		if(!validator.validateRadius(toValidInt(req.query.radius))){
 			return res.status(400).json(createError('Richiesta non valida', 400,
@@ -52,8 +48,6 @@ router.get('/', async (req, res) => {
 		}
 		radius = toValidInt(req.query.radius);
 	}
-
-    console.log(latitude, longitude,radius,offset,limit);
 
     try {
         if (date) {

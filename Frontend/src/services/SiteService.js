@@ -28,9 +28,7 @@ class SiteService {
 
   async getSitesByLoc(siteData) {
     try {
-      const response = await api.get(
-        `/sites`, siteData
-    );
+      const response = await api.get(`/sites`, siteData);
       return response.data;
     } catch (error) {
       throw error.data;

@@ -93,7 +93,7 @@
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4"
-								@click="closeDrawer('CantieriCerca'), getSitesByLoc(meters)">Cerca!</button>
+								@click="getSitesByLoc(meters)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -330,7 +330,7 @@
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
 							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
-								@click="closeDrawer('SegnalazioniCerca'), getReportsByPos">Cerca!</button>
+								@click="getReportsByLoc">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -702,6 +702,8 @@ const getSitesByLoc = async (mtrs) => {
 		}
 		ready.value = false;
 		sites.value = await siteService.getSitesByLoc(siteData);
+		resCerca();
+		closeDrawer('CantieriCerca');
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;
@@ -795,6 +797,29 @@ const getActiveReports = async () => {
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;
+	}
+};
+
+const getReportsByLoc = async (mtrs) => {
+	if (mtrs.value === 'chilometri') {
+		radius.value = radius.value * 1000;
+	}
+
+	try {
+		const reportData = {
+			'latitude': latitude.value,
+			'longitude': longitude.value,
+			'radius': radius.value,
+			'offset': 0,
+			'limit': 0
+		}
+		ready.value = false;
+		reports.value = await reportService.getReportsByLoc(reportData);
+		resCerca();
+		closeDrawer('SegnalazioniCerca');
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = reportService.error;
 	}
 };
 

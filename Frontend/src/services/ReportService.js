@@ -16,10 +16,19 @@ class ReportService {
   async getActiveReports(offset, limit) {
     try {
       const response = await api.get(`/reports`, {
-          now: true,
-          offset: offset,
-          limit: limit
+        now: true,
+        offset: offset,
+        limit: limit,
       });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+  async getReportsByLoc(siteData) {
+    try {
+      const response = await api.get(`/reports`, siteData);
       return response.data;
     } catch (error) {
       throw error.data;

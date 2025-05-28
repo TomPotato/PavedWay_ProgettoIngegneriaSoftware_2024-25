@@ -28,7 +28,6 @@ function distanceFilter(latitude, longitude, collection, radius) {
       item.location.latitude,
       item.location.longitude
     );
-    console.log(distance);
     return distance < radius/1000;
   });
   return result;

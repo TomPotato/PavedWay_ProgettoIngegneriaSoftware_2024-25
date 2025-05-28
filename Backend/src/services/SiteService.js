@@ -233,20 +233,16 @@ class SiteService {
       let query = Site.find({});
       
       if (offset && offset > 0) {
-        sites = sites.skip(offset);
+        query = query.skip(offset);
       }
 
       if (limit && limit > 0) {
-        sites = sites.limit(limit);
+        query = query.limit(limit);
       }
 
       const sites = await query.exec();
 
-      console.log(sites);
-
       const closeSites = distanceFilter(latitude, longitude, sites, radius);
-
-      console.log(closeSites);
 
       return closeSites;
     } catch (error) {
