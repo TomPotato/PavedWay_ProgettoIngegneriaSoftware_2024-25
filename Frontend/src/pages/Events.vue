@@ -9,8 +9,8 @@
 							Cantieri!</button>
 						<button class="btn btn-neutral mt-4 w-full" @click="getActiveSites">Mostra i
 							Cantieri ancora attivi!</button>
-						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
-							Cantieri!</label>
+						<button @click="openDrawer('CantieriCerca')" class="btn btn-primary drawer-button w-full">Cerca
+							Cantieri!</button>
 						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-full">Crea un
 							cantiere!</button>
 					</div>
@@ -47,19 +47,13 @@
 
 
 			<div class="drawer drawer-end h-full center-0">
-				<input id="my-drawer-Cantieri" type="checkbox" class="drawer-toggle" />
+				<input id="CantieriCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="my-drawer-Cantieri" aria-label="close sidebar" class="drawer-overlay"></label>
+					<button @click="closeDrawer('CantieriCerca')" aria-label="close sidebar"
+						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca il cantiere per informazioni</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui
-								cercare.</label>
+							<label class="label">Cerca il cantiere per posizione</label>
 							<label class="label">Posizione per lat/long</label>
 							<input v-model="latitude" type="text" class="input" placeholder="latitudine" />
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
@@ -68,8 +62,8 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="end" type="text" class="input" placeholder="Raggio" />
-							<label for="my-drawer-Cantieri" class="btn btn-neutral mt-4"
-								@click="getSitesByInfo">Cerca!</label>
+							<button for="CantieriCerca" class="btn btn-neutral mt-4"
+								@click="closeDrawer('CantieriCerca'), getSitesByInfo">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -214,8 +208,9 @@
 							Segnalazioni!</button>
 						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getActiveReports">Mostra le
 							Segnalazioni ancora attive!</button>
-						<label for="SegnalazioniCerca" class="btn btn-primary drawer-button w-full">Cerca una
-							Segnalazione!</label>
+						<button @click="openDrawer('SegnalazioniCerca')"
+							class="btn btn-primary drawer-button w-full">Cerca una
+							Segnalazione!</button>
 						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
 							class="btn btn-primary w-full">Crea
 							una
@@ -262,17 +257,11 @@
 			<div class="drawer drawer-end h-full center-0">
 				<input id="SegnalazioniCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="SegnalazioniCerca" aria-label="close sidebar" class="drawer-overlay"></label>
+					<button @click="closeDrawer('SegnalazioniCerca')" aria-label="close sidebar"
+						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca la segnalazione per informazioni</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui
-								cercare.</label>
+							<label class="label">Cerca la segnalazione per posizione</label>
 							<label class="label">Posizione per lat/long</label>
 							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
@@ -281,8 +270,8 @@
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
 							<label class="label">E inserisci il raggio</label>
 							<input v-model="end" type="text" class="input" placeholder="Raggio" />
-							<label for="SegnalazioniCerca" class="btn btn-neutral mt-4"
-								@click="getReportsByInfo">Cerca!</label>
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
+								@click="closeDrawer('SegnalazioniCerca'), getReportsByPos">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -457,6 +446,11 @@ const validateCompanyName = computed(() => {
 	return companyName.value.length > 0 && companyName.value.length <= 20;
 });
 
+const radius = ref('');
+const validateRadius = computed(() =>{
+	return radius.value > 0 && radius.value < 5000;
+});
+
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
 
@@ -481,6 +475,14 @@ const openModal = (id, eventId = '') => {
 
 const closeModal = (id) => {
 	document.getElementById(id).close();
+};
+
+const openDrawer = (id) => {
+	document.getElementById(id).checked = true;
+};
+
+const closeDrawer = (id) => {
+	document.getElementById(id).checked = false;
 };
 
 const valCreaSite = computed(() => {
@@ -543,6 +545,15 @@ const valMod = computed(() => {
 	);
 });
 
+const valCerca = computed(() => {
+	return (
+		(longitude.value && latitude.value && radius.value && validateLatitude && validateLongitude && validateRadius) 
+		|| 
+		(street.value && stNumber.value && radius.value && validateStreet && validateStNumber && validateRadius) 
+	);
+}
+);
+
 const resCreaSites = () => {
 	title.value = '';
 	info.value = '';
@@ -574,6 +585,15 @@ const resMod = () => {
 	start.value = '';
 	end.value = '';
 	companyName.value = '';
+};
+
+const resCerca = () => {
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	stNumber.value = '';
+	city.value = '';
+	radius.value = '';
 };
 
 const getSites = async () => {

@@ -184,26 +184,26 @@ class SiteService {
         $and: [
           {
             $and: [
-              { 'duration.start': { $lte: date } },
+              { "duration.start": { $lte: date } },
               {
                 $or: [
-                  { 'duration.end': { $gte: date } },
-                  { 'duration.end': { $exists: false } },
+                  { "duration.end": { $gte: date } },
+                  { "duration.end": { $exists: false } },
                 ],
               },
             ],
           },
           {
             $or: [
-              { 'realDuration.start': { $lte: date } },
+              { "realDuration.start": { $lte: date } },
               {
                 $or: [
-                  { 'realDuration.end': { $gte: date } },
-                  { 'realDuration.end': { $exists: false } },
+                  { "realDuration.end": { $gte: date } },
+                  { "realDuration.end": { $exists: false } },
                 ],
               },
               {
-                'realDuration': { $exists: false },
+                realDuration: { $exists: false },
               },
             ],
           },
@@ -219,7 +219,28 @@ class SiteService {
       }
 
       const sites = await query.exec();
+      return sites;
+    } catch (error) {
+      const message = "Errore interno del server durante la ricerca.";
+      throw createError("Errore interno del server", 500, message);
+    }
+  }
 
+  async getSitesByLocation(location, radius, offset, limit) {
+    try {
+      let query = Site.find({
+        
+      });
+
+      if (offset && offset > 0) {
+        query = query.skip(offset);
+      }
+
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const sites = await query.exec();
       return sites;
     } catch (error) {
       const message = "Errore interno del server durante la ricerca.";
