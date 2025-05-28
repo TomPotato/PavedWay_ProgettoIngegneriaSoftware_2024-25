@@ -2,7 +2,7 @@ const { Notification } = require('../models/Notification');
 
 const createError = require('../utils/createError');
 
-class SiteService {
+class NotificationService {
 
     async createNotification(notificationData) {
         try {
@@ -28,4 +28,4 @@ class SiteService {
 
 }
 
-module.exports = new SiteService();
+module.exports = new NotificationService();
