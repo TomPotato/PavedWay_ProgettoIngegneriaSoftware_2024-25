@@ -30,15 +30,12 @@ const homeControl = L.Control.extend({
         container.title = 'Torna alla posizione iniziale';
 
         // Home icon SVG
-        container.innerHTML = `
-                <img src="/home.svg" alt="Home" style="width: 24px; height: 24px;"/>
-            `;
+        container.innerHTML = `<img src="/home.svg" alt="Home" style="width: 24px; height: 24px;"/>`;
 
         L.DomEvent.on(container, 'click', function (e) {
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
-            map.value.setView([location.value.lat, location.value.lng], 16);
-            marker.value.setLatLng([location.value.lat, location.value.lng]).addTo(map.value).bindPopup('Sei qui').openPopup();
+            getLocation();
         });
 
         return container;
@@ -84,6 +81,7 @@ onMounted(async () => {
 
     map.value = L.map('map').setView([location.value.lat, location.value.lng], 16);
     marker.value = L.marker([location.value.lat, location.value.lng]);
+    map.value.addControl(new homeControl());
 
     getLocation();
 
@@ -92,7 +90,6 @@ onMounted(async () => {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map.value);
 
-    map.value.addControl(new homeControl());
 
     sites.forEach(site => {
         const marker = createMarker(site, siteIcon);
