@@ -312,6 +312,53 @@ class ReportService {
             }
         }
     }
+
+    /**
+    * Mostra una lista di commenti associati a una segnalazione.
+    *
+    * @async
+    * @param {string} reportid - L'ID della segnalazione di cui visualizzare i commenti.
+    * @param {number} offset - Il numero di commenti da saltare.
+    * @param {number} limit - Il numero massimo di commenti da recuperare.
+    * @returns {Promise<Array<Comments>>} Un array di commenti.
+    * @throws {Error} Se si verifica un errore durante la ricerca dei commenti, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+    * 3. Se la segnalazione esiste, recupera i commenti associati alla segnalazione.
+    * 4. Se è fornito un offset e un limite, applica questi parametri alla lista dei commenti.
+    * 5. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+    * 6. Restituisce i commenti recuperati.
+    */
+    async getCommentsByReportid(reportid, offset, limit) {
+        try {
+            const report = await Report.findById(reportid);
+            if (!report) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            }
+
+            let comments = report.comments;
+
+            if (offset && offset > 0) {
+                comments = comments.slice(offset);
+            }
+
+            if (limit && limit > 0) {
+                comments = comments.slice(0, limit);
+            }
+
+            return comments;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la lettura dei commenti.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new ReportService();

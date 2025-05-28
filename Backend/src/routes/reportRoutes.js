@@ -204,4 +204,17 @@ router.post('/:id/comments', tokenChecker, async (req, res) => {
     }
 });
 
+router.get('/:id/comments', async (req, res) => {
+    const reportID = req.params.id;
+    const offset = toValidInt(req.query.offset);
+    const limit = toValidInt(req.query.limit);
+
+    try {
+        const comments = await service.getCommentsByReportid(reportID, offset, limit);
+        res.status(200).json(comments);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

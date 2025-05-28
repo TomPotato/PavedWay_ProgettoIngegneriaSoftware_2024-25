@@ -252,6 +252,25 @@ class SiteService {
         }
     }
 
+    /**
+    * Mostra una lista di commenti associati a un cantiere.
+    *
+    * @async
+    * @param {string} siteId - L'ID del cantiere di cui visualizzare i commenti.
+    * @param {number} offset - Il numero di commenti da saltare.
+    * @param {number} limit - Il numero massimo di commenti da recuperare.
+    * @returns {Promise<Array<Comments>>} Un array di commenti.
+    * @throws {Error} Se si verifica un errore durante la ricerca dei commenti, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+    * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+    * 3. Se il cantiere esiste, recupera i commenti associati al cantiere.
+    * 4. Se è fornito un offset e un limite, applica questi parametri alla lista dei commenti.
+    * 5. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+    * 6. Restituisce i commenti recuperati.
+    */
     async getCommentsBySiteid(siteId, offset, limit) {
         try {
             const site = await Site.findById(siteId);
@@ -279,7 +298,7 @@ class SiteService {
             }
         }
     }
-    
+
 }
 
 module.exports = new SiteService();
