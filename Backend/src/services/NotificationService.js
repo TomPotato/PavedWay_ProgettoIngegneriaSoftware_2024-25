@@ -26,6 +26,26 @@ class NotificationService {
         }
     }
 
+    async getNotifications() {
+        try {
+            let query = Notification.find({});
+
+            if (offset && offset > 0) {
+                query = query.skip(offset);
+            }
+
+            if (limit && limit > 0) {
+                query = query.limit(limit);
+            }
+
+            const notifications = await query.exec();
+            return notifications;
+        } catch (error) {
+            const message = 'Errore interno del server durante il recupero delle notifiche.';
+            throw createError('Errore interno del server', 500, message);
+        }
+    }
+
 }
 
 module.exports = new NotificationService();

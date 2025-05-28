@@ -36,4 +36,21 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+
+    offset = toValidInt(req.query.offset);
+    limit = toValidInt(req.query.limit);
+    if (offset < 0 || limit <= 0) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'I parametri di offset e limit devono essere numeri interi validi.'));
+    }
+    
+    try {
+        const notifications = await service.getNotifications();
+        res.status(200).json(notifications);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

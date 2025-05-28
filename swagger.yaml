@@ -737,6 +737,43 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /notifications:
+    get:
+      tags:
+        - Notifiche
+      summary: Restituisce la lista delle notifiche
+      description: Restituisce la lista delle notifiche.
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di notifiche da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di notifiche da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags:
         - Notifiche
