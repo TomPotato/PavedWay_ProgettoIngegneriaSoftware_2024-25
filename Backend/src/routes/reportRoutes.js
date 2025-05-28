@@ -178,7 +178,7 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 });
 
-router.post('/:id/comments', tokenChecker, async (req, res) => {
+router.patch('/:id/comments', tokenChecker, async (req, res) => {
     const id = req.params.id;
 
     if (!req.body) {
