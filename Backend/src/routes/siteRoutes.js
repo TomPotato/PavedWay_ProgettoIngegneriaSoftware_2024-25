@@ -28,11 +28,41 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    let latitude = null;
+    let longitude = null;
+	let radius = null;
+
+    console.log(req.query.latitude ,req.query.longitude);
+
+    if(req.query.latitude && req.query.longitude){
+        if (!validator.validateLocation(toValidInt(req.query.latitude) , toValidInt(req.query.longitude))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire una location valida.'));
+        }
+        latitude = req.query.latitude;
+        longitude = req.query.longitude;
+    }
+
+    console.log(req.query.radius);
+
+	if(req.query.radius){
+		if(!validator.validateRadius(toValidInt(req.query.radius))){
+			return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
+		}
+		radius = toValidInt(req.query.radius);
+	}
+
+    console.log(latitude, longitude,radius,offset,limit);
+
     try {
         if (date) {
             const sites = await service.getActiveSites(date, offset, limit);
             return res.status(200).json(sites);
-        } else {
+        } else if(longitude && latitude && radius) {
+			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit)
+			return res.status(200).json(sites);
+		} else {
             const sites = await service.getSites(offset, limit);
             return res.status(200).json(sites);
         }

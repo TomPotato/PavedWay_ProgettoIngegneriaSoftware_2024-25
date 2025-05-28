@@ -55,15 +55,45 @@
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<label class="label">Cerca il cantiere per posizione</label>
 							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="latitudine" />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
+							<p v-if="!validateLatitude && latitude != ''" class="text-error">
+								La latitudine deve essere compresa tra -90 e 90.
+							</p>
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<p v-if="!validateLongitude && longitude != ''" class="text-error">
+								La longitudine deve essere compresa tra -180 e 180.
+							</p>
 							<label class="label">Posizione per via</label>
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
+							<p v-if="!validateStreet && street != ''" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<label class="label">E inserisci il raggio</label>
-							<input v-model="end" type="text" class="input" placeholder="Raggio" />
+							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<p v-if="!validateCity && city != ''" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
+								<input @click="metersChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
+							</label>
+							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
+								placeholder="Raggio in metri" />
+							<p v-if="!validateRadius && meters === 'metri'" class="text-error">
+								Puoi cercare solamente entro UN chilometro.
+							</p>
+							<input v-model="radius" v-if="meters === 'chilometri'" type="text" class="input"
+								placeholder="Raggio in chilometri" />
+							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
+								Puoi cercare solamente entro CINQUE chilometri.
+							</p>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4"
-								@click="closeDrawer('CantieriCerca'), getSitesByInfo">Cerca!</button>
+								@click="closeDrawer('CantieriCerca'), getSitesByLoc(meters)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -99,7 +129,7 @@
 
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
 							<p v-if="!validateStreet" class="text-error">
-								La via deve essere lunga tra 1 e 15 caratteri.
+								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
@@ -109,7 +139,7 @@
 
 							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
 							<p v-if="!validateCity" class="text-error">
-								La città deve essere lunga tra 1 e 15 caratteri.
+								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
@@ -261,15 +291,44 @@
 						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca la segnalazione per posizione</label>
 							<label class="label">Posizione per lat/long</label>
 							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
+							<p v-if="!validateLatitude && latitude != ''" class="text-error">
+								La latitudine deve essere compresa tra -90 e 90.
+							</p>
 							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<p v-if="!validateLongitude && longitude != ''" class="text-error">
+								La longitudine deve essere compresa tra -180 e 180.
+							</p>
 							<label class="label">Posizione per via</label>
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
+							<p v-if="!validateStreet && street != ''" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<label class="label">E inserisci il raggio</label>
-							<input v-model="end" type="text" class="input" placeholder="Raggio" />
+							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<p v-if="!validateCity && city != ''" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
+								<input @click="metersChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
+							</label>
+							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
+								placeholder="Raggio in metri" />
+							<p v-if="!validateRadius && meters === 'metri'" class="text-error">
+								Puoi cercare solamente entro UN chilometro.
+							</p>
+							<input v-model="radius" v-if="meters === 'chilometri'" type="text" class="input"
+								placeholder="Raggio in chilometri" />
+							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
+								Puoi cercare solamente entro CINQUE chilometri.
+							</p>
 							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
 								@click="closeDrawer('SegnalazioniCerca'), getReportsByPos">Cerca!</button>
 						</fieldset>
@@ -324,7 +383,7 @@
 
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
 							<p v-if="!validateStreet" class="text-error">
-								La via deve essere lunga tra 1 e 15 caratteri.
+								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
@@ -334,7 +393,7 @@
 
 							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
 							<p v-if="!validateCity" class="text-error">
-								La città deve essere lunga tra 1 e 15 caratteri.
+								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
@@ -391,6 +450,8 @@ const rInfo = ref({});
 
 const ready = ref(true);
 
+const meters = ref('metri');
+
 const title = ref('');
 const validateTitle = computed(() => {
 	return title.value.length > 0 && title.value.length <= 20;
@@ -413,7 +474,7 @@ const validateLongitude = computed(() => {
 
 const street = ref('');
 const validateStreet = computed(() => {
-	return street.value.length > 0 && street.value.length <= 15;
+	return street.value.length > 0 && street.value.length <= 34;
 });
 
 const stNumber = ref('');
@@ -423,7 +484,7 @@ const validateStNumber = computed(() => {
 
 const city = ref('');
 const validateCity = computed(() => {
-	return city.value.length > 0 && city.value.length <= 15;
+	return city.value.length > 0 && city.value.length <= 34;
 });
 
 const code = ref('');
@@ -438,7 +499,7 @@ const validateStart = computed(() => {
 
 const end = ref('');
 const validateEnd = computed(() => {
-	return (validateService.validateDate(end.value) && end.value > start.value) || end.value == '';
+	return ((validateService.validateDate(end.value) && end.value > start.value) || end.value == '');
 });
 
 const companyName = ref('');
@@ -447,8 +508,10 @@ const validateCompanyName = computed(() => {
 });
 
 const radius = ref('');
-const validateRadius = computed(() =>{
-	return radius.value > 0 && radius.value < 5000;
+const validateRadius = computed(() => {
+	const check = ref('');
+	if (meters.value === 'metri' && radius.value <= 1000) { check.value = true } else if (meters.value === 'chilometri' && radius.value <= 5) { check.value = true } else { check.value = false };
+	return radius.value > 0 && check.value;
 });
 
 const isAdmin = authStore.isAdmin;
@@ -484,6 +547,14 @@ const openDrawer = (id) => {
 const closeDrawer = (id) => {
 	document.getElementById(id).checked = false;
 };
+
+const metersChange = () => {
+	if (meters.value === 'metri') {
+		meters.value = 'chilometri';
+	} else {
+		meters.value = 'metri';
+	}
+}
 
 const valCreaSite = computed(() => {
 	return (title.value &&
@@ -547,9 +618,9 @@ const valMod = computed(() => {
 
 const valCerca = computed(() => {
 	return (
-		(longitude.value && latitude.value && radius.value && validateLatitude && validateLongitude && validateRadius) 
-		|| 
-		(street.value && stNumber.value && radius.value && validateStreet && validateStNumber && validateRadius) 
+		(longitude.value && latitude.value && radius.value && validateLatitude && validateLongitude && validateRadius)
+		||
+		(street.value && stNumber.value && city.value && radius.value && validateStreet && validateStNumber && validateCity && validateRadius)
 	);
 }
 );
@@ -616,20 +687,21 @@ const getActiveSites = async () => {
 	}
 };
 
-const getReports = async () => {
-	try {
-		ready.value = false;
-		reports.value = await reportService.getReports(0, 0);
-		ready.value = true;
-	} catch (error) {
-		errorMessage.value = reportService.error;
+const getSitesByLoc = async (mtrs) => {
+	if (mtrs.value === 'chilometri') {
+		radius.value = radius.value * 1000;
 	}
-};
 
-const getActiveReports = async () => {
 	try {
+		const siteData = {
+			'latitude': latitude.value,
+			'longitude': longitude.value,
+			'radius': radius.value,
+			'offset': 0,
+			'limit': 0
+		}
 		ready.value = false;
-		reports.value = await reportService.getActiveReports(0, 0);
+		sites.value = await siteService.getSitesByLoc(siteData);
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;
@@ -703,6 +775,26 @@ const updateSite = async () => {
 		}
 	} catch (error) {
 		errorMessage.value = error.value;
+	}
+};
+
+const getReports = async () => {
+	try {
+		ready.value = false;
+		reports.value = await reportService.getReports(0, 0);
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+};
+
+const getActiveReports = async () => {
+	try {
+		ready.value = false;
+		reports.value = await reportService.getActiveReports(0, 0);
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = siteService.error;
 	}
 };
 

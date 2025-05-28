@@ -16,9 +16,9 @@ class SiteService {
   async getActiveSites(offset, limit) {
     try {
       const response = await api.get("/sites", {
-          now: true,
-          offset: offset,
-          limit: limit
+        now: true,
+        offset: offset,
+        limit: limit,
       });
       return response.data;
     } catch (error) {
@@ -26,15 +26,11 @@ class SiteService {
     }
   }
 
-  async getSiteById(id) {
+  async getSitesByLoc(siteData) {
     try {
       const response = await api.get(
-        `/sites/${id}`,
-        {},
-        {
-          headers: { "x-api-key": token },
-        }
-      );
+        `/sites`, siteData
+    );
       return response.data;
     } catch (error) {
       throw error.data;

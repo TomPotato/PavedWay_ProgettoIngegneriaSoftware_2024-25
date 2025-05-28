@@ -1,6 +1,7 @@
 const { Site } = require("../models/Site");
 
 const createError = require("../utils/createError");
+const distanceFilter = require("../utils/distanceFilter");
 
 class SiteService {
   /**
@@ -226,22 +227,28 @@ class SiteService {
     }
   }
 
-  async getSitesByLocation(location, radius, offset, limit) {
+  async getSitesByLocation(latitude, longitude, radius, offset, limit) {
     try {
-      let query = Site.find({
-        
-      });
 
+      let query = Site.find({});
+      
       if (offset && offset > 0) {
-        query = query.skip(offset);
+        sites = sites.skip(offset);
       }
 
       if (limit && limit > 0) {
-        query = query.limit(limit);
+        sites = sites.limit(limit);
       }
 
       const sites = await query.exec();
-      return sites;
+
+      console.log(sites);
+
+      const closeSites = distanceFilter(latitude, longitude, sites, radius);
+
+      console.log(closeSites);
+
+      return closeSites;
     } catch (error) {
       const message = "Errore interno del server durante la ricerca.";
       throw createError("Errore interno del server", 500, message);

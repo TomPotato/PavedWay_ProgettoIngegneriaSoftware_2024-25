@@ -25,6 +25,14 @@ class Validator {
 
         return dateRegex.test(date) || dateRegex2.test(date);
     }
+
+    validateRadius(radius) {
+        return (radius <= 5000 && radius >0 && Number.isInteger(radius));
+    }
+
+    validateLocation(latitude, longitude) {
+        return (latitude !== undefined && longitude !== undefined && Number.isInteger(latitude) && Number.isInteger(longitude));
+    }
 }
 
 module.exports = new Validator();
