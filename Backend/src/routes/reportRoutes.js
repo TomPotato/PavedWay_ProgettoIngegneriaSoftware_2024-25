@@ -178,7 +178,7 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 });
 
-router.patch('/:id/comments', tokenChecker, async (req, res) => {
+router.post('/:id/comments', tokenChecker, async (req, res) => {
     const id = req.params.id;
 
     if (!req.body) {
@@ -191,7 +191,7 @@ router.patch('/:id/comments', tokenChecker, async (req, res) => {
     //         'Devi fornire una data valida in formato ISO 8601.'));
     // }
 
-    if (!validator.validateComment(req.body.comment)) {
+    if (!validator.validateComment(req.body.text)) {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Il commento non può essere vuoto, deve contenere al massimo 30 caratteri e può includere lettere, numeri, spazi e alcuni simboli.'));
     }
