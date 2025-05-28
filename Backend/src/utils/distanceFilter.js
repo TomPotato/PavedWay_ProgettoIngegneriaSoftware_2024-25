@@ -1,5 +1,3 @@
-const toValidInt = require('../utils/toValidInt');
-
 function toRadians(degrees) {
   return degrees * Math.PI / 180;
 }
