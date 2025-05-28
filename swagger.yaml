@@ -321,6 +321,21 @@ paths:
             Se fornito, filtra le segnalazioni in corso nella data fornita.
             Non può essere usato insieme a "now".
         - in: query
+          name: latitude
+          schema:
+            type: integer
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: latitude
+          schema:
+            type: integer
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
           name: offset
           schema:
             type: integer
@@ -535,6 +550,21 @@ paths:
           description: >-
             Se fornito, filtra i cantieri in corso nella data fornita.
             Non può essere usato insieme a "now".
+        - in: query
+          name: latitude
+          schema:
+            type: integer
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: latitude
+          schema:
+            type: integer
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: offset
           schema:
