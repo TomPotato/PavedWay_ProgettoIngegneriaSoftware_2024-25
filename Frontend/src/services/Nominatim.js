@@ -1,23 +1,18 @@
 import api from "./Api";
-class NominatimAPI{
+
+class NominatimAPI {
   async getPlace(street, city, code) {
     try {
-      const response = await api.get("https://nominatim.openstreetmap.org/search", {
+      const response = await api.get("/search", {
         street: street,
         city: city,
-        country: 'Italy',
-        postalcode: code,
+        code: code,
       });
-      console.log(response);
-      const sum = 0;
-      const tot = 0;
-      response.forEach(place => {sum += place.lat; tot++});
-      const lat = sum/tot;
-      sum = 0;
-      tot = 0;
-      response.forEach(place => {sum += place.lon; tot++})
-      const lon = sum/tot;
-      return lat, lon;
+
+      const lat = Number(response.data[0].lat);
+      const lon = Number(response.data[0].lon);
+
+      return {lat, lon};
     } catch (error) {
       throw error.data;
     }

@@ -279,6 +279,7 @@
 							<p>{{ report.info }}</p>
 							<i>Rating: {{ report?.rating || "0" }}</i>
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
+							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
 							<div class="grid grid-cols-5 gap-5 w-auto">
 								<button @click="openModal('SegnalazioniInfo', report.id)"
 									class="btn btn-primary w-[10vh]">Info</button>
@@ -286,15 +287,16 @@
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-success w-full">Approva
+									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva
 									la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full">Rifiuta
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
 									la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
-									class="btn btn-neutral w-full">Contrassegna come
+									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
+									come
 									Risolta!</button>
 							</div>
 						</div>
@@ -690,7 +692,7 @@ const resCerca = () => {
 	latitude.value = '';
 	longitude.value = '';
 	street.value = '';
-	stNumber.value = '';
+	code.value = '';
 	city.value = '';
 	radius.value = '';
 };
@@ -716,17 +718,15 @@ const getActiveSites = async () => {
 };
 
 const getSitesByLoc = async (mtrs) => {
-	if (mtrs.value === 'chilometri') {
+	if (mtrs === 'chilometri') {
 		radius.value = radius.value * 1000;
 	}
-	/*if (street && city && code) {
+	if (street.value != '' && city.value != '' && code.value != '') {
 		const response = await nominatim.getPlace(street.value, city.value, code.value);
-		console.log(response);
-		latitude = response.latitude;
-		longitude = response.longitude;
-	}*/
+		latitude.value = response.lat;
+		longitude.value = response.lon;
+	}
 	try {
-		console.log(latitude.value, longitude.value);
 		const siteData = {
 			'latitude': latitude.value,
 			'longitude': longitude.value,
@@ -835,10 +835,14 @@ const getActiveReports = async () => {
 };
 
 const getReportsByLoc = async (mtrs) => {
-	if (mtrs.value === 'chilometri') {
+	if (mtrs === 'chilometri') {
 		radius.value = radius.value * 1000;
 	}
-
+	if (street.value != '' && city.value != '' && code.value != '') {
+		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		latitude.value = response.lat;
+		longitude.value = response.lon;
+	}
 	try {
 		const reportData = {
 			'latitude': latitude.value,

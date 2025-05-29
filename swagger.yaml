@@ -807,6 +807,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /search :
+    get:
+      tags:
+        - 
+      summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
+      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via, cittá e codice postale della cittá.
+      parameters:
+        - in: query
+          name: street
+          schema:
+            type: string
+          description: Nome della via attorno a cui si vogliono vedere gli eventi esistenti.
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Nome della cittá in cui é situata la via attorno a cui si vogliono vedere gli eventi esistenti.
+        - in: query
+          name: code
+          schema:
+            type: boolean
+          description: Numero postale della cittá in cui é situata la via attorno a cui si vogliono vedere gli eventi esistenti.
+      responses:
+        "204":
+          description: Cantiere eliminato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Messaggio di conferma dell'eliminazione.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     ApiKeyAuth:
