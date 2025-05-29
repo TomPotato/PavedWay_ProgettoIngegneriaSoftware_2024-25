@@ -1,5 +1,5 @@
 /**
- * Converte una stringa in numero e lo ritorna se valido.
+ * Converte una stringa in numero intero e lo ritorna se valido.
  * @param {object} value - Oggetto da convertire.
  * @returns {number|null} Numero convertito o null se non valido.
  */
