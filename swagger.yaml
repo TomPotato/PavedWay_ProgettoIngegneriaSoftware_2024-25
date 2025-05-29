@@ -326,7 +326,7 @@ paths:
             type: integer
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
-          name: latitude
+          name: longitude
           schema:
             type: integer
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
@@ -556,7 +556,7 @@ paths:
             type: integer
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
-          name: latitude
+          name: longitude
           schema:
             type: integer
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.

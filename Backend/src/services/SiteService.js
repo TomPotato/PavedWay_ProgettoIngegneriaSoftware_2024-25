@@ -226,7 +226,24 @@ class SiteService {
       throw createError("Errore interno del server", 500, message);
     }
   }
-
+  /**
+   * Mostra una lista di cantieri filtrati in base alla posizione geografica e al raggio forniti.
+   * @async
+   * @param {number} latitude - Latitudine del punto da cui calcolare la distanza.
+   * @param {number} longitude - Longitudine del punto da cui calcolare la distanza.
+   * @param {number} radius - Raggio (in metri) entro il quale cercare i cantieri.
+   * @param {number} offset - Il numero di cantieri da saltare.
+   * @param {number} limit - Il numero massimo di cantieri da recuperare.
+   * @returns {Promise<Array<Site>>} Un array di cantieri entro il raggio specificato.
+   * @throws {Error} Se si verifica un errore durante la ricerca dei cantieri, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Recupera tutti i cantieri dal database, applicando eventualmente offset e limit.
+   * 2. Applica un filtro geografico ai cantieri in base alla latitudine, longitudine e al raggio forniti, utilizzando la funzione `distanceFilter`.
+   * 3. Restituisce i cantieri che rientrano nel raggio specificato dalla posizione data.
+   * 4. Se si verifica un errore durante il processo, solleva un errore 500 (Internal Server Error).
+   */
   async getSitesByLocation(latitude, longitude, radius, offset, limit) {
     try {
 

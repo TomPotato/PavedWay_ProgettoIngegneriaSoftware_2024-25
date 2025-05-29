@@ -1,24 +1,30 @@
 <template>
 	<div class="tabs tabs-lift tabs-s">
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri" />
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri"
+			checked="checked" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
-			<div class="flex">
-				<div class="w-[30vh] space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full" @click="getSites">Mostra tutti i
+			<div class="flex w-full h-[66vh] flex-col">
+				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
+					<div class="w-full grid grid-cols-7 gap-2">
+						<button class="btn btn-neutral w-auto" @click="getSites">Mostra tutti i
 							Cantieri!</button>
-						<button class="btn btn-neutral mt-4 w-full" @click="getActiveSites">Mostra i
-							Cantieri ancora attivi!</button>
-						<button @click="openDrawer('CantieriCerca')" class="btn btn-primary drawer-button w-full">Cerca
-							Cantieri!</button>
-						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-full">Crea un
-							cantiere!</button>
+						<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
+						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-auto">Crea un
+							Cantiere!</button>
+						<button @click="openDrawer('CantieriCerca')" class="btn btn-square btn-primary drawer-button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+								class="feather feather-search" viewBox="0 0 24 24">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</button>
 					</div>
 				</div>
 				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
-				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
+				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
@@ -53,31 +59,37 @@
 						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca il cantiere per posizione</label>
+							<h2 class="text-xl font-semibold">Cerca i cantieri per posizione</h2>
 							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine"
+								:disabled="street != '' || code != '' || city != ''" />
 							<p v-if="!validateLatitude && latitude != ''" class="text-error">
 								La latitudine deve essere compresa tra -90 e 90.
 							</p>
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<input v-model="longitude" type="text" class="input" placeholder="Longitudine"
+								:disabled="street != '' || code != '' || city != ''" />
 							<p v-if="!validateLongitude && longitude != ''" class="text-error">
 								La longitudine deve essere compresa tra -180 e 180.
 							</p>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
+								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
-								Il numero civico deve essere lungo tra 1 e 4 caratteri.
-							</p>
-
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá"
+								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
+
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateCode && code != ''" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
+
 							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
 								<input @click="metersChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
@@ -92,8 +104,9 @@
 							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
-							<button for="CantieriCerca" class="btn btn-neutral mt-4"
-								@click="getSitesByLoc(meters)">Cerca!</button>
+							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
+								:disabled="((!latitude || !longitude || !radius) && (!street && !city && !code)) ||
+									((!street || !city || !code || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -227,31 +240,37 @@
 			</dialog>
 		</div>
 
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:lack]" aria-label="Segnalazioni"
-			checked="checked" />
-		<div class="tab-content bg-base-200 border-base-400 p-6">
-			<div class="flex h-auto">
-				<div class="w-[30vh] space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getReports">Mostra
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]"
+			aria-label="Segnalazioni" />
+		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
+			<div class="flex w-full h-[66vh] flex-col">
+				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
+					<div class="w-full grid grid-cols-7 gap-2">
+						<button class="btn btn-neutral w-auto" @click="getReports">Mostra
 							tutte le
 							Segnalazioni!</button>
-						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getActiveReports">Mostra le
-							Segnalazioni ancora attive!</button>
-						<button @click="openDrawer('SegnalazioniCerca')"
-							class="btn btn-primary drawer-button w-full">Cerca una
-							Segnalazione!</button>
+						<button class="btn btn-neutral w-auto" @click="getActiveReports">Segnalazioni ancora
+							attive!</button>
 						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
 							class="btn btn-primary w-full">Crea
 							una
 							Segnalazione!</button>
+						<button @click="openDrawer('SegnalazioniCerca')"
+							class="btn btn-square btn-primary drawer-button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+								class="feather feather-search" viewBox="0 0 24 24">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</button>
 					</div>
 				</div>
-				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
 
-				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
+				<div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
@@ -287,31 +306,38 @@
 			<div class="drawer drawer-end h-full center-0">
 				<input id="SegnalazioniCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<button @click="closeDrawer('SegnalazioniCerca')" aria-label="close sidebar"
+					<button @click="closeDrawer('SegnalazioniCerca'), resCerca" aria-label="close sidebar"
 						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
+							<h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
+
 							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
+							<input v-model="latitude" type="text" class="input" placeholder="Latitudine"
+								:disabled="street != '' || stNumber != '' || city != ''" />
 							<p v-if="!validateLatitude && latitude != ''" class="text-error">
 								La latitudine deve essere compresa tra -90 e 90.
 							</p>
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<input v-model="longitude" type="text" class="input" placeholder="Longitudine"
+								:disabled="street != '' || stNumber != '' || city != ''" />
 							<p v-if="!validateLongitude && longitude != ''" class="text-error">
 								La longitudine deve essere compresa tra -180 e 180.
 							</p>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
+								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
+							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico"
+								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá"
+								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -330,7 +356,8 @@
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
 							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
-								@click="getReportsByLoc">Cerca!</button>
+								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
+									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -438,6 +465,7 @@ import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
+import nominatim from '@/services/Nominatim';
 
 const errorMessage = ref(null);
 
@@ -464,12 +492,12 @@ const validateInfo = computed(() => {
 
 const latitude = ref('');
 const validateLatitude = computed(() => {
-	return latitude.value >= -90 && latitude.value <= 90;
+	return latitude.value >= -90 && latitude.value <= 90 && latitude.value.length <= 8;
 });
 
 const longitude = ref('');
 const validateLongitude = computed(() => {
-	return longitude.value >= -180 && longitude.value <= 180;
+	return longitude.value >= -180 && longitude.value <= 180 && longitude.value.length <= 8;
 });
 
 const street = ref('');
@@ -691,8 +719,14 @@ const getSitesByLoc = async (mtrs) => {
 	if (mtrs.value === 'chilometri') {
 		radius.value = radius.value * 1000;
 	}
-
+	/*if (street && city && code) {
+		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		console.log(response);
+		latitude = response.latitude;
+		longitude = response.longitude;
+	}*/
 	try {
+		console.log(latitude.value, longitude.value);
 		const siteData = {
 			'latitude': latitude.value,
 			'longitude': longitude.value,

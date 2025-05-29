@@ -27,11 +27,11 @@ class Validator {
     }
 
     validateRadius(radius) {
-        return (radius <= 5000 && radius >0 && Number.isInteger(radius));
+        return (radius <= 5000 && radius >0 && typeof(radius) === 'number');
     }
 
     validateLocation(latitude, longitude) {
-        return (latitude !== undefined && longitude !== undefined && Number.isInteger(latitude) && Number.isInteger(longitude));
+        return (latitude !== undefined && longitude !== undefined && typeof(latitude) === 'number' && typeof(longitude) === 'number');
     }
 }
 

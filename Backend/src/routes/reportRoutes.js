@@ -33,20 +33,20 @@ router.get('/', async (req, res) => {
 	let radius = null;
 
     if(req.query.latitude && req.query.longitude){
-        if (!validator.validateLocation(toValidInt(req.query.latitude) , toValidInt(req.query.longitude))) {
+        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire una location valida.'));
         }
-        latitude = req.query.latitude;
-        longitude = req.query.longitude;
+        latitude = Number(req.query.latitude);
+        longitude = Number(req.query.longitude);
     }
 
 	if(req.query.radius){
-		if(!validator.validateRadius(toValidInt(req.query.radius))){
+		if(!validator.validateRadius(Number(req.query.radius))){
 			return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
 		}
-		radius = toValidInt(req.query.radius);
+		radius = Number(req.query.radius);
 	}
 
     try {
