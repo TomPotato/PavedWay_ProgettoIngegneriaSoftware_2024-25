@@ -18,6 +18,7 @@
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.2",
+    "openrouteservice-js": "^0.4.1",
     "util": "^0.12.5"
   },
   "devDependencies": {
