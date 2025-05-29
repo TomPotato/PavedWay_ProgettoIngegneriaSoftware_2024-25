@@ -26,6 +26,10 @@ tags:
     description: >-
       Operazioni relative alla gestione dei cantieri, 
       inclusi la creazione, la visualizzazione e l'aggiornamento dei cantieri.
+  - name: Percorsi
+    description: >-
+      Operazioni relative alla gestione dei percorsi, 
+      inclusi la richiesta e la visualizzazione dei percorsi.
 
 paths:
   /auth/register:
@@ -237,6 +241,51 @@ paths:
                 $ref: "#/components/schemas/Error"
         "409":
           description: Nome utente o email già in uso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}:
+    delete:
+      tags:
+        - Utenti
+      summary: Elimina un utente specifico
+      description: >-
+        Permette di eliminare un utente specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare un utente o essere l'utente stesso.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da eliminare.
+      responses:
+        "204":
+          description: Utente eliminato con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per eliminare un altro utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Utente non trovato.
           content:
             application/json:
               schema:
@@ -721,6 +770,63 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /paths/direct:
+    get:
+      tags:
+        - Percorsi
+      summary: Restituisce un percorso diretto tra due punti
+      description: >-
+        Restituisce un percorso diretto tra due punti in formato GeoJSON specificati dalle coordinate geografiche.
+        Le coordinate devono essere fornite come latitudine e longitudine.
+      parameters:
+        - in: query
+          name: startLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di partenza.
+        - in: query
+          name: startLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di partenza.
+        - in: query
+          name: endLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di arrivo.
+        - in: query
+          name: endLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di arrivo.
+      responses:
+        "200":
+          description: OK. Percorso trovato.
+          content:
+            application/geo+json:
+              schema:
+                type: object
+        "400":
+          description: Richiesta non valida.
           content:
             application/json:
               schema:
