@@ -24,11 +24,11 @@ router.get('/direct', async (req, res) => {
     }
 
     try {
-        const path = await service.getPath([sLon, sLat], [eLon, eLat]);
+        const path = await service.getPath(sLat, sLon, eLat, eLon);
         res.status(200).json(path);
     } catch (error) {
         res.status(error.code).json(error);
     }
 });
 
-
+module.exports = router;

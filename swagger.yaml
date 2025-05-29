@@ -787,7 +787,7 @@ paths:
         - Percorsi
       summary: Restituisce un percorso diretto tra due punti
       description: >-
-        Restituisce un percorso diretto tra due punti specificati dalle coordinate geografiche.
+        Restituisce un percorso diretto tra due punti in formato GeoJSON specificati dalle coordinate geografiche.
         Le coordinate devono essere fornite come latitudine e longitudine.
       parameters:
         - in: query
@@ -822,13 +822,9 @@ paths:
         "200":
           description: OK. Percorso trovato.
           content:
-            application/json:
+            application/geo+json:
               schema:
                 type: object
-                properties:
-                  route:
-                    type: string
-                    description: Descrizione del percorso trovato.
         "400":
           description: Richiesta non valida.
           content:
