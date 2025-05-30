@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo una via errata,  deve essere una parola e non puó essere piú lunga di 34 caratteri (es. Viale Giovanni Pierluigi da Palestrina)"
+            "Stai inserendo una via errata, deve essere una parola e non può essere più lunga di 34 caratteri (es. Viale Giovanni Pierluigi da Palestrina)."
           )
         );
     }
