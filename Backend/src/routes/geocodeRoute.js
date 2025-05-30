@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo un numero di via errato,deve essere un numero e non puó essere piú lunga di 5 caratteri"
+            "Stai inserendo un numero di via errato, deve essere un numero e non può essere più lunga di 5 caratteri."
           )
         );
     }
