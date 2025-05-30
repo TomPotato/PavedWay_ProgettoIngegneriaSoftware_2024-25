@@ -1,15 +1,16 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
+const createError = require("../utils/createError");
 
 router.get("/", async (req, res) => {
-  const street = null;
-  const city = null;
-  const code = null;
-  const country = "Italy";
+  let street = null;
+  let city = null;
+  let code = null;
+  let country = "Italy";
 
   if (req.query.street) {
-    if (typeof(req.query.street) != 'string' && req.query.street.length > 34) {
+    if (typeof req.query.street != "string" && req.query.street.length > 34) {
       return res
         .status(400)
         .json(
@@ -24,7 +25,7 @@ router.get("/", async (req, res) => {
   }
 
   if (req.query.city) {
-    if (typeof(req.query.city) != 'string' && req.query.city.length > 34) {
+    if (typeof req.query.city != "string" && req.query.city.length > 34) {
       return res
         .status(400)
         .json(
@@ -35,11 +36,11 @@ router.get("/", async (req, res) => {
           )
         );
     }
-    street = req.query.street;
+    city = req.query.city;
   }
 
   if (req.query.code) {
-    if (typeof(req.query.code) != 'integer' && req.query.code.length > 5) {
+    if (typeof req.query.code != "integer" && req.query.code.length != 5) {
       return res
         .status(400)
         .json(
@@ -50,7 +51,25 @@ router.get("/", async (req, res) => {
           )
         );
     }
-    street = req.query.street;
+    code = req.query.code;
+  }
+
+  if (req.query.stNumber) {
+    if (
+      typeof req.query.stNumber != "integer" &&
+      req.query.stNumber.length > 5
+    ) {
+      return res
+        .status(400)
+        .json(
+          createError(
+            "Richiesta non valida",
+            400,
+            "Stai inserendo un numero di via errato,deve essere un numero e non puó essere piú lunga di 5 caratteri"
+          )
+        );
+    }
+    street = street + " " + req.query.stNumber;
   }
 
   try {
@@ -60,7 +79,7 @@ router.get("/", async (req, res) => {
         params: {
           street: street,
           city: city,
-          code: code,
+          postalcode: code,
           country: country,
           format: "json",
           limit: 1,

@@ -31,7 +31,7 @@
 							<i>{{ site.info }}</i>
 							<p>Posizione:</p>
 							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
-							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{
+							<p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
 								site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
 								"\'data da destinarsi\'" }}</p>
@@ -130,16 +130,6 @@
 							</p>
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<p v-if="!validateLatitude" class="text-error">
-								La latitudine deve essere compresa tra -90 e 90.
-							</p>
-
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<p v-if="!validateLongitude" class="text-error">
-								La longitudine deve essere compresa tra -180 e 180.
-							</p>
-
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
 							<p v-if="!validateStreet" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
@@ -183,7 +173,7 @@
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<button class="btn btn-neutral w-full" @click="createSite"
-								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
+								:disabled="!title || !info || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
 						</div>
 						<div>
 							<button class="modal-backdrop btn btn-neutral text-white w-full"
@@ -400,15 +390,6 @@
 							</p>
 
 							<label class="label">Posizione della Segnalazione</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<p v-if="!validateLatitude" class="text-error">
-								La latitudine deve essere compresa tra -90 e 90.
-							</p>
-
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<p v-if="!validateLongitude" class="text-error">
-								La longitudine deve essere compresa tra -180 e 180.
-							</p>
 
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
 							<p v-if="!validateStreet" class="text-error">
@@ -493,14 +474,7 @@ const validateInfo = computed(() => {
 });
 
 const latitude = ref('');
-const validateLatitude = computed(() => {
-	return latitude.value >= -90 && latitude.value <= 90 && latitude.value.length <= 8;
-});
-
 const longitude = ref('');
-const validateLongitude = computed(() => {
-	return longitude.value >= -180 && longitude.value <= 180 && longitude.value.length <= 8;
-});
 
 const street = ref('');
 const validateStreet = computed(() => {
@@ -529,7 +503,11 @@ const validateStart = computed(() => {
 
 const end = ref('');
 const validateEnd = computed(() => {
-	return ((validateService.validateDate(end.value) && end.value > start.value) || end.value == '');
+	if (end.value != '') {
+		return (validateService.validateDate(end.value) && end.value > start.value);
+	} else {
+		return (end.value == '');
+	}
 });
 
 const companyName = ref('');
@@ -589,19 +567,15 @@ const metersChange = () => {
 const valCreaSite = computed(() => {
 	return (title.value &&
 		info.value &&
-		latitude.value &&
-		longitude.value &&
 		street.value &&
 		stNumber.value &&
 		city.value &&
 		code.value &&
 		start.value &&
-		(end.value || null) &&
+		(end.value || end.value == '') &&
 		companyName.value &&
 		validateTitle &&
 		validateInfo &&
-		validateLatitude &&
-		validateLongitude &&
 		validateStreet &&
 		validateStNumber &&
 		validateCity &&
@@ -615,8 +589,6 @@ const valCreaSite = computed(() => {
 const valCreaReport = computed(() => {
 	return (title.value &&
 		info.value &&
-		latitude.value &&
-		longitude.value &&
 		street.value &&
 		stNumber.value &&
 		city.value &&
@@ -624,8 +596,6 @@ const valCreaReport = computed(() => {
 		start.value &&
 		validateTitle &&
 		validateInfo &&
-		validateLatitude &&
-		validateLongitude &&
 		validateStreet &&
 		validateStNumber &&
 		validateCity &&
@@ -749,6 +719,9 @@ const createSite = async () => {
 		if (!valCreaSite.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
+			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			latitude.value = response.lat;
+			longitude.value = response.lon;
 			const siteData = {
 				'name': title.value,
 				'info': info.value,
@@ -866,6 +839,9 @@ const createReport = async () => {
 		if (!valCreaReport.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
+			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			latitude.value = response.lat;
+			longitude.value = response.lon;
 			const reportData = {
 				'name': title.value,
 				'info': info.value,

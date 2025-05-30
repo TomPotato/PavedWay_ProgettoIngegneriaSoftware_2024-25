@@ -811,18 +811,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /search :
+  /geocode :
     get:
       tags:
         - 
       summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
-      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via, cittá e codice postale della cittá.
+      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (puó essere inserito anche il numero), cittá e codice postale della cittá.
       parameters:
         - in: query
           name: street
           schema:
             type: string
-          description: Nome della via attorno a cui si vogliono vedere gli eventi esistenti.
+          description: Nome della via (ed eventuale numero di casa) attorno a cui si vogliono vedere gli eventi esistenti.
         - in: query
           name: city
           schema:
