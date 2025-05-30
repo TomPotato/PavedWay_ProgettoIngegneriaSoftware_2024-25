@@ -1,4 +1,5 @@
 const { Site } = require('../models/Site');
+const { Comment } = require('../models/Comment');
 
 const createError = require('../utils/createError');
 
@@ -166,33 +167,33 @@ class SiteService {
      */
     async getActiveSites(date, offset, limit) {
         try {
-            
+
             let query = Site.find({
-              $or: [
-                {
-                  $and: [
-                    { 'realDuration.start': { $lte: date } },
+                $or: [
                     {
-                      $or: [
-                        { 'realDuration.end': { $gte: date } },
-                        { 'realDuration.end': { $exists: false } }
-                      ]
-                    }
-                  ]
-                },
-                { 'realDuration': { $exists: false } },
-                {
-                  $and: [
-                    { 'duration.start': { $lte: date } },
+                        $and: [
+                            { 'realDuration.start': { $lte: date } },
+                            {
+                                $or: [
+                                    { 'realDuration.end': { $gte: date } },
+                                    { 'realDuration.end': { $exists: false } }
+                                ]
+                            }
+                        ]
+                    },
+                    { 'realDuration': { $exists: false } },
                     {
-                      $or: [
-                        { 'duration.end': { $gte: date } },
-                        { 'duration.end': { $exists: false } }
-                      ]
+                        $and: [
+                            { 'duration.start': { $lte: date } },
+                            {
+                                $or: [
+                                    { 'duration.end': { $gte: date } },
+                                    { 'duration.end': { $exists: false } }
+                                ]
+                            }
+                        ]
                     }
-                  ]
-                }
-              ]
+                ]
             });
 
             if (offset && offset > 0) {
@@ -232,14 +233,19 @@ class SiteService {
     * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
     * 8. Restituisce il cantiere con il commento aggiunto.
     */
-    async createComment(reportId, commentData) {
+    async createComment(reportId, userId, text) {
         try {
             const site = await Site.findById(reportId);
             if (!site) {
                 throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
             }
 
-            site.comments.push(commentData);
+            const comment = new Comment({
+                userId: userId,
+                text: text
+            });
+
+            site.comments.push(comment.toObject());
             const updatedSite = await site.save();
             return updatedSite;
         } catch (error) {

@@ -574,7 +574,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Comment"
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
       responses:
         "201":
           description: Commento aggiunto con successo.
@@ -852,7 +856,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Comment"
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
+
       responses:
         "201":
           description: Commento aggiunto con successo.
@@ -1097,7 +1106,6 @@ components:
     Comment:
       type: object
       required:
-        - userId
         - text
       properties:
         id:

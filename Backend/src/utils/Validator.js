@@ -27,7 +27,7 @@ class Validator {
     }
 
     validateComment(comment) {
-        const commentRegex = /^[\w\s.,!?'"()\-:;@&$%#*+=/\\]{1,30}$/;
+        const commentRegex = /^[\w\s.,!?'"()\-:;@&$%#*+=/\\]{1,200}$/;
         return commentRegex.test(comment);
     }
 }

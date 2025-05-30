@@ -70,28 +70,28 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             'Devi essere un amministratore per modificare un cantiere.'));
     }
 
-    if(req.body.id || req.body.location || req.body.createdAt || req.body.comments ){
-        return res.status(403).json(createError('Accesso Negato',403, 
+    if (req.body.id || req.body.location || req.body.createdAt || req.body.comments) {
+        return res.status(403).json(createError('Accesso Negato', 403,
             'Non sei autorizzato a modificare questa informazione.'));
-        }
+    }
 
     if (!validator.validateUsername(req.body)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'I dati inseriti non sono validi. Controlla i dati e riprova.'));
     }
 
     try {
 
         let data = {
-            'name':null,
-            'info':null,
-            'duration':null,
-            'companyName':null,
-            'realDuration':null
+            'name': null,
+            'info': null,
+            'duration': null,
+            'companyName': null,
+            'realDuration': null
         }
 
         Object.keys(data).forEach(key => {
-            if(req.body.hasOwnProperty(key)){
+            if (req.body.hasOwnProperty(key)) {
                 data[key] = req.body[key];
             }
         });
@@ -123,24 +123,20 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 
 router.post('/:id/comments', tokenChecker, async (req, res) => {
     const id = req.params.id;
+    const userId = req.user.id;
 
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Devi fornire un commento nel corpo della richiesta.'));
     }
 
-    if(validator.validateDate(req.body.createdAt) === false){
+    if (!validator.validateComment(req.body.text)) {
         return res.status(400).json(createError('Richiesta non valida', 400,
-            'Devi fornire una data valida in formato ISO 8601.'));
-    }
-
-    if (!validator.validateComment(req.body.comment)) {
-        return res.status(400).json(createError('Richiesta non valida', 400,
-            'Il commento non può essere vuoto, deve contenere al massimo 30 caratteri e può includere lettere, numeri, spazi e alcuni simboli.'));
+            'Il commento non può essere vuoto, deve contenere al massimo 200 caratteri e può includere lettere, numeri, spazi e alcuni simboli.'));
     }
 
     try {
-        const site = await service.createComment(id, req.body);
+        const site = await service.createComment(id, userId, req.body.text);
         res.status(201).json(site);
     } catch (error) {
         res.status(error.code).json(error);

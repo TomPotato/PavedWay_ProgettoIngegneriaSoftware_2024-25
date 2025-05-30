@@ -1,4 +1,5 @@
 const { Report } = require('../models/Report');
+const { Comment } = require('../models/Comment');
 
 const userService = require('./UserService');
 
@@ -207,12 +208,14 @@ class ReportService {
      */
     async getActiveReports(date, offset, limit) {
         try {
-            let query = Report.find({ $or: [{
-                'start': { $lte: date } , 'end': { $gte: date }},
-                {'end':{ $exists: false }},
-                {'start': { $lte: date }} 
-            ]
-        });
+            let query = Report.find({
+                $or: [{
+                    'start': { $lte: date }, 'end': { $gte: date }
+                },
+                { 'end': { $exists: false } },
+                { 'start': { $lte: date } }
+                ]
+            });
 
             if (offset && offset > 0) {
                 query = query.skip(offset);
@@ -249,7 +252,7 @@ class ReportService {
     * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
     * 8. Restituisce la segnalazione modificata.
     */
-    async updateReport(reportId, reportData){
+    async updateReport(reportId, reportData) {
         try {
             const reportExists = await Report.findById(reportId);
 
@@ -293,20 +296,26 @@ class ReportService {
     * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
     * 8. Restituisce la segnalazione con il commento aggiunto.
     */
-    async createComment(reportId, commentData) {
+    async createComment(reportId, userId, text) {
         try {
             const report = await Report.findById(reportId);
             if (!report) {
                 throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
             }
 
-            report.comments.push(commentData);
+            const comment = new Comment({
+                userId: userId,
+                text: text
+            });
+
+            report.comments.push(comment.toObject());
             const updatedReport = await report.save();
             return updatedReport;
         } catch (error) {
             if (error.code) {
                 throw error;
             } else {
+                console.log(error);
                 const message = 'Errore interno del server durante la creazione del commento.';
                 throw createError('Errore interno del server', 500, message);
             }
