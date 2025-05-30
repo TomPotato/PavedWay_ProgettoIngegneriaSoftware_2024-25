@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo erratamente la cittá, deve essere una parola e non puó essere piú lunga di 34 caratteri (es. San Valentino in Abruzzo Citeriore)"
+            "Stai inserendo erratamente la città, deve essere una parola e non può essere piò lunga di 34 caratteri (es. San Valentino in Abruzzo Citeriore)."
           )
         );
     }
