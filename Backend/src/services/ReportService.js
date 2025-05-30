@@ -315,7 +315,6 @@ class ReportService {
             if (error.code) {
                 throw error;
             } else {
-                console.log(error);
                 const message = 'Errore interno del server durante la creazione del commento.';
                 throw createError('Errore interno del server', 500, message);
             }
