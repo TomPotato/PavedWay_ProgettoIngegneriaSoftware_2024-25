@@ -48,8 +48,8 @@ class MapService {
         }).bindPopup(name).addTo(this.map);
     }
 
-    addHomeControl(onClick) {
-        const homeControl = L.Control.extend({
+    addControl(icon, onClick) {
+        const control = L.Control.extend({
             options: { position: 'topleft' },
             onAdd: function () {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -62,14 +62,14 @@ class MapService {
                 container.style.cursor = 'pointer';
                 container.title = 'Torna alla posizione iniziale';
 
-                container.innerHTML = `<img src="/home.svg" alt="Home" style="width: 24px; height: 24px;"/>`;
+                container.innerHTML = `<img src="${icon}" alt="Home" style="width: 24px; height: 24px;"/>`;
 
                 L.DomEvent.on(container, 'click', onClick);
 
                 return container;
             }
         });
-        this.map.addControl(new homeControl());
+        this.map.addControl(new control());
     }
 
     updateHereMarker(lat, lng) {

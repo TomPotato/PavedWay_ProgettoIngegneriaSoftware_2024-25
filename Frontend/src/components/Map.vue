@@ -1,6 +1,5 @@
 <template>
     <div class="flex h-[80vh] shadow-lg">
-        <!-- Drawer -->
         <div class="bg-base-200 transition-all duration-300 overflow-hidden rounded-l-lg"
             :class="drawerOpen ? 'basis-[300px]' : 'basis-0'">
             <div class="p-4 h-full flex flex-col">
@@ -17,7 +16,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import 'leaflet/dist/leaflet.css';
-import L, { marker } from 'leaflet';
+import L from 'leaflet';
 
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
@@ -62,10 +61,14 @@ onMounted(async () => {
 
     map.initMap();
     map.setView(location.value.lat, location.value.lng, 16);
-    map.addHomeControl(function (e) {
+    map.addControl('/aim.svg', function (e) {
         L.DomEvent.stopPropagation(e);
         L.DomEvent.preventDefault(e);
-        //getLocation();
+        getLocation();
+    });
+    map.addControl('/search.svg', function (e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
         toggleDrawer();
     });
 
