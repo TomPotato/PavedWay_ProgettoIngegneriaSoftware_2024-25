@@ -277,25 +277,25 @@ class ReportService {
     }
 
     /**
-    * Aggiunge un commento a una segnalazione esistente nel database.
-    *
-    * @async
-    * @param {string} reportId - L'ID della segnalazione a cui aggiungere il commento.
-    * @param {Object} commentData - I dati del commento da aggiungere alla segnalazione.
-    * @returns {Promise<Report>} La segnalazione modificata.
-    * @throws {Error} Se si verifica un errore durante l'aggiunta del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-    * 
-    * @description
-    * Questa funzione esegue i seguenti passaggi:
-    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
-    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
-    * 3. Se la segnalazione esiste, aggiunge il commento all'array dei commenti della segnalazione.
-    * 4. Esegue la validazione dei dati della segnalazione.
-    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
-    * 6. Se la validazione ha successo, salva la segnalazione aggiornata nel database.
-    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
-    * 8. Restituisce la segnalazione con il commento aggiunto.
-    */
+     * Crea un commento associato a una segnalazione.
+     * 
+     * @async
+     * @param {string} reportId - L'ID della segnalazione a cui aggiungere il commento.
+     * @param {string} userId - L'ID dell'utente che sta creando il commento.
+     * @param {string} text - Il testo del commento da aggiungere.
+     * @returns {Promise<Report>} La segnalazione aggiornata con il nuovo commento.
+     * @throws {Error} Se si verifica un errore durante la creazione del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+     * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+     * 3. Se la segnalazione esiste, crea un nuovo commento con i dati forniti.
+     * 4. Aggiunge il commento alla lista dei commenti della segnalazione.
+     * 5. Salva la segnalazione aggiornata nel database.
+     * 6. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
+     * 7. Restituisce la segnalazione aggiornata con il nuovo commento.
+     */
     async createComment(reportId, userId, text) {
         try {
             const report = await Report.findById(reportId);

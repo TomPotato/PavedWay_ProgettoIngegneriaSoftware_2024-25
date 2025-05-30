@@ -214,25 +214,24 @@ class SiteService {
     }
 
     /**
-    * Aggiunge un commento a un cantiere esistente nel database.
-    *
-    * @async
-    * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
-    * @param {Object} commentData - I dati del commento da aggiungere al cantiere.
-    * @returns {Promise<Site>} Il cantiere modificato.
-    * @throws {Error} Se si verifica un errore durante l'aggiunta del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-    * 
-    * @description
-    * Questa funzione esegue i seguenti passaggi:
-    * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
-    * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
-    * 3. Se il cantiere esiste, aggiunge il commento all'array dei commenti del cantiere.
-    * 4. Esegue la validazione dei dati del cantiere.
-    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
-    * 6. Se la validazione ha successo, salva il cantiere aggiornato nel database.
-    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
-    * 8. Restituisce il cantiere con il commento aggiunto.
-    */
+     * Crea un commento associato a un cantiere.
+     * 
+     * @async
+     * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
+     * @param {string} userId - L'ID dell'utente che sta creando il commento.
+     * @param {string} text - Il testo del commento da aggiungere.
+     * @returns {Promise<Site>} Il cantiere aggiornato con il nuovo commento.
+     * @throws {Error} Se si verifica un errore durante la creazione del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+     * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+     * 3. Se il cantiere esiste, crea un nuovo commento con l'ID utente e il testo forniti.
+     * 4. Aggiunge il commento al cantiere e lo salva nel database.
+     * 5. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
+     * 6. Restituisce il cantiere aggiornato con il nuovo commento.
+     */
     async createComment(reportId, userId, text) {
         try {
             const site = await Site.findById(reportId);
