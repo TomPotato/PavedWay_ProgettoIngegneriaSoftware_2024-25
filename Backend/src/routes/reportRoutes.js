@@ -28,11 +28,35 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    let latitude = null;
+    let longitude = null;
+	let radius = null;
+
+    if(req.query.latitude && req.query.longitude){
+        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire una location valida.'));
+        }
+        latitude = Number(req.query.latitude);
+        longitude = Number(req.query.longitude);
+    }
+
+	if(req.query.radius){
+		if(!validator.validateRadius(Number(req.query.radius))){
+			return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
+		}
+		radius = Number(req.query.radius);
+	}
+
     try {
         if (date) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else {
+        } else if(longitude && latitude && radius) {
+			const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit)
+			return res.status(200).json(reports);
+		} else  {
             const reports = await service.getReports(offset, limit);
             return res.status(200).json(reports);
         }
@@ -125,11 +149,6 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             req.body.duration || req.body.photos )) {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
-        }
-
-        if (!validator.validateUsername(req.body)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
         }
         
         try {
