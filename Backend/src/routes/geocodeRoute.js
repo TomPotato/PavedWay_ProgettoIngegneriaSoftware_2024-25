@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo una codice postale errato,deve essere un numero e non puó essere non piú lunga di 5 caratteri (es. Viale Giovanni Pierluigi da Palestrina)"
+            "Stai inserendo una codice postale errato, deve essere un numero e non può essere non più lunga di 5 caratteri (es. Viale Giovanni Pierluigi da Palestrina)."
           )
         );
     }
