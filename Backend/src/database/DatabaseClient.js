@@ -18,7 +18,7 @@ class DatabaseClient {
 
         try {
             await mongoose.connect(process.env.DB_URI, {
-                dbName: process.env.DB_NAME,
+                dbName: process.env.DB_TEST,
             });
             this._status = true;
         } catch (error) {
