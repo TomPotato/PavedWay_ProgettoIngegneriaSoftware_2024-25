@@ -190,6 +190,7 @@ class SiteService {
                 $or: [
                   { "duration.end": { $gte: date } },
                   { "duration.end": { $exists: false } },
+                  { "duration.end": { $in: [null, undefined] } },
                 ],
               },
             ],
@@ -201,10 +202,11 @@ class SiteService {
                 $or: [
                   { "realDuration.end": { $gte: date } },
                   { "realDuration.end": { $exists: false } },
+                  { "realDuration.end": { $in: [null, undefined] } },
                 ],
               },
               {
-                realDuration: { $exists: false },
+                "realDuration": { $exists: false },
               },
             ],
           },
@@ -220,6 +222,7 @@ class SiteService {
       }
 
       const sites = await query.exec();
+
       return sites;
     } catch (error) {
       const message = "Errore interno del server durante la ricerca.";
@@ -301,6 +304,7 @@ class SiteService {
                 $or: [
                   { "duration.end": { $gte: date } },
                   { "duration.end": { $exists: false } },
+                  { "duration.end": { $in: [null, undefined] } },
                 ],
               },
             ],
@@ -312,10 +316,11 @@ class SiteService {
                 $or: [
                   { "realDuration.end": { $gte: date } },
                   { "realDuration.end": { $exists: false } },
+                  { "realDuration.end": { $in: [null, undefined] } },
                 ],
               },
               {
-                realDuration: { $exists: false },
+                "realDuration": { $exists: false },
               },
             ],
           },

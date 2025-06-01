@@ -17,8 +17,8 @@ class SiteService {
     try {
       const response = await api.get("/sites", {
         now: true,
-        offset: offset,
-        limit: limit,
+        offset: 0,
+        limit: 0,
       });
       return response.data;
     } catch (error) {

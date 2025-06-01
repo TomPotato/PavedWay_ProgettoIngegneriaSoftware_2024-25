@@ -80,7 +80,7 @@ router.get("/", async (req, res) => {
           street: street,
           city: city,
           postalcode: code,
-          country: country,
+          country: 'Italy',
           format: "json",
           limit: 1,
         },

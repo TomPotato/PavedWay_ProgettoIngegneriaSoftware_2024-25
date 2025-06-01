@@ -34,7 +34,7 @@
 							<p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
 								site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
-								"\'data da destinarsi\'" }}</p>
+								"/'data da destinarsi'/" }}</p>
 							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
@@ -80,7 +80,7 @@
 							</p>
 
 							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
-								<input @click="metersChange" type="checkbox" checked="checked"
+								<input @click="metersChange" type="checkbox"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
 							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
@@ -97,7 +97,7 @@
 							<label class="label w-full flex">
 								<p v-if="now === 'tutti'">Tutti i cantieri?</p>
 								<p v-else>I cantieri ancora attivi?</p>
-								<input @click="nowChange" type="checkbox" checked="checked"
+								<input @click="nowChange" type="checkbox"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
@@ -338,7 +338,7 @@
 								<input @click="nowChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
-							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4" 
 								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
 									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
@@ -663,6 +663,8 @@ const resCerca = () => {
 	code.value = '';
 	city.value = '';
 	radius.value = '';
+	meters.value = 'metri';
+	now.value = 'tutti';
 };
 
 const getSites = async () => {
@@ -695,32 +697,33 @@ const getSitesByLoc = async (mtrs) => {
 		longitude.value = response.lon;
 	}
 	try {
-		if (now === 'tutti') {
-			const siteData = {
-				'latitude': latitude.value,
-				'longitude': longitude.value,
-				'radius': radius.value,
-				'offset': 0,
-				'limit': 0
+		if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
+			if (now.value === 'tutti') {
+				const siteData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await siteService.getSitesByLoc(siteData);
+			} else {
+				const siteData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'now': true,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await siteService.getActiveSitesByLoc(siteData);
 			}
-			ready.value = false;
-			sites.value = await siteService.getSitesByLoc(siteData);
-		} else {
-			
-			const siteData = {
-				'latitude': latitude.value,
-				'longitude': longitude.value,
-				'radius': radius.value,
-				'now': true,
-				'offset': 0,
-				'limit': 0
-			}
-			ready.value = false;
-			sites.value = await siteService.getActiveSitesByLoc(siteData);
+			resCerca();
+			closeDrawer('CantieriCerca');
+			ready.value = true;
 		}
-		resCerca();
-		closeDrawer('CantieriCerca');
-		ready.value = true;
 	} catch (error) {
 		errorMessage.value = siteService.error;
 	}
@@ -829,31 +832,33 @@ const getReportsByLoc = async (mtrs) => {
 		longitude.value = response.lon;
 	}
 	try {
-		if (now === 'tutti') {
-			const reportData = {
-				'latitude': latitude.value,
-				'longitude': longitude.value,
-				'radius': radius.value,
-				'offset': 0,
-				'limit': 0
+		if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
+			if (now.value === 'tutti') {
+				const reportData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await reportService.getReportsByLoc(reportData);
+			} else {
+				const reportData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'now': true,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				reports.value = await reportService.getActiveReportsByLoc(reportData);
 			}
-			ready.value = false;
-			sites.value = await reportService.getReportsByLoc(reportData);
-		} else {
-			const reportData = {
-				'latitude': latitude.value,
-				'longitude': longitude.value,
-				'radius': radius.value,
-				'now': true,
-				'offset': 0,
-				'limit': 0
-			}
-			ready.value = false;
-			reports.value = await reportService.getActiveReportsByLoc(reportData);
+			resCerca();
+			closeDrawer('SegnalazioniCerca');
+			ready.value = true;
 		}
-		resCerca();
-		closeDrawer('SegnalazioniCerca');
-		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}

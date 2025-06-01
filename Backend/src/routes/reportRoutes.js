@@ -53,11 +53,10 @@ router.get('/', async (req, res) => {
         if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && !date) {
+        } else if(longitude && latitude && radius && date === null) {
             const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
         } else if(longitude && latitude && radius && date){
-            console.log('FUNZIONA');
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
         }else {

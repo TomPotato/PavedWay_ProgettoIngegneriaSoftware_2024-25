@@ -9,6 +9,7 @@ const toValidInt = require('../utils/toValidInt');
 const validator = require('../utils/Validator');
 
 router.get('/', async (req, res) => {
+    console.log(req.query);
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 
@@ -50,14 +51,13 @@ router.get('/', async (req, res) => {
 	}
 
     try {
-        if (date && !longitude && !latitude && !radius) {
+        if (date && !latitude && !longitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
             return res.status(200).json(sites);
-        } else if(longitude && latitude && radius && !date) {
+        } else if(longitude && latitude && radius && date === null) {
 			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit);
 			return res.status(200).json(sites);
 		} else if(longitude && latitude && radius && date){
-			console.log('FUNZIONA');
 			const sites = await service.getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit);
 			return res.status(200).json(sites);
         }else {

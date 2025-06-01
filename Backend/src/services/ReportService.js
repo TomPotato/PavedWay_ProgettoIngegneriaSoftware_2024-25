@@ -225,6 +225,7 @@ class ReportService {
             $or: [
               { "duration.end": { $gte: date } },
               { "duration.end": { $exists: false } },
+              { "duration.end": { $in: [null, undefined] } },
             ],
           },
         ],
@@ -320,7 +321,7 @@ class ReportService {
     }
   }
 
-  async getActiveReportsByLoc(latitude, longitude, radius, date, offset, limit) {
+  async getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit) {
     try {
       let query = Report.find({
         $and: [
@@ -329,6 +330,7 @@ class ReportService {
             $or: [
               { "duration.end": { $gte: date } },
               { "duration.end": { $exists: false } },
+              { "duration.end": { $in: [null, undefined] } },
             ],
           },
         ],
