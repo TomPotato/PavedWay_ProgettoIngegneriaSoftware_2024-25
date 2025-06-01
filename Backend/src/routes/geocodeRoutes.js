@@ -90,7 +90,7 @@ router.get("/", async (req, res) => {
 
   try {
     let response = null;
-    if (street && code && city) {
+    if (street && code && city && !q) {
       response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           street: street,
@@ -104,7 +104,7 @@ router.get("/", async (req, res) => {
           "User-Agent": "PavedWay", // OpenStreetMap lo richiede!
         },
       });
-    } else if(q){
+    } else if(q && !street && !code && !city){
       response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           q: q,
