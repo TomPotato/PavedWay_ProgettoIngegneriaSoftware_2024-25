@@ -15,7 +15,7 @@
                 <li>
                     <RouterLink to="/events">Eventi</RouterLink>
                 </li>
-                <li>
+                <li v-if="store.isCitizen">
                     <RouterLink to="/profile">Profilo</RouterLink>
                 </li>
                 <li>

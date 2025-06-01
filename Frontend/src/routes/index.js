@@ -6,12 +6,14 @@ import Home from '../pages/Home.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
 import Events from '../pages/Events.vue';
+import Profile from '../pages/Profile.vue';
 
 const routes = [
     { path: '/', name: 'home', component: Home },
     { path: '/login', name: 'login', component: Login },
     { path: '/register', name: 'register', component: Register },
     { path: '/events', name: 'events', component: Events },
+    { path: '/profile', name: 'profile', component: Profile },
     { path: '/:pathMatch(.*)*', redirect: '/' }, // Redirect to home for any unmatched routes
 ];
 
