@@ -15,7 +15,7 @@ async function createTestReports(count = 10) {
     const createdBy = new mongoose.Types.ObjectId();
 
     return {
-      name: `Evento ${i + 1}`,
+      name: `Segnalazione ${i + 1}`,
       info: `Descrizione dell'evento numero ${i + 1}`,
       location: {
         latitude: 45.0 + i * 0.01,
@@ -26,7 +26,7 @@ async function createTestReports(count = 10) {
         code: 10000 + i,
       },
       duration: {
-        start: new Date(Date.now() + i * 1000 * 60 * 60).toISOString(),
+        start: new Date(Date.now() - i * 1000 * 60 * 60).toISOString(),
         end: new Date(Date.now() + (i + 1) * 1000 * 60 * 60).toISOString(),
       },
       createdAt: new Date(Date.now() + i * 1000),
@@ -71,11 +71,11 @@ async function createTestSites(count = 10) {
         code: 20000 + i,
       },
       duration: {
-        start: new Date(Date.now() + i * 3600000).toISOString(),
+        start: new Date(Date.now() - i * 3600000).toISOString(),
         end: new Date(Date.now() + (i + 1) * 3600000).toISOString(),
       },
       realDuration: {
-        start: new Date(Date.now() + i * 3600000).toISOString(),
+        start: new Date(Date.now() - i * 3600000).toISOString(),
         end: new Date(Date.now() + (i + 2) * 3600000).toISOString(),
       },
       createdAt: new Date(Date.now() + i * 1000),

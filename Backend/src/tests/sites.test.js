@@ -83,4 +83,35 @@ describe('GET /api/v1/sites', () => {
       expect(res.body[i].name).toBe(`Cantiere ${offset + i + 1}`);
     }
   }, 20000);
+
+  // User story: Read Current Events
+  test('should return 200 with current sites', async () => {
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ now: true })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+
+    for (let i = 0; i < res.body.length; i++) {
+      expect(res.body[i].name).toBe(`Cantiere ${i + 1}`);
+      expect(new Date(res.body[i].duration.start) <= new Date()).toBe(true);
+      expect(new Date(res.body[i].duration.end) >= new Date()).toBe(true);
+    }
+  });
+
+  test('should return 400 for inserting both <now> and <date>', async () => {
+    await request(app)
+      .get('/api/v1/sites')
+      .query({ now: true, date: '2025-07-17T00:00:00.000+00:00' })
+      .expect(400);
+  });
+
+  test('should return 400 for invalid date format', async () => {
+    await request(app)
+      .get('/api/v1/sites')
+      .query({ now: true, date: '05-21-2025' })
+      .expect(400);
+  });
 });
