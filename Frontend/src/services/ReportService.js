@@ -26,27 +26,29 @@ class ReportService {
     }
   }
 
-  async getReportsByLoc(siteData) {
+  async getReportsByLoc(reportData) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async getActiveReportsByLoc(siteData) {
+  async getActiveReportsByLoc(reportData) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async getReportsByLoc(siteData) {
+  async getReportsByUserId(token, reportData) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/reports`, reportData, {
+        headers: { "x-api-key": token },
+      });
       return response.data;
     } catch (error) {
       throw error.data;

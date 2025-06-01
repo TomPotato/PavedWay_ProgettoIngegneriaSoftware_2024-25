@@ -268,8 +268,13 @@ const resCerca = () => {
 
 const getReportsByUserId = async () => {
     try {
+        const reportData = {
+            'my': true,
+            'offset' : 0,
+            'limit' : 0
+        };
         ready.value = false;
-        reports.value = await reportService.getReportsByUserId(0, 0);
+        reports.value = await reportService.getReportsByUserId(authStore.token, reportData);
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
