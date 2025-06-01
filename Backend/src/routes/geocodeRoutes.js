@@ -8,6 +8,7 @@ router.get("/", async (req, res) => {
   let city = null;
   let code = null;
   let country = "Italy";
+  let q = null;
 
   if (req.query.street) {
     if (typeof req.query.street != "string" && req.query.street.length > 34) {
@@ -72,23 +73,49 @@ router.get("/", async (req, res) => {
     street = street + " " + req.query.stNumber;
   }
 
+  if (req.query.q) {
+    if (typeof req.query.q != "string") {
+      return res
+        .status(400)
+        .json(
+          createError(
+            "Richiesta non valida",
+            400,
+            "Non stai inserendo una ricerca corretta, prova a verificare che il contenuto della ricerca esista!"
+          )
+        );
+    }
+    q = req.query.q;
+  }
+
   try {
-    const response = await axios.get(
-      "https://nominatim.openstreetmap.org/search",
-      {
+    let response = null;
+    if (street && code && city) {
+      response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           street: street,
           city: city,
           postalcode: code,
-          country: 'Italy',
+          country: country,
           format: "json",
           limit: 1,
         },
         headers: {
           "User-Agent": "PavedWay", // OpenStreetMap lo richiede!
         },
-      }
-    );
+      });
+    } else if(q){
+      response = await axios.get("https://nominatim.openstreetmap.org/search", {
+        params: {
+          q: q,
+          format: "json",
+          limit: 1,
+        },
+        headers: {
+          "User-Agent": "PavedWay", // OpenStreetMap lo richiede!
+        },
+      });
+    }
     res.status(200).json(response.data);
   } catch (error) {
     if (typeof error != "number") {

@@ -838,7 +838,11 @@ paths:
           schema:
             type: string
           description: Numero della casa che si vuole cercare.
-        
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Query che contiene le informazioni del posto che si vuole cercare.
       responses:
         "200":
           description: Ricerca effettuata con successo.

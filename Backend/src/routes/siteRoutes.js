@@ -9,7 +9,6 @@ const toValidInt = require('../utils/toValidInt');
 const validator = require('../utils/Validator');
 
 router.get('/', async (req, res) => {
-    console.log(req.query);
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 
