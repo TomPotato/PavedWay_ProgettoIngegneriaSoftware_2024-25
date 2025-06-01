@@ -252,11 +252,10 @@
 						</button>
 					</div>
 				</div>
-				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
-
-				<div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
+				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
@@ -273,17 +272,11 @@
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva
-									la
-									Segnalazione!</button>
+									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
-									la
-									Segnalazione!</button>
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
-									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
-									come
-									Risolta!</button>
+									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna come Risolta!</button>
 							</div>
 						</div>
 					</div>

@@ -1,12 +1,12 @@
 <template>
     <div class="bg-base-200 border-base-400 w-full p-6">
-        <div class="flex w-full h-[72vh] flex-col">
+        <div class="flex w-full h-[66vh] flex-col">
             <div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
                 <div class="w-full grid grid-cols-7 gap-2">
                     <button class="btn btn-neutral w-auto" @click="getReportsByUserId">Mostra
                         le mie
                         Segnalazioni!</button>
-                    <button class="btn btn-neutral w-auto" @click="getActiveReports">Le mie Segnalazioni ancora
+                    <button class="btn btn-neutral w-auto" @click="getActiveReportsByUserId">Le mie Segnalazioni ancora
                         attive!</button>
                     <button @click="openDrawer('SegnalazioniCerca')" class="btn btn-square btn-primary drawer-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
@@ -18,11 +18,12 @@
                     </button>
                 </div>
             </div>
-            <div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+
+            <div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
                 <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
             </div>
 
-            <div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
+            <div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
                 <div class="space-y-4">
                     <div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
                         :key="report.id">
@@ -30,15 +31,15 @@
                         <p>{{ report.info }}</p>
                         <i>Rating: {{ report?.rating || "0" }}</i>
                         <p v-if="report.status === 'solved'">Segnalazione Risolta!</p>
-                        <div class="grid grid-cols-5 gap-5 w-auto">
+                        <div class="grid grid-cols-4 gap-5 w-auto">
                             <button @click="openModal('SegnalazioniInfo', report.id)"
                                 class="btn btn-primary w-[10vh]">Info</button>
                             <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina la
                                 Segnalazione!</button>
+                            <button @click="modifyReport(report.id)" class="btn btn-neutral w-full"
+                                :disabled="report.status === 'solved'">Modifica la Segnalazione</button>
                             <button @click="statusReport(report.id, 'solved')" class="btn btn-neutral w-full"
-                                :disabled="report.status === 'solved'">Contrassegna
-                                come
-                                Risolta!</button>
+                                :disabled="report.status === 'solved'">Contrassegna come Risolta</button>
                         </div>
                     </div>
                 </div>
@@ -270,8 +271,8 @@ const getReportsByUserId = async () => {
     try {
         const reportData = {
             'my': true,
-            'offset' : 0,
-            'limit' : 0
+            'offset': 0,
+            'limit': 0
         };
         ready.value = false;
         reports.value = await reportService.getReportsByUserId(authStore.token, reportData);
@@ -281,10 +282,15 @@ const getReportsByUserId = async () => {
     }
 };
 
-const getActiveReports = async () => {
+const getActiveReportsByUserId = async () => {
     try {
+        const reportData = {
+            'my': true,
+            'offset': 0,
+            'limit': 0
+        };
         ready.value = false;
-        reports.value = await reportService.getActiveReports(0, 0);
+        reports.value = await reportService.getActiveReportsByUserId(authStore.token, reportData);
         ready.value = true;
     } catch (error) {
         errorMessage.value = siteService.error;
@@ -322,7 +328,7 @@ const getReportsByUserIdByLoc = async (mtrs) => {
                     'limit': 0
                 }
                 ready.value = false;
-                reports.value = await reportService.getActiveReportsByLoc(reportData);
+                reports.value = await reportService.getActiveReportsByUserIdByLoc(reportData);
             }
             resCerca();
             closeDrawer('SegnalazioniCerca');

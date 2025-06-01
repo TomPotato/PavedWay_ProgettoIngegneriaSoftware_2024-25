@@ -2,10 +2,11 @@ import api from "./Api";
 
 class ReportService {
   async getReports(offset, limit) {
+    console.log('Parte la richiesta');
     try {
       const response = await api.get(`/reports`, {
-        offset,
-        limit,
+        offset: offset,
+        limit: limit,
       });
       return response.data;
     } catch (error) {
@@ -45,6 +46,17 @@ class ReportService {
   }
 
   async getReportsByUserId(token, reportData) {
+    try {
+      const response = await api.get(`/reports`, reportData, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+    async getActiveReportsByUserId(token, reportData) {
     try {
       const response = await api.get(`/reports`, reportData, {
         headers: { "x-api-key": token },

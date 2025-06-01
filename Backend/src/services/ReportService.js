@@ -123,6 +123,43 @@ class ReportService {
     }
   }
 
+    async getActiveReportsByUserId(userId, offset, limit) {
+    try {
+      const user = await userService.getUserById(userId);
+      let query = Report.find({
+        $and: [
+          { "duration.start": { $lte: date } },
+          {
+            $or: [
+              { "duration.end": { $gte: date } },
+              { "duration.end": { $exists: false } },
+              { "duration.end": { $in: [null, undefined] } },
+            ],
+          },
+        { createdBy: userId }
+      ]
+    });
+
+      if (offset && offset > 0) {
+        query = query.skip(offset);
+      }
+
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const reports = await query.exec();
+      return reports;
+    } catch (error) {
+      if (error.code) {
+        throw error;
+      } else {
+        const message = "Errore interno del server durante la ricerca.";
+        throw createError("Errore interno del server", 500, message);
+      }
+    }
+  }
+
   /**
    * Crea una nuova segnalazione nel database.
    *
