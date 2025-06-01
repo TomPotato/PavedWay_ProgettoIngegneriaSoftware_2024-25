@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
-const { Report } = require('../models/Report');
+const { Sites } = require('../models/Site');
 
 beforeAll(async () => {
   const uri = process.env.DB_URI || 'mongodb://localhost:27017/test';
@@ -16,29 +16,11 @@ afterAll(async () => {
 });
 
 
-// Test suite for the app module
-test('app module should be defined', () => {
-    expect(app).toBeDefined();
-});
-
-test('GET / should return 404', async () => {
-  await request(app)
-    .get('/')
-    .expect(404);
-});
-
-test('GET /api/v1 should return 404', async () => {
-  await request(app)
-    .get('/api/v1')
-    .expect(404);
-});
-
-
-// Test for the GET /api/v1/reports endpoint
-describe('GET /api/v1/reports', () => {
+// Test for the GET /api/v1/sites endpoint
+describe('GET /api/v1/sites', () => {
   test('should return 200 with no query params', async () => {
     const res = await request(app)
-      .get('/api/v1/reports')
+      .get('/api/v1/sites')
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
@@ -46,28 +28,28 @@ describe('GET /api/v1/reports', () => {
 
   test('should return 200 with offset and limit', async () => {
     const res = await request(app)
-      .get('/api/v1/reports')
-      .query({ offset: 2, limit: 4 })
+      .get('/api/v1/sites')
+      .query({ offset: 3, limit: 5 })
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeLessThanOrEqual(4);
+    expect(res.body.length).toBeLessThanOrEqual(5);
     expect(res.body.length).toBeGreaterThanOrEqual(0);
   }, 20000);
 
   test('should return 200 with limit only', async () => {
     const res = await request(app)
-      .get('/api/v1/reports')
-      .query({ limit: 4 })
+      .get('/api/v1/sites')
+      .query({ limit: 5 })
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeLessThanOrEqual(4);
+    expect(res.body.length).toBeLessThanOrEqual(5);
   }, 20000);
 
   test('should return 200 with offset only', async () => {
     const res = await request(app)
-      .get('/api/v1/reports')
+      .get('/api/v1/sites')
       .query({ offset: 2 })
       .expect(200);
 
