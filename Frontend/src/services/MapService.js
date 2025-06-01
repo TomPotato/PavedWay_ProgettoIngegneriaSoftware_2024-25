@@ -1,8 +1,6 @@
 import L, { marker } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import api from './Api';
-
 class MapService {
     constructor(id) {
         this.id = id;
