@@ -60,17 +60,6 @@
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca i cantieri per posizione</h2>
-							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine"
-								:disabled="street != '' || code != '' || city != ''" />
-							<p v-if="!validateLatitude && latitude != ''" class="text-error">
-								La latitudine deve essere compresa tra -90 e 90.
-							</p>
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine"
-								:disabled="street != '' || code != '' || city != ''" />
-							<p v-if="!validateLongitude && longitude != ''" class="text-error">
-								La longitudine deve essere compresa tra -180 e 180.
-							</p>
 							<label class="label">Posizione per via</label>
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
 								:disabled="longitude != '' || latitude != ''" />
@@ -92,7 +81,7 @@
 
 							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
 								<input @click="metersChange" type="checkbox" checked="checked"
-									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
 							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
 								placeholder="Raggio in metri" />
@@ -104,6 +93,13 @@
 							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
+							<label class="label w-full flex">E vuoi visualizzare cosa:</label>
+							<label class="label w-full flex">
+								<p v-if="now === 'tutti'">Tutti i cantieri?</p>
+								<p v-else>I cantieri ancora attivi?</p>
+								<input @click="nowChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+							</label>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
 								:disabled="((!latitude || !longitude || !radius) && (!street && !city && !code)) ||
 									((!street || !city || !code || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
@@ -303,18 +299,6 @@
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
-
-							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine"
-								:disabled="street != '' || stNumber != '' || city != ''" />
-							<p v-if="!validateLatitude && latitude != ''" class="text-error">
-								La latitudine deve essere compresa tra -90 e 90.
-							</p>
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine"
-								:disabled="street != '' || stNumber != '' || city != ''" />
-							<p v-if="!validateLongitude && longitude != ''" class="text-error">
-								La longitudine deve essere compresa tra -180 e 180.
-							</p>
 							<label class="label">Posizione per via</label>
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
 								:disabled="longitude != '' || latitude != ''" />
@@ -347,6 +331,13 @@
 							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
 								Puoi cercare solamente entro CINQUE chilometri.
 							</p>
+							<label class="label w-full flex">E vuoi visualizzare cosa:</label>
+							<label class="label w-full flex">
+								<p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
+								<p v-else>Le Segnalazioni ancora attive?</p>
+								<input @click="nowChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+							</label>
 							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
 								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
 									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
@@ -461,6 +452,7 @@ const rInfo = ref({});
 
 const ready = ref(true);
 
+const now = ref('tutti');
 const meters = ref('metri');
 
 const title = ref('');
@@ -564,6 +556,14 @@ const metersChange = () => {
 	}
 }
 
+const nowChange = () => {
+	if (now.value === 'tutti') {
+		now.value = 'attivi';
+	} else {
+		now.value = 'tutti';
+	}
+}
+
 const valCreaSite = computed(() => {
 	return (title.value &&
 		info.value &&
@@ -618,8 +618,6 @@ const valMod = computed(() => {
 
 const valCerca = computed(() => {
 	return (
-		(longitude.value && latitude.value && radius.value && validateLatitude && validateLongitude && validateRadius)
-		||
 		(street.value && stNumber.value && city.value && radius.value && validateStreet && validateStNumber && validateCity && validateRadius)
 	);
 }
@@ -697,15 +695,28 @@ const getSitesByLoc = async (mtrs) => {
 		longitude.value = response.lon;
 	}
 	try {
-		const siteData = {
-			'latitude': latitude.value,
-			'longitude': longitude.value,
-			'radius': radius.value,
-			'offset': 0,
-			'limit': 0
+		if (now === 'tutti') {
+			const siteData = {
+				'latitude': latitude.value,
+				'longitude': longitude.value,
+				'radius': radius.value,
+				'offset': 0,
+				'limit': 0
+			}
+			ready.value = false;
+			sites.value = await siteService.getSitesByLoc(siteData);
+		} else {
+			const siteData = {
+				'latitude': latitude.value,
+				'longitude': longitude.value,
+				'radius': radius.value,
+				'now': true,
+				'offset': 0,
+				'limit': 0
+			}
+			ready.value = false;
+			sites.value = siteService.getActiveSitesByLoc(siteData);
 		}
-		ready.value = false;
-		sites.value = await siteService.getSitesByLoc(siteData);
 		resCerca();
 		closeDrawer('CantieriCerca');
 		ready.value = true;
@@ -817,15 +828,28 @@ const getReportsByLoc = async (mtrs) => {
 		longitude.value = response.lon;
 	}
 	try {
-		const reportData = {
-			'latitude': latitude.value,
-			'longitude': longitude.value,
-			'radius': radius.value,
-			'offset': 0,
-			'limit': 0
+		if (now === 'tutti') {
+			const reportData = {
+				'latitude': latitude.value,
+				'longitude': longitude.value,
+				'radius': radius.value,
+				'offset': 0,
+				'limit': 0
+			}
+			ready.value = false;
+			sites.value = await reportService.getReportsByLoc(reportData);
+		} else {
+			const reportData = {
+				'latitude': latitude.value,
+				'longitude': longitude.value,
+				'radius': radius.value,
+				'now': true,
+				'offset': 0,
+				'limit': 0
+			}
+			ready.value = false;
+			reports.value = reportService.getActiveReportsByLoc(reportData);
 		}
-		ready.value = false;
-		reports.value = await reportService.getReportsByLoc(reportData);
 		resCerca();
 		closeDrawer('SegnalazioniCerca');
 		ready.value = true;

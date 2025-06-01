@@ -6,13 +6,13 @@ const userRoutes = require('./userRoutes');
 const reportRoutes = require('./reportRoutes');
 const siteRoutes = require('./siteRoutes');
 
-const geocodeRoute = require('./geocodeRoute');
+const geocodeRoutes = require('./geocodeRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/reports', reportRoutes);
 router.use('/sites', siteRoutes);
 
-router.use('/geocode', geocodeRoute);
+router.use('/geocode', geocodeRoutes);
 
 module.exports = router;

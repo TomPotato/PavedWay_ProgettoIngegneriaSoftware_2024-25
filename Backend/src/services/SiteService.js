@@ -226,6 +226,7 @@ class SiteService {
       throw createError("Errore interno del server", 500, message);
     }
   }
+
   /**
    * Mostra una lista di cantieri filtrati in base alla posizione geografica e al raggio forniti.
    * @async
@@ -249,6 +250,78 @@ class SiteService {
 
       let query = Site.find({});
       
+      if (offset && offset > 0) {
+        query = query.skip(offset);
+      }
+
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const sites = await query.exec();
+
+      const closeSites = distanceFilter(latitude, longitude, sites, radius);
+
+      return closeSites;
+    } catch (error) {
+      const message = "Errore interno del server durante la ricerca.";
+      throw createError("Errore interno del server", 500, message);
+    }
+  }
+  
+	/**
+	 * Mostra una lista di cantieri attivi in una determinata data, filtrati in base alla posizione geografica e al raggio forniti.
+	 * @async
+	 * @param {number} latitude - Latitudine del punto da cui calcolare la distanza.
+	 * @param {number} longitude - Longitudine del punto da cui calcolare la distanza.
+	 * @param {number} radius - Raggio (in metri) entro il quale cercare i cantieri.
+	 * @param {Date} date - Data in cui il cantiere deve essere attivo.
+	 * @param {number} offset - Il numero di cantieri da saltare (per la paginazione).
+	 * @param {number} limit - Il numero massimo di cantieri da recuperare.
+	 * @returns {Promise<Array<Site>>} Un array di cantieri attivi entro il raggio specificato.
+	 * @throws {Error} Se si verifica un errore durante la ricerca dei cantieri, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+	 *
+	 * @description
+	 * Questa funzione esegue i seguenti passaggi:
+	 * 1. Esegue una query sul database per recuperare i cantieri attivi alla data specificata, 
+	 *    verificando sia la durata pianificata (`duration`) che quella reale (`realDuration`).
+	 * 2. Applica i parametri `offset` e `limit` se forniti, per la paginazione dei risultati.
+	 * 3. Applica un filtro geografico ai cantieri recuperati in base alla latitudine, longitudine e al raggio forniti, utilizzando la funzione `distanceFilter`.
+	 * 4. Restituisce solo i cantieri che rientrano nel raggio specificato dalla posizione data.
+	 * 5. Se si verifica un errore durante il processo, solleva un errore 500 (Internal Server Error).
+	 */
+  async getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit){
+    try {
+      let query = Site.find({
+        $and: [
+          {
+            $and: [
+              { "duration.start": { $lte: date } },
+              {
+                $or: [
+                  { "duration.end": { $gte: date } },
+                  { "duration.end": { $exists: false } },
+                ],
+              },
+            ],
+          },
+          {
+            $or: [
+              { "realDuration.start": { $lte: date } },
+              {
+                $or: [
+                  { "realDuration.end": { $gte: date } },
+                  { "realDuration.end": { $exists: false } },
+                ],
+              },
+              {
+                realDuration: { $exists: false },
+              },
+            ],
+          },
+        ],
+      });
+
       if (offset && offset > 0) {
         query = query.skip(offset);
       }

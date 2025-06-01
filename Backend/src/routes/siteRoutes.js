@@ -50,17 +50,22 @@ router.get('/', async (req, res) => {
 	}
 
     try {
-        if (date) {
+        if (date && !longitude && !latitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
             return res.status(200).json(sites);
-        } else if(longitude && latitude && radius) {
-			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit)
+        } else if(longitude && latitude && radius && !date) {
+			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit);
 			return res.status(200).json(sites);
-		} else {
+		} else if(longitude && latitude && radius && date){
+			console.log('FUNZIONA');
+			const sites = await service.getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit);
+			return res.status(200).json(sites);
+        }else {
             const sites = await service.getSites(offset, limit);
             return res.status(200).json(sites);
         }
     } catch (error) {
+		console.log(error);
         res.status(error.code).json(error);
     }
 });

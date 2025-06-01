@@ -35,6 +35,15 @@ class SiteService {
     }
   }
 
+  async getActiveSitesByLoc(siteData) {
+    try {
+      const response = await api.get(`/sites`, siteData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async createSite(token, siteData) {
     try {
       const response = await api.post("/sites", siteData, {

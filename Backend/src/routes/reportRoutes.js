@@ -50,13 +50,17 @@ router.get('/', async (req, res) => {
 	}
 
     try {
-        if (date) {
+        if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius) {
-			const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit)
-			return res.status(200).json(reports);
-		} else  {
+        } else if(longitude && latitude && radius && !date) {
+            const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
+            return res.status(200).json(reports);
+        } else if(longitude && latitude && radius && date){
+            console.log('FUNZIONA');
+            const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
+            return res.status(200).json(reports);
+        }else {
             const reports = await service.getReports(offset, limit);
             return res.status(200).json(reports);
         }
@@ -71,23 +75,6 @@ router.get('/:id', async (req, res) => {
     try {
         const report = await service.getReportById(id);
         res.status(200).json(report);
-    } catch (error) {
-        res.status(error.code).json(error);
-    }
-});
-
-
-router.get('/active', async (req, res) => {
-    offset = toValidInt(req.query.offset);
-    limit = toValidInt(req.query.limit);
-    date = req.query.date;
-    if (!date) {
-        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire una data.'));
-    }
-
-    try {
-        const reports = await service.getActiveReports(offset, limit, date);
-        res.status(200).json(reports);
     } catch (error) {
         res.status(error.code).json(error);
     }

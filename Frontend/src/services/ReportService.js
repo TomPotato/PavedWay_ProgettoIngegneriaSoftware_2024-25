@@ -35,6 +35,24 @@ class ReportService {
     }
   }
 
+  async getActiveReportsByLoc(siteData) {
+    try {
+      const response = await api.get(`/reports`, siteData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+  async getReportsByLoc(siteData) {
+    try {
+      const response = await api.get(`/reports`, siteData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async createReport(token, reportData) {
     try {
       const response = await api.post(`/reports`, reportData, {

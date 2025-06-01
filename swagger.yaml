@@ -372,12 +372,12 @@ paths:
         - in: query
           name: latitude
           schema:
-            type: integer
+            type: float
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: longitude
           schema:
-            type: integer
+            type: float
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: radius
@@ -602,12 +602,12 @@ paths:
         - in: query
           name: latitude
           schema:
-            type: integer
+            type: float
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: longitude
           schema:
-            type: integer
+            type: float
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: radius
@@ -822,28 +822,32 @@ paths:
           name: street
           schema:
             type: string
-          description: Nome della via (ed eventuale numero di casa) attorno a cui si vogliono vedere gli eventi esistenti.
+          description: Nome della via che si vuole cercare.
         - in: query
           name: city
           schema:
             type: string
-          description: Nome della cittá in cui é situata la via attorno a cui si vogliono vedere gli eventi esistenti.
+          description: Nome della cittá in cui é situata la via che si vuole cercare.
         - in: query
           name: code
           schema:
-            type: boolean
-          description: Numero postale della cittá in cui é situata la via attorno a cui si vogliono vedere gli eventi esistenti.
+            type: number
+          description: Numero postale della cittá che si vuole cercare.
+        - in: query
+          name: stNumber
+          schema:
+            type: string
+          description: Numero della casa che si vuole cercare.
       responses:
-        "204":
+        "200":
           description: Ricerca effettuata con successo.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
-                    type: string
-                    description: Messaggio di conferma dell'avvenuta estrapolazione delle coordinate lat/lon.
+                  lat: latitudine del luogo ricercato.
+                  lon: longitudine del luogo ricercato.
         "400":
           description: Richiesta non valida.
           content:
