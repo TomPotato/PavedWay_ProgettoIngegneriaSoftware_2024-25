@@ -320,14 +320,7 @@ class ReportService {
     }
   }
 
-  async getActiveReportsByLoc(
-    latitude,
-    longitude,
-    radius,
-    date,
-    offset,
-    limit
-  ) {
+  async getActiveReportsByLoc(latitude, longitude, radius, date, offset, limit) {
     try {
       let query = Report.find({
         $and: [

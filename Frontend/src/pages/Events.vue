@@ -715,7 +715,7 @@ const getSitesByLoc = async (mtrs) => {
 				'limit': 0
 			}
 			ready.value = false;
-			sites.value = siteService.getActiveSitesByLoc(siteData);
+			sites.value = await siteService.getActiveSitesByLoc(siteData);
 		}
 		resCerca();
 		closeDrawer('CantieriCerca');
@@ -848,7 +848,7 @@ const getReportsByLoc = async (mtrs) => {
 				'limit': 0
 			}
 			ready.value = false;
-			reports.value = reportService.getActiveReportsByLoc(reportData);
+			reports.value = await reportService.getActiveReportsByLoc(reportData);
 		}
 		resCerca();
 		closeDrawer('SegnalazioniCerca');
