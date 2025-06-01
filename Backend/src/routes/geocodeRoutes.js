@@ -108,8 +108,7 @@ router.get("/", async (req, res) => {
       response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           q: q,
-          format: "json",
-          limit: 1,
+          format: "json"
         },
         headers: {
           "User-Agent": "PavedWay", // OpenStreetMap lo richiede!
