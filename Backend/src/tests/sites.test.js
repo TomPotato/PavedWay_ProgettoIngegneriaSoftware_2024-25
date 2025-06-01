@@ -24,6 +24,7 @@ describe('GET /api/v1/sites', () => {
     await createTestSites(10);
   });
   
+  // User story: Read Sites
   test('should return 200 with no query params', async () => {
     const res = await request(app)
       .get('/api/v1/sites')
