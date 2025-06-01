@@ -1,12 +1,12 @@
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
-const { Report } = require('../models/Report');
+const { createTestReports } = require('../utils/createTest');
 
 beforeAll(async () => {
   const uri = process.env.DB_URI || 'mongodb://localhost:27017/test';
   await mongoose.connect(uri, {
-    dbName: process.env.DB_NAME || 'test',
+    dbName: process.env.DB_TEST || 'test',
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
@@ -36,33 +36,55 @@ test('GET /api/v1 should return 404', async () => {
 
 // Test for the GET /api/v1/reports endpoint
 describe('GET /api/v1/reports', () => {
+
+  beforeAll(async () => {
+    await createTestReports(10);
+  });
+
   test('should return 200 with no query params', async () => {
     const res = await request(app)
       .get('/api/v1/reports')
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
+
+    for (let i = 0; i < res.body.length; i++) {
+      expect(res.body[i].name).toBe(`Evento ${i + 1}`);
+    }
   }, 20000);
 
   test('should return 200 with offset and limit', async () => {
+    const offset = 2;
+    const limit = 4;
+
     const res = await request(app)
       .get('/api/v1/reports')
-      .query({ offset: 2, limit: 4 })
+      .query({ offset, limit })
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeLessThanOrEqual(4);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
     expect(res.body.length).toBeGreaterThanOrEqual(0);
+
+    for (let i = 0; i < res.body.length; i++) {
+      expect(res.body[i].name).toBe(`Evento ${offset + i + 1}`);
+    }
   }, 20000);
 
   test('should return 200 with limit only', async () => {
+    const limit = 4;
+
     const res = await request(app)
       .get('/api/v1/reports')
-      .query({ limit: 4 })
+      .query({ limit})
       .expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeLessThanOrEqual(4);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+
+    for (let i = 0; i < res.body.length; i++) {
+      expect(res.body[i].name).toBe(`Evento ${i + 1}`);
+    }
   }, 20000);
 
   test('should return 200 with offset only', async () => {
@@ -73,5 +95,9 @@ describe('GET /api/v1/reports', () => {
 
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(0);
+
+    for (let i = 0; i < res.body.length; i++) {
+      expect(res.body[i].name).toBe(`Evento ${offset + i + 1}`);
+    }
   }, 20000);
 });

@@ -1,49 +1,99 @@
-const { faker } = require('@faker-js/faker');
+const mongoose = require('mongoose');
 const { Report } = require('../models/Report');
-const { User } = require('../models/User');
+const { Site } = require('../models/Site'); 
 
-async function createTestUser() {
-  const user = new User({
-    username: faker.internet.userName(),
-    name: faker.person.firstName(),
-    surname: faker.person.lastName(),
-    password: faker.internet.password(),
-  });
-  await user.save();
-  return user;
-}
+/**
+ * Crea dei report di test completi nel database.
+ * @param {number} count - Numero di report da creare.
+ * @returns {Promise<void>}
+ */
+async function createTestReports(count = 10) {
+  await Report.deleteMany({});
 
-async function createTestReport(userId) {
-  const start = faker.date.past();
-  const end = faker.date.future({ refDate: start });
+  const testReports = Array.from({ length: count }).map((_, i) => {
+    const userId = new mongoose.Types.ObjectId();
+    const createdBy = new mongoose.Types.ObjectId();
 
-  const report = new Report({
-    name: faker.lorem.words(3),
-    info: faker.lorem.paragraph(),
-    location: {
-      latitude: faker.location.latitude(),
-      longitude: faker.location.longitude(),
-      street: faker.location.street(),
-      number: faker.location.buildingNumber(),
-      city: faker.location.city(),
-      code: faker.location.zipCode('#####'),
-    },
-    duration: { start, end },
-    createdBy: userId,
-    photos: [faker.image.url()],
-    rating: faker.number.int({ min: 1, max: 5 }),
-    status: 'approved',
-    comments: [
-      {
-        text: faker.lorem.sentence(),
-        createdAt: new Date(),
-        createdBy: userId,
+    return {
+      name: `Evento ${i + 1}`,
+      info: `Descrizione dell'evento numero ${i + 1}`,
+      location: {
+        latitude: 45.0 + i * 0.01,
+        longitude: 9.0 + i * 0.01,
+        street: `Via Test ${i + 1}`,
+        number: `${i + 1}`,
+        city: `Città ${i + 1}`,
+        code: 10000 + i,
       },
-    ],
+      duration: {
+        start: new Date(Date.now() + i * 1000 * 60 * 60).toISOString(),
+        end: new Date(Date.now() + (i + 1) * 1000 * 60 * 60).toISOString(),
+      },
+      createdAt: new Date(Date.now() + i * 1000),
+      comments: [
+        {
+          userId: 1000 + i,
+          text: `Commento di test ${i + 1}`,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      createdBy: createdBy,
+      photos: [
+        `http://example.com/photo${i + 1}-1.jpg`,
+        `http://example.com/photo${i + 1}-2.jpg`,
+      ],
+      rating: 0,
+      status: ['pending', 'approved', 'rejected'][i % 3],
+    };
   });
 
-  await report.save();
-  return report;
+  await Report.insertMany(testReports);
 }
 
-module.exports = { createTestUser, createTestReport };
+/**
+ * Crea dei cantieri (sites) di test completi nel database.
+ * @param {number} count - Numero di site da creare.
+ * @returns {Promise<void>}
+ */
+async function createTestSites(count = 10) {
+  await Site.deleteMany({});
+
+  const testSites = Array.from({ length: count }).map((_, i) => {
+    return {
+      name: `Cantiere ${i + 1}`,
+      info: `Descrizione del cantiere numero ${i + 1}`,
+      location: {
+        latitude: 45.0 + i * 0.01,
+        longitude: 9.0 + i * 0.01,
+        street: `Via Cantiere ${i + 1}`,
+        number: `${i + 1}`,
+        city: `Città Cantiere ${i + 1}`,
+        code: 20000 + i,
+      },
+      duration: {
+        start: new Date(Date.now() + i * 3600000).toISOString(),
+        end: new Date(Date.now() + (i + 1) * 3600000).toISOString(),
+      },
+      realDuration: {
+        start: new Date(Date.now() + i * 3600000).toISOString(),
+        end: new Date(Date.now() + (i + 2) * 3600000).toISOString(),
+      },
+      createdAt: new Date(Date.now() + i * 1000),
+      comments: [
+        {
+          userId: 2000 + i,
+          text: `Commento sul cantiere ${i + 1}`,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      companyName: `Impresa ${i + 1}`,
+    };
+  });
+
+  await Site.insertMany(testSites);
+}
+
+module.exports = {
+  createTestReports,
+  createTestSites,
+};
