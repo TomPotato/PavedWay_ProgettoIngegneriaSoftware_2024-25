@@ -706,6 +706,7 @@ const getSitesByLoc = async (mtrs) => {
 			ready.value = false;
 			sites.value = await siteService.getSitesByLoc(siteData);
 		} else {
+			
 			const siteData = {
 				'latitude': latitude.value,
 				'longitude': longitude.value,
