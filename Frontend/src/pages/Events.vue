@@ -1,32 +1,51 @@
 <template>
 	<div class="tabs tabs-lift tabs-s">
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri" />
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri"
+			checked="checked" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
-			<div class="flex">
-				<div class="w-[30vh] space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full" @click="getSites">Mostra tutti i
+			<div class="flex w-full h-[66vh] flex-col">
+				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
+					<div class="w-full grid grid-cols-7 gap-2">
+						<button class="btn btn-neutral w-auto" @click="getSites">Mostra tutti i
 							Cantieri!</button>
-						<label for="my-drawer-Cantieri" class="btn btn-primary drawer-button w-full">Cerca
-							Cantieri!</label>
-						<label v-if="isAdmin" for="my_modal_CantieriCrea" class="btn btn-primary w-full">Crea un
-							cantiere!</label>
-						<label v-if="isAdmin" for="my_modal_CantieriModifica" class="btn btn-primary w-full">Modifica un
-							cantiere!</label>
-						<label v-if="isAdmin" class="btn btn-primary w-full">Elimina un
-							cantiere!</label>
+						<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
+						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-auto">Crea un
+							Cantiere!</button>
+						<button @click="openDrawer('CantieriCerca')" class="btn btn-square btn-primary drawer-button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+								class="feather feather-search" viewBox="0 0 24 24">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</button>
 					</div>
 				</div>
-				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
-					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
+					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+				</div>
+				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
 							<i>{{ site.info }}</i>
-							<p>Posizione: {{ site.location.latitude }}N, {{ site.location.longitude }}E</p>
-							<p>Indirizzo: {{ site.location.street }}, {{ site.location.stNumber }} in {{ site.location.city }} ({{ site.location.code }})</p>
-							<p>Durata: {{ site.duration.start }} {{ site.duration.end}}</p>
+							<p>Posizione:</p>
+							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
+							<p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
+								site.location.city }} ({{ site.location.code }})</p>
+							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
+								"/'data da destinarsi'/" }}</p>
+							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
+								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
+							<div class="grid grid-cols-2 gap-5 w-auto">
+								<button v-if="isAdmin" @click="openModal('CantieriModifica', site.id)"
+									class="btn btn-primary w-full">Modifica il
+									cantiere!</button>
+								<button @click="deleteSite(site.id)" v-if="isAdmin"
+									class="btn btn-primary w-full">Elimina il
+									cantiere!</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -34,159 +53,238 @@
 
 
 			<div class="drawer drawer-end h-full center-0">
-				<input id="my-drawer-Cantieri" type="checkbox" class="drawer-toggle" />
+				<input id="CantieriCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="my-drawer-Cantieri" aria-label="close sidebar" class="drawer-overlay"></label>
+					<button @click="closeDrawer('CantieriCerca')" aria-label="close sidebar"
+						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca il cantiere per informazioni</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui
-								cercare.</label>
-							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="latitudine" />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<h2 class="text-xl font-semibold">Cerca i cantieri per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<label class="label">E inserisci il raggio</label>
-							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<label for="my-drawer-Cantieri" class="btn btn-neutral mt-4"
-								@click="getSitesByInfo">Cerca!</label>
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateStreet && street != ''" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
+							<input v-model="city" type="text" class="input" placeholder="Cittá"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateCity && city != ''" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateCode && code != ''" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
+
+							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
+								<input @click="metersChange" type="checkbox"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+							</label>
+							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
+								placeholder="Raggio in metri" />
+							<p v-if="!validateRadius && meters === 'metri'" class="text-error">
+								Puoi cercare solamente entro UN chilometro.
+							</p>
+							<input v-model="radius" v-if="meters === 'chilometri'" type="text" class="input"
+								placeholder="Raggio in chilometri" />
+							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
+								Puoi cercare solamente entro CINQUE chilometri.
+							</p>
+							<label class="label w-full flex">E vuoi visualizzare cosa:</label>
+							<label class="label w-full flex">
+								<p v-if="now === 'tutti'">Tutti i cantieri?</p>
+								<p v-else>I cantieri ancora attivi?</p>
+								<input @click="nowChange" type="checkbox"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+							</label>
+							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
+								:disabled="((!latitude || !longitude || !radius) && (!street && !city && !code)) ||
+									((!street || !city || !code || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
 			</div>
 
-			<input type="checkbox" id="my_modal_CantieriCrea" class="modal-toggle" />
-			<dialog id="my_modal_id" class="modal" role="dialog">
+			<dialog id="CantieriCrea" class="modal">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo del Cantiere</label>
-							<input v-model="csName" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<input v-model="title" type="text" class="input" placeholder="Titolo Cantiere" required />
+							<p v-if="!validateTitle" class="text-error">
+								Il titolo deve essere lungo tra 1 e 20 caratteri.
+							</p>
 
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="csInfo" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+							</p>
 
 							<label class="label">Posizione del Cantiere</label>
-							<input v-model="csLatitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="csLongitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="csStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="csStNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="csCity" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="csCode" type="text" class="input" placeholder="Codice Postale" required />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<p v-if="!validateStreet" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
+							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<p v-if="!validateStNumber" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
+							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<p v-if="!validateCity" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateCode" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="csStartDuration" type="text" class="input" placeholder="Data di Inizio"
-								required />
-							<input v-model="csEndDuration" type="text" class="input"
+							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<p v-if="!validateStart" class="text-error">
+								La data di inizio deve essere nel formato ISO 8601.
+							</p>
+
+							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
+							<p v-if="!validateEnd" class="text-error">
+								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di inizio.
+							</p>
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="csCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
+							<p v-if="!validateCompanyName" class="text-error">
+								Il nome dell'impresa deve essere lungo tra 1 e 20 caratteri.
+							</p>
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
-							<label for="my_modal_CantieriCrea" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!csName || !csInfo || !csLatitude || !csLongitude || !csStreet || !csStNumber || !csCity || !csCode || !csStartDuration || !csCompanyName">Crea</label>
+							<button class="btn btn-neutral w-full" @click="createSite"
+								:disabled="!title || !info || !street || !stNumber || !city || !code || !start || !companyName">Crea</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_CantieriCrea">Annulla</label>
+							<button class="modal-backdrop btn btn-neutral text-white w-full"
+								@click="closeModal('CantieriCrea')">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_CantieriCrea">Close</label>
+				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
 			</dialog>
 
-			<input type="checkbox" id="my_modal_CantieriModifica" class="modal-toggle" />
-			<dialog id="my_modal_id" class="modal" role="dialog">
+			<dialog id="CantieriModifica" class="modal">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
-							<label class="label">Titolo del Cantiere</label>
-							<input v-model="msName" type="text" class="input" placeholder="Titolo Cantiere" required />
-
 							<label class="label">Informazioni sul Cantiere</label>
-							<input v-model="msInfo" type="text" class="input" placeholder="Informazioni del cantiere"
+							<input v-model="info" type="text" class="input" placeholder="Informazioni del cantiere"
 								required />
-
-							<label class="label">Posizione del Cantiere</label>
-							<input v-model="msLatitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="msLongitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="msStreet" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="msStNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="msCity" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="msCode" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+							</p>
 
 							<label class="label">Durata del cantiere</label>
-							<input v-model="msStartDuration" type="text" class="input" placeholder="Data di Inizio"
-								required />
-							<input v-model="msEndDuration" type="text" class="input"
+							<input v-model="start" type="text" class="input" placeholder="Data di Inizio" required />
+							<p v-if="!validateStart" class="text-error">
+								La data di inizio deve essere nel formato ISO 8601.
+							</p>
+
+							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
+							<p v-if="!validateEnd" class="text-error">
+								La data di fine deve essere nel formato ISO 8601.
+							</p>
 
 							<label class="label">Impresa Edile</label>
-							<input v-model="msCompanyName" type="text" class="input" placeholder="Nome dell'Impresa"
+							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa"
 								required />
+							<p v-if="!validateCompanyName" class="text-error">
+								Il nome dell'impresa deve essere lungo tra 1 e 20 caratteri.
+							</p>
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
-							<label for="my_modal_CantieriModifica" class="btn btn-neutral w-full" @click="createSites"
-								:disabled="!msName || !msInfo || !msLatitude || !msLongitude || !msStreet || !msStNumber || !msCity || !msCode || !msStartDuration || !msCompanyName">Modifica</label>
+							<button class="btn btn-neutral w-full" @click="updateSite()"
+								:disabled="!info || !start || !companyName">Modifica</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_CantieriModifica">Annulla</label>
+							<button @click="closeModal('CantieriModifica')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_CantieriModifica">Close</label>
+				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
 			</dialog>
 		</div>
 
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:lack]" aria-label="Segnalazioni"
-			checked="checked" />
-		<div class="tab-content bg-base-200 border-base-400 p-6">
-			<div class="flex h-auto">
-				<div class="w-[30vh] space-y-2 flex items-center">
-					<div class="grid grid-cols-1 grid-rows-1 gap-10 w-xs">
-						<button class="btn btn-neutral mt-4 w-full h-auto" @click="getReports">Mostra
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]"
+			aria-label="Segnalazioni" />
+		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
+			<div class="flex w-full h-[66vh] flex-col">
+				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
+					<div class="w-full grid grid-cols-7 gap-2">
+						<button class="btn btn-neutral w-auto" @click="getReports">Mostra
 							tutte le
 							Segnalazioni!</button>
-						<label for="my-drawer-Segnalazioni" class="btn btn-primary drawer-button w-full">Cerca una
-							Segnalazione!</label>
-						<label v-if="isCitizen" for="my_modal_SegnalazioniCrea" class="btn btn-primary w-full">Crea
+						<button class="btn btn-neutral w-auto" @click="getActiveReports">Segnalazioni ancora
+							attive!</button>
+						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
+							class="btn btn-primary w-full">Crea
 							una
-							Segnalazione!</label>
-						<label v-if="isCitizen" for="my_modal_SegnalazioniModifica"
-							class="btn btn-primary w-full">Modifica una
-							Segnalazione!</label>
-						<label v-if="isCitizen" class="btn btn-primary w-full">Elimina una
-							Segnalazione!</label>
-						<label v-if="isAdmin" class="btn btn-primary w-full">Approva
-							una
-							Segnalazione!</label>
+							Segnalazione!</button>
+						<button @click="openDrawer('SegnalazioniCerca')"
+							class="btn btn-square btn-primary drawer-button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+								class="feather feather-search" viewBox="0 0 24 24">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</button>
 					</div>
 				</div>
-				<div class="flex-1 p-6 overflow-y-auto min-h-[65vh] flex flex-col max-h-[65vh]">
-					<h1 class="text-2xl font-bold mb-4">Ecco qua!</h1>
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+				</div>
+
+				<div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
-						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports" :key="report.id">
-							<h2 class="text-xl font-semibold">{{ report.name }}</h2>
-							<i>{{ report.info }}</i>
-							<p>Posizione: {{ report.location.latitude }}N, {{ report.location.longitude }}E</p>
-							<p>Indirizzo: {{ report.location.street }}, {{ report.location.stNumber }} in {{ report.location.city }} ({{ report.location.code }})</p>
-							<p>Durata: {{ report.duration.start }} {{ report.duration.end}}</p>
-							<hr />
+						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
+							:key="report.id">
+							<h2 class="text-xl font-semibold">{{
+								report.name }}</h2>
+							<p>{{ report.info }}</p>
+							<i>Rating: {{ report?.rating || "0" }}</i>
+							<p v-if="isAdmin">Status: {{ report.status }}</p>
+							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
+							<div class="grid grid-cols-5 gap-5 w-auto">
+								<button @click="openModal('SegnalazioniInfo', report.id)"
+									class="btn btn-primary w-[10vh]">Info</button>
+								<button @click="deleteReport(report.id)" v-if="isAdmin"
+									class="btn btn-primary w-full">Elimina la
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
+									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva
+									la
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
+									la
+									Segnalazione!</button>
+								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
+									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
+									come
+									Risolta!</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -194,103 +292,129 @@
 
 
 			<div class="drawer drawer-end h-full center-0">
-				<input id="my-drawer-Segnalazioni" type="checkbox" class="drawer-toggle" />
+				<input id="SegnalazioniCerca" type="checkbox" class="drawer-toggle" />
 				<div class="drawer-side">
-					<label for="my-drawer-Segnalazioni" aria-label="close sidebar" class="drawer-overlay"></label>
+					<button @click="closeDrawer('SegnalazioniCerca'), resCerca" aria-label="close sidebar"
+						class="drawer-overlay"></button>
 					<div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
-							<label class="label">Cerca la segnalazione per informazioni</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
-							<input v-model="companyName" type="text" class="input" placeholder="Nome dell'Impresa" />
-							<label class="label">Oppure inserisci la posizione e il raggio entro cui
-								cercare.</label>
-							<label class="label">Posizione per lat/long</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" />
+							<h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" />
-							<label class="label">E inserisci il raggio</label>
-							<input v-model="endDuration" type="text" class="input" placeholder="Raggio" />
-							<label for="my-drawer-Segnalazioni" class="btn btn-neutral mt-4"
-								@click="getReportsByInfo">Cerca!</label>
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateStreet && street != ''" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
+							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
+							<input v-model="city" type="text" class="input" placeholder="Cittá"
+								:disabled="longitude != '' || latitude != ''" />
+							<p v-if="!validateCity && city != ''" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
+								<input @click="metersChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
+							</label>
+							<input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
+								placeholder="Raggio in metri" />
+							<p v-if="!validateRadius && meters === 'metri'" class="text-error">
+								Puoi cercare solamente entro UN chilometro.
+							</p>
+							<input v-model="radius" v-if="meters === 'chilometri'" type="text" class="input"
+								placeholder="Raggio in chilometri" />
+							<p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
+								Puoi cercare solamente entro CINQUE chilometri.
+							</p>
+							<label class="label w-full flex">E vuoi visualizzare cosa:</label>
+							<label class="label w-full flex">
+								<p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
+								<p v-else>Le Segnalazioni ancora attive?</p>
+								<input @click="nowChange" type="checkbox" checked="checked"
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+							</label>
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4" 
+								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
+									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
 			</div>
 
-			<input type="checkbox" id="my_modal_SegnalazioniCrea" class="modal-toggle" />
-			<dialog id="my_modal_id1" class="modal" role="dialog">
+			<dialog id="SegnalazioniInfo" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
-						<fieldset class="fieldset gap-2 w-xs">
-							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione"
-								required />
-
-							<label class="label">Informazioni sulla Segnalazione</label>
-							<input v-model="info" type="text" class="input"
-								placeholder="Informazioni della Segnalazione" required />
-
-							<label class="label">Posizione della Segnalazione</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
-						</fieldset>
-					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
-						<div>
-							<label for="my_modal_Segnalazioni" class="btn btn-neutral w-full" @click="createReports"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
-						</div>
-						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_Segnalazioni">Annulla</label>
-						</div>
+						<h2 class="text-xl font-semibold">{{ rInfo.name }}</h2>
+						<p>{{ rInfo.info }}</p>
+						<p>Posizione: Lat: {{ rInfo.location?.latitude }} - Lon: {{ rInfo.location?.longitude }}</p>
+						<p>Indirizzo: {{ rInfo.location?.street }}, {{ rInfo.location?.number }} in {{
+							rInfo.location?.city }} ({{ rInfo.location?.code }})</p>
+						<p>Durata: da {{ rInfo.duration?.start || " 'non inserita' " }} a {{ rInfo.duration?.end
+							|| " 'data da destinarsi' " }}</p>
+						<i>Rating: {{ rInfo?.rating || "0" }}</i>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_SegnalazioniCrea">Close</label>
+				<button class="modal-backdrop" @click="closeModal('SegnalazioniInfo')">Close</button>
 			</dialog>
-			<input type="checkbox" id="my_modal_SegnalazioniModifica" class="modal-toggle" />
-			<dialog id="my_modal_id1" class="modal" role="dialog">
+
+			<dialog id="SegnalazioniCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
 					<div class="overflow-y-auto p-4 flex-1">
 						<fieldset class="fieldset gap-2 w-xs">
 							<label class="label">Titolo della Segnalazione</label>
-							<input v-model="name" type="text" class="input" placeholder="Titolo Segnalazione"
+							<input v-model="title" type="text" class="input" placeholder="Titolo Segnalazione"
 								required />
+							<p v-if="!validateTitle" class="text-error">
+								Il titolo deve essere lungo tra 1 e 20 caratteri.
+							</p>
 
 							<label class="label">Informazioni sulla Segnalazione</label>
 							<input v-model="info" type="text" class="input"
 								placeholder="Informazioni della Segnalazione" required />
+							<p v-if="!validateInfo" class="text-error">
+								Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+							</p>
 
 							<label class="label">Posizione della Segnalazione</label>
-							<input v-model="latitude" type="text" class="input" placeholder="Latitudine" required />
-							<input v-model="longitude" type="text" class="input" placeholder="Longitudine" required />
+
 							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" required />
+							<p v-if="!validateStreet" class="text-error">
+								La via deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
 							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico" required />
+							<p v-if="!validateStNumber" class="text-error">
+								Il numero civico deve essere lungo tra 1 e 4 caratteri.
+							</p>
+
 							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<p v-if="!validateCity" class="text-error">
+								La città deve essere lunga tra 1 e 34 caratteri.
+							</p>
+
 							<input v-model="code" type="text" class="input" placeholder="Codice Postale" required />
+							<p v-if="!validateCode" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
 						</fieldset>
 					</div>
-					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 flex justify-end gap-2 sticky bottom-0">
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
-							<label for="my_modal_Segnalazioni" class="btn btn-neutral w-full" @click="createReports"
-								:disabled="!name || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</label>
+							<button class="btn btn-neutral w-full" @click="createReport"
+								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</button>
 						</div>
 						<div>
-							<label class="modal-backdrop btn btn-neutral text-white w-full"
-								for="my_modal_Segnalazioni">Annulla</label>
+							<button @click="closeModal('SegnalazioniCrea')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
 						</div>
 					</div>
 				</div>
-				<label class="modal-backdrop" for="my_modal_SegnalazioniModifica">Close</label>
+				<button class="modal-backdrop" @click="">Close</button>
 			</dialog>
 		</div>
 	</div>
@@ -309,9 +433,13 @@
 
 <script setup>
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
+import siteService from '@/services/SiteService';
+import reportService from '@/services/ReportService';
+import validateService from '@/utils/Validator';
+import nominatim from '@/services/Nominatim';
 
 const errorMessage = ref(null);
 
@@ -320,50 +448,478 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
+const rInfo = ref({});
+
+const ready = ref(true);
+
+const now = ref('tutti');
+const meters = ref('metri');
+
+const title = ref('');
+const validateTitle = computed(() => {
+	return title.value.length > 0 && title.value.length <= 20;
+});
+
+const info = ref('');
+const validateInfo = computed(() => {
+	return info.value.length > 0 && info.value.length <= 200;
+});
+
+const latitude = ref('');
+const longitude = ref('');
+
+const street = ref('');
+const validateStreet = computed(() => {
+	return street.value.length > 0 && street.value.length <= 34;
+});
+
+const stNumber = ref('');
+const validateStNumber = computed(() => {
+	return stNumber.value.length > 0 && stNumber.value.length <= 4;
+});
+
+const city = ref('');
+const validateCity = computed(() => {
+	return city.value.length > 0 && city.value.length <= 34;
+});
+
+const code = ref('');
+const validateCode = computed(() => {
+	return code.value.length >= 5 && code.value.length <= 5;
+});
+
+const start = ref('');
+const validateStart = computed(() => {
+	return validateService.validateDate(start.value);
+});
+
+const end = ref('');
+const validateEnd = computed(() => {
+	if (end.value != '') {
+		return (validateService.validateDate(end.value) && end.value > start.value);
+	} else {
+		return (end.value == '');
+	}
+});
+
+const companyName = ref('');
+const validateCompanyName = computed(() => {
+	return companyName.value.length > 0 && companyName.value.length <= 20;
+});
+
+const radius = ref('');
+const validateRadius = computed(() => {
+	const check = ref('');
+	if (meters.value === 'metri' && radius.value <= 1000) { check.value = true } else if (meters.value === 'chilometri' && radius.value <= 5) { check.value = true } else { check.value = false };
+	return radius.value > 0 && check.value;
+});
+
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
 
+const passEvent = ref('');
+
+const openModal = (id, eventId = '') => {
+	passEvent.value = eventId;
+	if (id === 'CantieriModifica') {
+		const site = sites.value.find(s => s.id === eventId);
+		info.value = site.info;
+		start.value = site.duration.start;
+		end.value = site.duration.end || '';
+		companyName.value = site.companyName;
+	} else if (id === 'SegnalazioniCrea') {
+		const date = Date.now();
+		start.value = new Date(date).toISOString().split('T')[0];
+	} else if (id === 'SegnalazioniInfo') {
+		rInfo.value = reports.value.find(r => r.id === eventId);
+	}
+	document.getElementById(id).showModal();
+};
+
+const closeModal = (id) => {
+	document.getElementById(id).close();
+};
+
+const openDrawer = (id) => {
+	document.getElementById(id).checked = true;
+};
+
+const closeDrawer = (id) => {
+	document.getElementById(id).checked = false;
+};
+
+const metersChange = () => {
+	if (meters.value === 'metri') {
+		meters.value = 'chilometri';
+	} else {
+		meters.value = 'metri';
+	}
+}
+
+const nowChange = () => {
+	if (now.value === 'tutti') {
+		now.value = 'attivi';
+	} else {
+		now.value = 'tutti';
+	}
+}
+
+const valCreaSite = computed(() => {
+	return (title.value &&
+		info.value &&
+		street.value &&
+		stNumber.value &&
+		city.value &&
+		code.value &&
+		start.value &&
+		(end.value || end.value == '') &&
+		companyName.value &&
+		validateTitle &&
+		validateInfo &&
+		validateStreet &&
+		validateStNumber &&
+		validateCity &&
+		validateCode &&
+		validateStart &&
+		validateEnd &&
+		validateCompanyName
+	);
+});
+
+const valCreaReport = computed(() => {
+	return (title.value &&
+		info.value &&
+		street.value &&
+		stNumber.value &&
+		city.value &&
+		code.value &&
+		start.value &&
+		validateTitle &&
+		validateInfo &&
+		validateStreet &&
+		validateStNumber &&
+		validateCity &&
+		validateCode &&
+		validateStart
+	);
+});
+
+const valMod = computed(() => {
+	return (info.value &&
+		start.value &&
+		(end.value || null) &&
+		companyName.value &&
+		validateInfo &&
+		validateStart &&
+		validateEnd &&
+		validateCompanyName
+	);
+});
+
+const valCerca = computed(() => {
+	return (
+		(street.value && stNumber.value && city.value && radius.value && validateStreet && validateStNumber && validateCity && validateRadius)
+	);
+}
+);
+
+const resCreaSites = () => {
+	title.value = '';
+	info.value = '';
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	stNumber.value = '';
+	city.value = '';
+	code.value = '';
+	start.value = '';
+	end.value = '';
+	companyName.value = '';
+};
+
+const resCreaReports = () => {
+	title.value = '';
+	info.value = '';
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	stNumber.value = '';
+	city.value = '';
+	code.value = '';
+	start.value = '';
+};
+
+const resMod = () => {
+	info.value = '';
+	start.value = '';
+	end.value = '';
+	companyName.value = '';
+};
+
+const resCerca = () => {
+	latitude.value = '';
+	longitude.value = '';
+	street.value = '';
+	code.value = '';
+	city.value = '';
+	radius.value = '';
+	meters.value = 'metri';
+	now.value = 'tutti';
+};
+
 const getSites = async () => {
 	try {
-		await siteStore.getSites(0, 0);
-		sites.value = siteStore.sites;
+		ready.value = false;
+		sites.value = await siteService.getSites(0, 0);
+		ready.value = true;
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = siteService.error;
+	}
+};
+
+const getActiveSites = async () => {
+	try {
+		ready.value = false;
+		sites.value = await siteService.getActiveSites(0, 0);
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = siteService.error;
+	}
+};
+
+const getSitesByLoc = async (mtrs) => {
+	if (mtrs === 'chilometri') {
+		radius.value = radius.value * 1000;
+	}
+	if (street.value != '' && city.value != '' && code.value != '') {
+		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		latitude.value = response.lat;
+		longitude.value = response.lon;
+	}
+	try {
+		if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
+			if (now.value === 'tutti') {
+				const siteData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await siteService.getSitesByLoc(siteData);
+			} else {
+				const siteData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'now': true,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await siteService.getActiveSitesByLoc(siteData);
+			}
+			resCerca();
+			closeDrawer('CantieriCerca');
+			ready.value = true;
+		}
+	} catch (error) {
+		errorMessage.value = siteService.error;
+	}
+};
+
+const createSite = async () => {
+	try {
+		if (!valCreaSite.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
+			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			latitude.value = response.lat;
+			longitude.value = response.lon;
+			const siteData = {
+				'name': title.value,
+				'info': info.value,
+				'location': {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'street': street.value,
+					'number': stNumber.value,
+					'city': city.value,
+					'code': code.value
+				},
+				'duration': {
+					'start': start.value,
+					'end': end.value
+				},
+				'companyName': companyName.value
+			};
+			await siteService.createSite(authStore.token, siteData);
+			resCreaSites();
+			ready.value = false;
+			await getSites();
+			ready.value = true;
+			closeModal('CantieriCrea');
+		}
+	} catch (error) {
+		errorMessage.value = error.value;
+	}
+};
+
+const deleteSite = async (id) => {
+	try {
+		await siteService.deleteSite(authStore.token, id);
+		await getSites();
+	} catch (error) {
+		errorMessage.value = siteService.error;
+	}
+};
+
+const updateSite = async () => {
+	try {
+		const id = passEvent.value;
+		console.log('Updating site with id:', id);
+		if (!valMod.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
+			const siteData = {
+				'info': info.value,
+				'duration': {
+					'start': start.value,
+					'end': end.value
+				},
+				'companyName': companyName.value
+			};
+			await siteService.updateSite(authStore.token, id, siteData);
+			resMod();
+			ready.value = false;
+			await getSites();
+			ready.value = true;
+			closeModal('CantieriModifica');
+		}
+	} catch (error) {
+		errorMessage.value = error.value;
 	}
 };
 
 const getReports = async () => {
 	try {
-		await reportStore.getReports(0, 0);
-		reports.value = reportStore.reports;
+		ready.value = false;
+		reports.value = await reportService.getReports(0, 0);
+		ready.value = true;
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = reportService.error;
 	}
 };
 
-const createSites = async () => {
+const getActiveReports = async () => {
 	try {
-		await siteStore.createSite({
-			name: csName.value,
-			info: csInfo.value,
-			location: {
-				latitude: csLatitude.value,
-				longitude: csLongitude.value,
-				street: csStreet.value,
-				stNumber: csStNumber.value,
-				city: csCity.value,
-				code: csCode.value
-			},
-			duration: {
-				start: csStartDuration.value,
-				end: csEndDuration.value
-			},
-			companyName: csCompanyName.value
-		});
-		await getSites();
-		sites.value = siteStore.sites;
+		ready.value = false;
+		reports.value = await reportService.getActiveReports(0, 0);
+		ready.value = true;
 	} catch (error) {
-		errorMessage.value = error.message;
+		errorMessage.value = siteService.error;
+	}
+};
+
+const getReportsByLoc = async (mtrs) => {
+	if (mtrs === 'chilometri') {
+		radius.value = radius.value * 1000;
+	}
+	if (street.value != '' && city.value != '' && code.value != '') {
+		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		latitude.value = response.lat;
+		longitude.value = response.lon;
+	}
+	try {
+		if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
+			if (now.value === 'tutti') {
+				const reportData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				sites.value = await reportService.getReportsByLoc(reportData);
+			} else {
+				const reportData = {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'radius': radius.value,
+					'now': true,
+					'offset': 0,
+					'limit': 0
+				}
+				ready.value = false;
+				reports.value = await reportService.getActiveReportsByLoc(reportData);
+			}
+			resCerca();
+			closeDrawer('SegnalazioniCerca');
+			ready.value = true;
+		}
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+};
+
+const createReport = async () => {
+	try {
+		if (!valCreaReport.value) {
+			errorMessage.value = "Compila tutti i campi correttamente!";
+		} else {
+			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			latitude.value = response.lat;
+			longitude.value = response.lon;
+			const reportData = {
+				'name': title.value,
+				'info': info.value,
+				'location': {
+					'latitude': latitude.value,
+					'longitude': longitude.value,
+					'street': street.value,
+					'number': stNumber.value,
+					'city': city.value,
+					'code': code.value
+				},
+				'duration': {
+					'start': start.value
+				}
+			};
+			console.log('Creating report with data:', reportData);
+			await reportService.createReport(authStore.token, reportData);
+			resCreaReports();
+			ready.value = false;
+			await getReports();
+			ready.value = true;
+			closeModal('SegnalazioniCrea');
+		}
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+
+};
+
+const deleteReport = async (id) => {
+	try {
+		await reportService.deleteReport(authStore.token, id);
+		ready.value = false;
+		await getReports();
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+};
+
+const statusReport = async (id, status) => {
+	try {
+		await reportService.statusReport(authStore.token, id, status);
+		ready.value = false;
+		await getReports();
+		ready.value = true;
+	} catch (error) {
+		errorMessage.value = reportService.error;
 	}
 };
 
