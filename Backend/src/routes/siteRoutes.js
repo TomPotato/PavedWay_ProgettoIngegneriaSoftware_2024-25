@@ -30,10 +30,10 @@ router.get('/', async (req, res) => {
 
     let latitude = null;
     let longitude = null;
-	let radius = null;
+    let radius = null;
 
-    if(req.query.latitude && req.query.longitude){
-        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
+    if (req.query.latitude && req.query.longitude) {
+        if (!validator.validateLocation(Number(req.query.latitude), Number(req.query.longitude))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire una location valida.'));
         }
@@ -41,30 +41,30 @@ router.get('/', async (req, res) => {
         longitude = Number(req.query.longitude);
     }
 
-	if(req.query.radius){
-		if(!validator.validateRadius(Number(req.query.radius))){
-			return res.status(400).json(createError('Richiesta non valida', 400,
+    if (req.query.radius) {
+        if (!validator.validateRadius(Number(req.query.radius))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
-		}
-		radius = Number(req.query.radius);
-	}
+        }
+        radius = Number(req.query.radius);
+    }
 
     try {
         if (date && !latitude && !longitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
             return res.status(200).json(sites);
-        } else if(longitude && latitude && radius && date === null) {
-			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit);
-			return res.status(200).json(sites);
-		} else if(longitude && latitude && radius && date){
-			const sites = await service.getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit);
-			return res.status(200).json(sites);
-        }else {
+        } else if (longitude && latitude && radius && date === null) {
+            const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit);
+            return res.status(200).json(sites);
+        } else if (longitude && latitude && radius && date) {
+            const sites = await service.getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit);
+            return res.status(200).json(sites);
+        } else {
             const sites = await service.getSites(offset, limit);
             return res.status(200).json(sites);
         }
     } catch (error) {
-		console.log(error);
+        console.log(error);
         res.status(error.code).json(error);
     }
 });

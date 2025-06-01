@@ -67,7 +67,7 @@
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
+							<input v-model="city" type="text" class="input" placeholder="Città"
 								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
@@ -136,7 +136,7 @@
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="city" type="text" class="input" placeholder="Città" required />
 							<p v-if="!validateCity" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -312,7 +312,7 @@
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
+							<input v-model="city" type="text" class="input" placeholder="Città"
 								:disabled="longitude != '' || latitude != ''" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
@@ -338,7 +338,7 @@
 								<input @click="nowChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
-							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4" 
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
 								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
 									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
 						</fieldset>
@@ -392,7 +392,7 @@
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="city" type="text" class="input" placeholder="Città" required />
 							<p v-if="!validateCity" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -439,7 +439,7 @@ import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
-import nominatim from '@/services/Nominatim';
+import pathService from '@/services/PathService';
 
 const errorMessage = ref(null);
 
@@ -692,7 +692,7 @@ const getSitesByLoc = async (mtrs) => {
 		radius.value = radius.value * 1000;
 	}
 	if (street.value != '' && city.value != '' && code.value != '') {
-		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		const response = await pathService.getPlace(street.value, city.value, code.value);
 		latitude.value = response.lat;
 		longitude.value = response.lon;
 	}
@@ -734,7 +734,7 @@ const createSite = async () => {
 		if (!valCreaSite.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
-			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			const response = await pathService.getPlace(street.value, city.value, code.value, stNumber.value);
 			latitude.value = response.lat;
 			longitude.value = response.lon;
 			const siteData = {
@@ -827,7 +827,7 @@ const getReportsByLoc = async (mtrs) => {
 		radius.value = radius.value * 1000;
 	}
 	if (street.value != '' && city.value != '' && code.value != '') {
-		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		const response = await pathService.getPlace(street.value, city.value, code.value);
 		latitude.value = response.lat;
 		longitude.value = response.lon;
 	}
@@ -869,7 +869,7 @@ const createReport = async () => {
 		if (!valCreaReport.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
-			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			const response = await pathService.getPlace(street.value, city.value, code.value, stNumber.value);
 			latitude.value = response.lat;
 			longitude.value = response.lon;
 			const reportData = {

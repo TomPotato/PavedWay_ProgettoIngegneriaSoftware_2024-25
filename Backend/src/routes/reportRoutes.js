@@ -30,10 +30,10 @@ router.get('/', async (req, res) => {
 
     let latitude = null;
     let longitude = null;
-	let radius = null;
+    let radius = null;
 
-    if(req.query.latitude && req.query.longitude){
-        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
+    if (req.query.latitude && req.query.longitude) {
+        if (!validator.validateLocation(Number(req.query.latitude), Number(req.query.longitude))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire una location valida.'));
         }
@@ -41,25 +41,25 @@ router.get('/', async (req, res) => {
         longitude = Number(req.query.longitude);
     }
 
-	if(req.query.radius){
-		if(!validator.validateRadius(Number(req.query.radius))){
-			return res.status(400).json(createError('Richiesta non valida', 400,
+    if (req.query.radius) {
+        if (!validator.validateRadius(Number(req.query.radius))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
-		}
-		radius = Number(req.query.radius);
-	}
+        }
+        radius = Number(req.query.radius);
+    }
 
     try {
         if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && date === null) {
+        } else if (longitude && latitude && radius && date === null) {
             const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && date){
+        } else if (longitude && latitude && radius && date) {
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
-        }else {
+        } else {
             const reports = await service.getReports(offset, limit);
             return res.status(200).json(reports);
         }
@@ -114,70 +114,70 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-        
-        const id = req.params.id;
 
-        if (!req.body) {
-            return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
-        }
+    const id = req.params.id;
 
-        if (req.user.role !== 'admin' && req.body.status !== null) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Devi essere un amministratore per modificare questo dato'));
-        }
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
+    }
 
-        if (req.user.role === 'citizen' && req.user.id !== report.userId) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Puoi modificare solo le segnalazioni che hai creato.'));
-        }
+    if (req.user.role !== 'admin' && req.body.status !== null) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Devi essere un amministratore per modificare questo dato'));
+    }
 
-        if (req.user.role === 'admin' && (req.body.name || req.body.info ||
-            req.body.duration || req.body.photos )) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
-        }
-        
-        try {
+    if (req.user.role === 'citizen' && req.user.id !== report.userId) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Puoi modificare solo le segnalazioni che hai creato.'));
+    }
 
-            let data = null;
+    if (req.user.role === 'admin' && (req.body.name || req.body.info ||
+        req.body.duration || req.body.photos)) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
+    }
 
-            if(req.user.role === 'citizen'){
+    try {
 
-                let dataCit = {
-                    'name':null,
-                    'info':null,
-                    'duration':null,
-                    'photos':null
+        let data = null;
+
+        if (req.user.role === 'citizen') {
+
+            let dataCit = {
+                'name': null,
+                'info': null,
+                'duration': null,
+                'photos': null
+            }
+
+            Object.keys(dataCit).forEach(key => {
+                if (req.body.hasOwnProperty(key)) {
+                    dataCit[key] = req.body[key];
                 }
-                
-                Object.keys(dataCit).forEach(key => {
-                    if(req.body.hasOwnProperty(key)){
-                        dataCit[key] = req.body[key];
-                    }
-                });
+            });
 
-                data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
+            data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
 
-            }else if (req.user.role === 'admin'){
+        } else if (req.user.role === 'admin') {
 
-                let dataAdm = {
-                    'status':null
+            let dataAdm = {
+                'status': null
+            }
+
+            Object.keys(dataAdm).forEach(key => {
+                if (req.body.hasOwnProperty(key)) {
+                    dataAdm[key] = req.body[key];
                 }
+            });
 
-                Object.keys(dataAdm).forEach(key => {
-                    if(req.body.hasOwnProperty(key)){
-                        dataAdm[key] = req.body[key];
-                    }
-                });
+            data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
 
-                data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
-
-            }else 
+        } else
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare segnalazioni senza essere autenticato.'));
 
-            await service.updateReport(id, data);
-            res.status(204).json(null);
+        await service.updateReport(id, data);
+        res.status(204).json(null);
     } catch (error) {
         res.status(error.code).json(error);
     }

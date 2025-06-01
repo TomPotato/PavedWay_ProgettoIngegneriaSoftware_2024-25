@@ -6,6 +6,11 @@ class MapService {
         this.id = id;
         this.map = null;
         this.hereMarker = null;
+        this.pathLayer = null;
+        this.startMarker = null;
+        this.endMarker = null;
+        this.pathSteps = [];
+        this.pathTime = null;
     }
 
     initMap() {
@@ -27,7 +32,7 @@ class MapService {
         this.map.setView([lat, lng], zoom);
     }
 
-    addMarker(lat, lng, name, iconUrl = null) {
+    addMarker(lat, lng, name, iconUrl = null, color = 'blue') {
         if (!this.map) {
             console.error('Mappa non inizializzata');
             return;
@@ -72,10 +77,80 @@ class MapService {
 
     updateHereMarker(lat, lng) {
         if (!this.hereMarker) {
-            console.error('Marker della posizione attuale non inizializzato');
-            return;
+            this.hereMarker = L.marker([lat, lng]).addTo(this.map).bindPopup('Sei qui');
         }
         this.hereMarker.setLatLng([lat, lng]).openPopup();
+    }
+
+    drawPath(geojson, color = 'blue', weight = 5) {
+        if (!this.map) {
+            console.error('Mappa non inizializzata');
+            return;
+        }
+
+        if (this.hereMarker) {
+            this.hereMarker.remove();
+            this.hereMarker = null;
+        }
+        if (this.pathLayer) {
+            this.map.removeLayer(this.pathLayer);
+            this.pathLayer = null;
+        }
+        if (this.startMarker) {
+            this.map.removeLayer(this.startMarker);
+            this.startMarker = null;
+        }
+        if (this.endMarker) {
+            this.map.removeLayer(this.endMarker);
+            this.endMarker = null;
+        }
+
+        const coords = geojson.features[0].geometry.coordinates;
+        const start = coords[0];
+        const end = coords[coords.length - 1];
+        this.startMarker = L.marker([start[1], start[0]], { title: 'Partenza' }).addTo(this.map).bindPopup('Partenza');
+        this.endMarker = L.marker([end[1], end[0]], { title: 'Arrivo' }).addTo(this.map).bindPopup('Arrivo');
+
+        this.pathLayer = L.geoJSON(geojson, {
+            style: {
+                color: color,
+                weight: weight
+            }
+        }).addTo(this.map);
+
+        this.pathSteps = geojson.features[0]?.properties.segments[0]?.steps || [];
+        this.pathTime = geojson.features[0]?.properties.segments[0]?.duration || null;
+
+        this.map.fitBounds(this.pathLayer.getBounds());
+    }
+
+    clearPath() {
+        if (this.pathLayer) {
+            this.map.removeLayer(this.pathLayer);
+            this.pathLayer = null;
+        }
+        if (this.startMarker) {
+            this.map.removeLayer(this.startMarker);
+            this.startMarker = null;
+        }
+        if (this.endMarker) {
+            this.map.removeLayer(this.endMarker);
+            this.endMarker = null;
+        }
+    }
+
+    getPathSteps() {
+        return this.pathSteps.map(step => ({
+            instruction: step.instruction,
+            distance: step.distance,
+            duration: step.duration,
+            name: step.name,
+            type: step.type,
+        }));
+    }
+
+    getPathTime() {
+        return this.pathTime || null;
     }
 }
 
