@@ -3,6 +3,7 @@ const { Report } = require("../models/Report");
 const userService = require("./UserService");
 
 const createError = require("../utils/createError");
+const distanceFilter = require("../utils/distanceFilter");
 
 class ReportService {
   /**
@@ -219,11 +220,12 @@ class ReportService {
     try {
       let query = Report.find({
         $and: [
-          { 'duration.start': { $lte: date } },
+          { "duration.start": { $lte: date } },
           {
             $or: [
-              { 'duration.end': { $gte: date } },
-              { 'duration.end': { $exists: false } },
+              { "duration.end": { $gte: date } },
+              { "duration.end": { $exists: false } },
+              { "duration.end": { $in: [null, undefined] } },
             ],
           },
         ],
@@ -293,6 +295,63 @@ class ReportService {
         const message = "Errore interno del server durante la ricerca.";
         throw createError("Errore interno del server", 500, message);
       }
+    }
+  }
+
+  async getReportsByLocation(latitude, longitude, radius, offset, limit) {
+    try {
+      let query = Report.find({});
+
+      if (offset && offset > 0) {
+        query = query.skip(offset);
+      }
+
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const reports = await query.exec();
+
+      const closeReports = distanceFilter(latitude, longitude, reports, radius);
+
+      return closeReports;
+    } catch (error) {
+      const message = "Errore interno del server durante la ricerca.";
+      throw createError("Errore interno del server", 500, message);
+    }
+  }
+
+  async getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit) {
+    try {
+      let query = Report.find({
+        $and: [
+          { "duration.start": { $lte: date } },
+          {
+            $or: [
+              { "duration.end": { $gte: date } },
+              { "duration.end": { $exists: false } },
+              { "duration.end": { $in: [null, undefined] } },
+            ],
+          },
+        ],
+      });
+
+      if (offset && offset > 0) {
+        query = query.skip(offset);
+      }
+
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const reports = await query.exec();
+
+      const closeReports = distanceFilter(latitude, longitude, reports, radius);
+
+      return closeReports;
+    } catch (error) {
+      const message = "Errore interno del server durante la ricerca.";
+      throw createError("Errore interno del server", 500, message);
     }
   }
 }

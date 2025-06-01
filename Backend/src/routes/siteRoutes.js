@@ -28,15 +28,43 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    let latitude = null;
+    let longitude = null;
+	let radius = null;
+
+    if(req.query.latitude && req.query.longitude){
+        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire una location valida.'));
+        }
+        latitude = Number(req.query.latitude);
+        longitude = Number(req.query.longitude);
+    }
+
+	if(req.query.radius){
+		if(!validator.validateRadius(Number(req.query.radius))){
+			return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
+		}
+		radius = Number(req.query.radius);
+	}
+
     try {
-        if (date) {
+        if (date && !latitude && !longitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
             return res.status(200).json(sites);
-        } else {
+        } else if(longitude && latitude && radius && date === null) {
+			const sites = await service.getSitesByLocation(latitude, longitude, radius, offset, limit);
+			return res.status(200).json(sites);
+		} else if(longitude && latitude && radius && date){
+			const sites = await service.getActiveSitesByLocation(latitude, longitude, radius, date, offset, limit);
+			return res.status(200).json(sites);
+        }else {
             const sites = await service.getSites(offset, limit);
             return res.status(200).json(sites);
         }
     } catch (error) {
+		console.log(error);
         res.status(error.code).json(error);
     }
 });
@@ -66,32 +94,27 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 
     if (req.user.role !== 'admin') {
-        return res.status(403).json(createError('Accesso negato. ', 403,
+        return res.status(403).json(createError('Accesso negato.', 403,
             'Devi essere un amministratore per modificare un cantiere.'));
     }
 
-    if(req.body.id || req.body.location || req.body.createdAt || req.body.comments ){
-        return res.status(403).json(createError('Accesso Negato',403, 
+    if (req.body.id || req.body.location || req.body.createdAt || req.body.comments) {
+        return res.status(403).json(createError('Accesso Negato', 403,
             'Non sei autorizzato a modificare questa informazione.'));
-        }
-
-    if (!validator.validateUsername(req.body)) {
-            return res.status(400).json(createError('Richiesta non valida', 400,
-                'I dati inseriti non sono validi. Controlla i dati e riprova.'));
     }
 
     try {
 
         let data = {
-            'name':null,
-            'info':null,
-            'duration':null,
-            'companyName':null,
-            'realDuration':null
+            'name': null,
+            'info': null,
+            'duration': null,
+            'companyName': null,
+            'realDuration': null
         }
 
         Object.keys(data).forEach(key => {
-            if(req.body.hasOwnProperty(key)){
+            if (req.body.hasOwnProperty(key)) {
                 data[key] = req.body[key];
             }
         });

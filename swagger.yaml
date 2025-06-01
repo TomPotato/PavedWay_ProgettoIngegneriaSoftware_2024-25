@@ -370,6 +370,21 @@ paths:
             Se fornito, filtra le segnalazioni in corso nella data fornita.
             Non può essere usato insieme a "now".
         - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
           name: offset
           schema:
             type: integer
@@ -585,6 +600,21 @@ paths:
             Se fornito, filtra i cantieri in corso nella data fornita.
             Non può essere usato insieme a "now".
         - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
           name: offset
           schema:
             type: integer
@@ -781,6 +811,61 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /geocode :
+    get:
+      tags:
+        - 
+      summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
+      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (puó essere inserito anche il numero), cittá e codice postale della cittá.
+      parameters:
+        - in: query
+          name: street
+          schema:
+            type: string
+          description: Nome della via che si vuole cercare.
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Nome della cittá in cui é situata la via che si vuole cercare.
+        - in: query
+          name: code
+          schema:
+            type: number
+          description: Numero postale della cittá che si vuole cercare.
+        - in: query
+          name: stNumber
+          schema:
+            type: string
+          description: Numero della casa che si vuole cercare.
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Query che contiene le informazioni del posto che si vuole cercare.
+      responses:
+        "200":
+          description: Ricerca effettuata con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lat: latitudine del luogo ricercato.
+                  lon: longitudine del luogo ricercato.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
   /paths/direct:
     get:
       tags:
@@ -1081,6 +1166,7 @@ components:
                 - pending
                 - approved
                 - rejected
+                - solved
               description: Stato della segnalazione.
 
     UpdateReportCitizen:
@@ -1112,6 +1198,7 @@ components:
             - pending
             - approved
             - rejected
+            - solved
           description: Stato della segnalazione.
 
     Site:
