@@ -33,9 +33,32 @@ test('GET /api/v1 should return 404', async () => {
 });
 
 
-// Test for the /api/v1/reports endpoint
-test('GET /api/v1/reports should return 200', async () => {
-  await request(app)
-    .get('/api/v1/reports')
-    .expect(200);
-}, 20000);
+// Test for the GET /api/v1/reports endpoint
+describe('GET /api/v1/reports', () => {
+  test('should return 200 with no query params', async () => {
+    await request(app)
+      .get('/api/v1/reports')
+      .expect(200);
+  }, 20000);
+
+  test('should return 200 with offset and limit', async () => {
+    await request(app)
+      .get('/api/v1/reports')
+      .query({ offset: 2, limit: 4 })
+      .expect(200);
+  }, 20000);
+
+  test('should return 200 with limit only', async () => {
+    await request(app)
+      .get('/api/v1/reports')
+      .query({ limit: 4 })
+      .expect(200);
+  }, 20000);
+
+  test('should return 200 with offset only', async () => {
+    await request(app)
+      .get('/api/v1/reports')
+      .query({ offset: 2 })
+      .expect(200);
+  }, 20000);
+});
