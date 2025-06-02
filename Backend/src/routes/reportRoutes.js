@@ -121,11 +121,9 @@ router.post('/', tokenChecker, async (req, res) => {
 
 router.delete('/:id', tokenChecker, async (req, res) => {
     const id = req.params.id;
-    console.log(id);
-    console.log(req.user.id);
+
     try {
         const report = await service.getReportById(id);
-        console.log(report.createdBy.toString());
 
         if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
             return res.status(403).json(createError('Accesso negato. ', 403,
@@ -142,17 +140,19 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 router.patch('/:id', tokenChecker, async (req, res) => {
         
         const id = req.params.id;
+        let report = await service.getReportById(id);
+
 
         if (!req.body) {
             return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
         }
 
-        if (req.user.role !== 'admin' && req.body.status !== null) {
+        if (req.user.role !== 'admin' && req.body.status !== 'solved') {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Devi essere un amministratore per modificare questo dato'));
         }
 
-        if (req.user.role === 'citizen' && req.user.id !== report.userId) {
+        if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Puoi modificare solo le segnalazioni che hai creato.'));
         }
@@ -173,7 +173,8 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                     'name':null,
                     'info':null,
                     'duration':null,
-                    'photos':null
+                    'photos':null,
+                    'status': null
                 }
                 
                 Object.keys(dataCit).forEach(key => {

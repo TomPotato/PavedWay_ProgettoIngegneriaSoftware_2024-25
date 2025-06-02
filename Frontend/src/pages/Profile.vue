@@ -29,7 +29,6 @@
                         :key="report.id">
                         <h2 class="text-xl font-semibold">{{ report.name }}</h2>
                         <p>{{ report.info }}</p>
-                        <p>{{ report.createdBy }}</p>
                         <i>Rating: {{ report?.rating || "0" }}</i>
                         <p v-if="report.status === 'solved'">Segnalazione Risolta!</p>
                         <div class="grid grid-cols-4 gap-5 w-auto">
