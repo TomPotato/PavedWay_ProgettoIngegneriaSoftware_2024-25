@@ -1149,7 +1149,7 @@ components:
         - type: object
           properties:
             createdBy:
-              type: integer
+              type: string
               description: ID dell'utente che ha creato la segnalazione.
             photos:
               type: array

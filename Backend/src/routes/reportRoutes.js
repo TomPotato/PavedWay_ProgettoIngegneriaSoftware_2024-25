@@ -121,11 +121,13 @@ router.post('/', tokenChecker, async (req, res) => {
 
 router.delete('/:id', tokenChecker, async (req, res) => {
     const id = req.params.id;
-
+    console.log(id);
+    console.log(req.user.id);
     try {
         const report = await service.getReportById(id);
+        console.log(report.createdBy.toString());
 
-        if (req.user.role === 'citizen' && req.user.id !== report.userId) {
+        if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Puoi eliminare solo le segnalazioni che hai creato.'));
         }
