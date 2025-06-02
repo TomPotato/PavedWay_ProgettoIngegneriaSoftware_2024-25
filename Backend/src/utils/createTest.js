@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { Report } = require('../models/Report');
 const { Site } = require('../models/Site'); 
+const { User } = require('../models/User');
+const { Citizen } = require('../models/Citizen');
+const bcrypt = require('bcrypt');
 
 /**
  * Crea dei report di test completi nel database.
@@ -94,7 +97,34 @@ async function createTestSites(count = 10) {
   await Site.insertMany(testSites);
 }
 
+/**
+ * Crea dei cittadini di test completi nel database.
+ * @param {number} count - Numero di site da creare.
+ * @returns {Promise<void>}
+ */
+async function createTestUsers(count = 1) {
+  const users = [];
+
+  for (let i = 0; i < count; i++) {
+
+    const user = {
+      username: `user${i + 1}`,
+      name: `Nome`,
+      surname: `Cognome`,
+      password: `Password${i + 1}_`,
+      email: `user${i + 1}@example.com`
+    };
+
+    users.push(user);
+  }
+
+  return users;
+}
+
+
+
 module.exports = {
   createTestReports,
   createTestSites,
+  createTestUsers
 };
