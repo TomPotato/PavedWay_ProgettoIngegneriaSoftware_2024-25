@@ -47,7 +47,8 @@ async function createTestReports(count = 10) {
     };
   });
 
-  await Report.insertMany(testReports);
+  const insertedReports = await Report.insertMany(testReports);
+  return insertedReports;
 }
 
 /**

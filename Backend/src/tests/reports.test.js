@@ -37,8 +37,10 @@ test('GET /api/v1 should return 404', async () => {
 // Test for the GET /api/v1/reports endpoint
 describe('GET /api/v1/reports', () => {
 
+  let testReports = [];
+
   beforeAll(async () => {
-    await createTestReports(10);
+    testReports = await createTestReports(10);
   });
 
   // User strory: Read Reports
@@ -132,5 +134,23 @@ describe('GET /api/v1/reports', () => {
       .get('/api/v1/reports')
       .query({ now: true, date: '13/09/2025' })
       .expect(400);
+  });
+
+  // User story: Read Report Info
+  test('should return 200 with a specific report by ID', async () => {
+    const firstReportId = testReports[0]._id;
+    const res = await request(app)
+      .get(`/api/v1/reports/${firstReportId}`)
+      .expect(200);
+
+    expect(res.body).toBeDefined();
+    expect(res.body.name).toBe('Segnalazione 1');
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    await request(app)
+      .get(`/api/v1/reports/${nonExistentId}`)
+      .expect(404);
   });
 });
