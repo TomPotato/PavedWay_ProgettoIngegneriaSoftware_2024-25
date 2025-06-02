@@ -98,9 +98,9 @@ async function createTestSites(count = 10) {
 }
 
 /**
- * Crea dei cittadini di test completi nel database.
- * @param {number} count - Numero di site da creare.
- * @returns {Promise<void>}
+ * Crea degli user di test senza salvarli nel database.
+ * @param {number} count - Numero di utenti da creare.
+ * @return {Promise<Array>} - Array di oggetti utente di test.
  */
 async function createTestUsers(count = 1) {
   const users = [];
