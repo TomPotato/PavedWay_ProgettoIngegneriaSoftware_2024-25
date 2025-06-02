@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 /**
  * Crea dei report di test completi nel database.
  * @param {number} count - Numero di report da creare.
- * @returns {Promise<void>}
+ * @returns {Promise<Array>} - Array di report creati.
  */
 async function createTestReports(count = 10) {
   await Report.deleteMany({});
