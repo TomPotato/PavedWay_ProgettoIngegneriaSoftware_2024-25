@@ -66,6 +66,28 @@ class ReportService {
     }
   }
 
+    async getReportsByUserIdByLoc(token, reportData) {
+    try {
+      const response = await api.get(`/reports`, reportData, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+      async getActiveReportsByUserIdByLoc(token, reportData) {
+    try {
+      const response = await api.get(`/reports`, reportData, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async createReport(token, reportData) {
     try {
       const response = await api.post(`/reports`, reportData, {

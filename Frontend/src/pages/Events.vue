@@ -61,20 +61,17 @@
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca i cantieri per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
 							<p v-if="!validateCode && code != ''" class="text-error">
 								Il codice postale deve essere lungo 5 caratteri.
 							</p>
@@ -101,8 +98,7 @@
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
-								:disabled="((!latitude || !longitude || !radius) && (!street && !city && !code)) ||
-									((!street || !city || !code || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
+								:disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -272,11 +268,14 @@
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la Segnalazione!</button>
+									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la
+									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la Segnalazione!</button>
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la
+									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
-									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna come Risolta!</button>
+									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
+									come Risolta!</button>
 							</div>
 						</div>
 					</div>
@@ -293,23 +292,21 @@
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico"
-								:disabled="longitude != '' || latitude != ''" />
-							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
-								Il numero civico deve essere lungo tra 1 e 4 caratteri.
-							</p>
-
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
+
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
+							<p v-if="!validateCode && code != ''" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
+
 							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
 								<input @click="metersChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
@@ -331,9 +328,9 @@
 								<input @click="nowChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
 							</label>
-							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4" 
-								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
-									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
+								@click="getReportsByLoc(meters)"
+								:disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>

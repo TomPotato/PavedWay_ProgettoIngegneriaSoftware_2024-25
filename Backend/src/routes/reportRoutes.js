@@ -82,7 +82,7 @@ router.get('/', async (req, res) => {
         } else if (date && userId && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReportsByUserId(userId, date, offset, limit);
             return res.status(200).json(reports);
-        }else if(userId && !longitude && !latitude && !radius && !date){
+        }else if(userId && longitude && latitude && radius && !date){
             const reports = await service.getReportsByUserIdByLoc(userId,latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
         }else if(date && userId && longitude && latitude && radius){
@@ -145,17 +145,20 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 
 router.patch('/:id', tokenChecker, async (req, res) => {
         
+        console.log('passa1');
+
         const id = req.params.id;
         const report = await service.getReportById(id);
-
 
         if (!req.body) {
             return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
         }
-
-        if (req.user.role !== 'admin' && req.body.status !== 'solved') {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Devi essere un amministratore per modificare questo dato'));
+        
+        if(req.body.status){
+            if (req.user.role !== 'admin' && req.body.status !== 'solved') {
+                return res.status(403).json(createError('Accesso negato. ', 403,
+                    'Devi essere un amministratore per modificare questo dato'));
+            }
         }
 
         if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
@@ -169,11 +172,16 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
         }
         
+        console.log('passa');
+
+        console.log(req);
+
         try {
 
             let data = null;
 
             if(req.user.role === 'citizen'){
+                console.log('passa');
                 if(!req.body.start){
                     req.body.duration.start = report.duration.start.toISOString();
                 }

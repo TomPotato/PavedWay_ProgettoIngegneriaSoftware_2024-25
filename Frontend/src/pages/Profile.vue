@@ -36,7 +36,7 @@
                                 class="btn btn-primary w-[10vh]">Info</button>
                             <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina la
                                 Segnalazione!</button>
-                            <button @click="openModal('SegnalazioniModifica')" class="btn btn-neutral w-full"
+                            <button @click="openModal('SegnalazioniModifica', report.id)" class="btn btn-neutral w-full"
                                 :disabled="report.status === 'solved'">Modifica la Segnalazione</button>
                             <button @click="statusReport(report.id, 'solved')" class="btn btn-neutral w-full"
                                 :disabled="report.status === 'solved'">Contrassegna come Risolta</button>
@@ -71,23 +71,21 @@
                     <fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
                         <h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
                         <label class="label">Posizione per via</label>
-                        <input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
-                            :disabled="longitude != '' || latitude != ''" />
+                        <input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
                         <p v-if="!validateStreet && street != ''" class="text-error">
                             La via deve essere lunga tra 1 e 34 caratteri.
                         </p>
 
-                        <input v-model="stNumber" type="text" class="input" placeholder="Numero Civico"
-                            :disabled="longitude != '' || latitude != ''" />
-                        <p v-if="!validateStNumber && stNumber != ''" class="text-error">
-                            Il numero civico deve essere lungo tra 1 e 4 caratteri.
-                        </p>
-
-                        <input v-model="city" type="text" class="input" placeholder="Cittá"
-                            :disabled="longitude != '' || latitude != ''" />
+                        <input v-model="city" type="text" class="input" placeholder="Cittá" />
                         <p v-if="!validateCity && city != ''" class="text-error">
                             La città deve essere lunga tra 1 e 34 caratteri.
                         </p>
+
+                        <input v-model="code" type="text" class="input" placeholder="Codice Postale" />
+                        <p v-if="!validateCode && code != ''" class="text-error">
+                            Il codice postale deve essere lungo 5 caratteri.
+                        </p>
+
                         <label class="label w-full flex">E inserisci il raggio in {{ meters }}
                             <input @click="metersChange" type="checkbox" checked="checked"
                                 class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
@@ -111,8 +109,7 @@
                         </label>
                         <button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
                             @click="getReportsByUserIdByLoc(meters)"
-                            :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
-                                ((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
+                            :disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
                     </fieldset>
                 </div>
             </div>
@@ -123,7 +120,7 @@
                 <div class="overflow-y-auto p-4 flex-1">
                     <fieldset class="fieldset gap-2 w-xs">
                         <label class="label">Informazioni sulla Segnalazione</label>
-                        <input v-model="name" type="text" class="input" placeholder="Titolo della Segnalazione"
+                        <input v-model="title" type="text" class="input" placeholder="Titolo della Segnalazione"
                             required />
                         <p v-if="!validateTitle" class="text-error">
                             Il titolo della segnalazione deve essere compreso tra gli 0 e i 20 Caratteri
@@ -138,7 +135,7 @@
                 <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
                     <div>
                         <button class="btn btn-neutral w-full" @click="updateReport()"
-                            :disabled="!info || !start">Modifica</button>
+                            :disabled="!title || !info">Modifica</button>
                     </div>
                     <div>
                         <button @click="closeModal('SegnalazioniModifica')"
@@ -243,15 +240,10 @@ const passEvent = ref('');
 
 const openModal = (id, eventId = '') => {
     passEvent.value = eventId;
-    if (id === 'CantieriModifica') {
-        const site = sites.value.find(s => s.id === eventId);
-        info.value = site.info;
-        start.value = site.duration.start;
-        end.value = site.duration.end || '';
-        companyName.value = site.companyName;
-    } else if (id === 'SegnalazioniCrea') {
-        const date = Date.now();
-        start.value = new Date(date).toISOString().split('T')[0];
+    if (id === 'SegnalazioniModifica') {
+        const report = reports.value.find(r => r.id === eventId);
+        title.value = report.name;
+        info.value = report.info;
     } else if (id === 'SegnalazioniInfo') {
         rInfo.value = reports.value.find(r => r.id === eventId);
     }
@@ -287,28 +279,25 @@ const nowChange = () => {
 }
 
 const valMod = computed(() => {
-    return (info.value &&
-        start.value &&
-        (end.value || null) &&
-        companyName.value &&
-        validateInfo &&
-        validateCompanyName
+    return (title.value &&
+        info.value &&
+        validateTitle &&
+        validateInfo
     );
 });
 
 const valCerca = computed(() => {
     return (
-        (street.value && stNumber.value && city.value && radius.value && code.value && 
-        validateStreet && validateStNumber && validateCity && validateRadius && validateCode)
+        (street.value && stNumber.value && city.value && radius.value && code.value &&
+            validateStreet && validateStNumber && validateCity && validateRadius && validateCode)
     );
 }
 )
 
 const resMod = () => {
+    title.value = '';
     info.value = '';
-    start.value = '';
-    end.value = '';
-    companyName.value = '';
+    start.value= '';
 };
 
 const resCerca = () => {
@@ -349,11 +338,11 @@ const getActiveReportsByUserId = async () => {
         reports.value = await reportService.getActiveReportsByUserId(authStore.token, reportData);
         ready.value = true;
     } catch (error) {
-        errorMessage.value = siteService.error;
+        errorMessage.value = reportService.error;
     }
 };
 
-const getReportsByUserIdByLoc = async (mtrs) => {
+const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
     if (mtrs === 'chilometri') {
         radius.value = radius.value * 1000;
     }
@@ -366,16 +355,20 @@ const getReportsByUserIdByLoc = async (mtrs) => {
         if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
             if (now.value === 'tutti') {
                 const reportData = {
+                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
                     'offset': 0,
                     'limit': 0
                 }
+                console.log('Passa');
+                console.log(reportData);
                 ready.value = false;
-                sites.value = await reportService.getReportsByUserIdByLoc(reportData);
+                reports.value = await reportService.getReportsByUserIdByLoc(authStore.token, reportData);
             } else {
                 const reportData = {
+                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
@@ -384,7 +377,7 @@ const getReportsByUserIdByLoc = async (mtrs) => {
                     'limit': 0
                 }
                 ready.value = false;
-                reports.value = await reportService.getActiveReportsByUserIdByLoc(reportData);
+                reports.value = await reportService.getActiveReportsByUserIdByLoc(authStore.token, reportData);
             }
             resCerca();
             closeDrawer('SegnalazioniCerca');
@@ -398,9 +391,8 @@ const getReportsByUserIdByLoc = async (mtrs) => {
 const updateReport = async () => {
     try {
         const id = passEvent.value;
-        console.log('Updating report with id:', id);
 
-        start.value = new Date().toISOString(); 
+        start.value = new Date().toISOString();
 
         if (!valMod.value) {
             errorMessage.value = "Compila tutti i campi correttamente!";
@@ -408,16 +400,17 @@ const updateReport = async () => {
             const reportData = {
                 'name': title.value,
                 'info': info.value,
-                'start': start.value,
+                'duration': {
+                    'start': start.value,
+                },
                 'photos': null,
-                'status': null
             };
-            await siteService.updateReport(authStore.token, id, reportData);
+            await reportService.updateReport(authStore.token, id, reportData);
             resMod();
+            closeModal('SegnalazioniModifica');
             ready.value = false;
-            await getSites();
+            await getReportsByUserId();
             ready.value = true;
-            closeModal('CantieriModifica');
         }
     } catch (error) {
         errorMessage.value = error.value;

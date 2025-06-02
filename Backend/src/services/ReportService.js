@@ -123,7 +123,29 @@ class ReportService {
     }
   }
 
-    async getActiveReportsByUserId(userId, offset, limit) {
+  /**
+   * Recupera le segnalazioni attive di un utente in una determinata data.
+   *
+   * @async
+   * @param {string} userId - L'ID dell'utente di cui recuperare le segnalazioni.
+   * @param {Date} date - La data di riferimento per determinare se una segnalazione è attiva.
+   * @param {number} [offset=0] - Il numero di segnalazioni da saltare per la paginazione.
+   * @param {number} [limit=0] - Il numero massimo di segnalazioni da restituire.
+   * @returns {Promise<Array<Report>>} Le segnalazioni attive dell'utente filtrate per data.
+   * @throws {Error} Se si verifica un errore durante il recupero delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Recupera le informazioni dell'utente tramite `userService.getUserById`.
+   * 2. Costruisce una query Mongoose per cercare segnalazioni attive, cioè:
+   *    - Quelle con data di inizio (`duration.start`) inferiore o uguale alla data fornita.
+   *    - E con data di fine (`duration.end`) maggiore o uguale alla data fornita, oppure senza data di fine (null, undefined o non esistente).
+   * 3. Filtra le segnalazioni in base all'ID dell'utente (campo `createdBy`).
+   * 4. Applica l'offset e il limite se forniti.
+   * 5. Restituisce le segnalazioni attive dell'utente che soddisfano i criteri di data.
+   * 6. Se si verifica un errore durante l'elaborazione, solleva un errore 500 (Internal Server Error).
+   */
+  async getActiveReportsByUserId(userId, date, offset, limit) {
     try {
       const user = await userService.getUserById(userId);
       let query = Report.find({
@@ -136,9 +158,9 @@ class ReportService {
               { "duration.end": { $in: [null, undefined] } },
             ],
           },
-        { createdBy: userId }
-      ]
-    });
+          { createdBy: userId },
+        ],
+      });
 
       if (offset && offset > 0) {
         query = query.skip(offset);
@@ -160,7 +182,37 @@ class ReportService {
     }
   }
 
-  async getReportsByUserIdByLoc(userId, latitude, longitude, radius, offset, limit){
+  /**
+   * Recupera le segnalazioni di un utente entro un certo raggio da una posizione geografica specifica.
+   *
+   * @async
+   * @param {string} userId - L'ID dell'utente di cui recuperare le segnalazioni.
+   * @param {number} latitude - La latitudine della posizione di riferimento.
+   * @param {number} longitude - La longitudine della posizione di riferimento.
+   * @param {number} radius - Il raggio (in chilometri o unità definite) entro cui cercare le segnalazioni.
+   * @param {number} [offset=0] - Il numero di segnalazioni da saltare per la paginazione.
+   * @param {number} [limit=0] - Il numero massimo di segnalazioni da restituire.
+   * @returns {Promise<Array<Report>>} Le segnalazioni dell'utente filtrate per distanza.
+   * @throws {Error} Se si verifica un errore durante il recupero delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Recupera le informazioni dell'utente tramite `userService.getUserById`.
+   * 2. Costruisce una query Mongoose per cercare tutte le segnalazioni dell'utente (campo `createdBy`).
+   * 3. Applica l'offset e il limite se forniti.
+   * 4. Esegue la query per ottenere le segnalazioni.
+   * 5. Filtra i risultati utilizzando la funzione `distanceFilter`, confrontando la distanza tra ogni segnalazione e la posizione fornita.
+   * 6. Restituisce solo le segnalazioni dell'utente che rientrano nel raggio specificato.
+   * 7. Se si verifica un errore durante l'elaborazione, solleva un errore 500 (Internal Server Error).
+   */
+  async getReportsByUserIdByLoc(
+    userId,
+    latitude,
+    longitude,
+    radius,
+    offset,
+    limit
+  ) {
     try {
       const user = await userService.getUserById(userId);
       let query = Report.find({ createdBy: userId });
@@ -184,7 +236,43 @@ class ReportService {
     }
   }
 
-  async getActiveReportsByUserIdByLoc(userId, latitude, longitude, radius, date, offset, limit){
+  /**
+   * Recupera le segnalazioni attive di un utente entro un certo raggio da una posizione geografica specifica e in una determinata data.
+   *
+   * @async
+   * @param {string} userId - L'ID dell'utente di cui recuperare le segnalazioni.
+   * @param {number} latitude - La latitudine della posizione di riferimento.
+   * @param {number} longitude - La longitudine della posizione di riferimento.
+   * @param {number} radius - Il raggio (in chilometri o unità definite) entro cui cercare le segnalazioni.
+   * @param {Date} date - La data di riferimento per determinare se una segnalazione è attiva.
+   * @param {number} [offset=0] - Il numero di segnalazioni da saltare per la paginazione.
+   * @param {number} [limit=0] - Il numero massimo di segnalazioni da restituire.
+   * @returns {Promise<Array<Report>>} Le segnalazioni attive dell'utente filtrate per distanza e data.
+   * @throws {Error} Se si verifica un errore durante il recupero delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Recupera le informazioni dell'utente tramite `userService.getUserById`.
+   * 2. Costruisce una query Mongoose per cercare segnalazioni attive dell'utente, cioè:
+   *    - Quelle con data di inizio (`duration.start`) inferiore o uguale alla data fornita.
+   *    - E con data di fine (`duration.end`) maggiore o uguale alla data fornita, oppure senza data di fine (null, undefined o non esistente).
+   * 3. Filtra le segnalazioni in base all'ID dell'utente (campo `createdBy`).
+   * 4. Applica l'offset e il limite se forniti.
+   * 5. Esegue la query per ottenere le segnalazioni attive.
+   * 6. Filtra i risultati utilizzando la funzione `distanceFilter`, confrontando la distanza tra ogni segnalazione e la posizione fornita.
+   * 7. Restituisce solo le segnalazioni attive dell'utente che rientrano nel raggio specificato e nella data fornita.
+   * 8. Se si verifica un errore durante l'elaborazione, solleva un errore 500 (Internal Server Error).
+   */
+
+  async getActiveReportsByUserIdByLoc(
+    userId,
+    latitude,
+    longitude,
+    radius,
+    date,
+    offset,
+    limit
+  ) {
     try {
       const user = await userService.getUserById(userId);
       let query = Report.find({
@@ -197,9 +285,9 @@ class ReportService {
               { "duration.end": { $in: [null, undefined] } },
             ],
           },
-        { createdBy: userId }
-      ]
-    });
+          { createdBy: userId },
+        ],
+      });
 
       if (offset && offset > 0) {
         query = query.skip(offset);
@@ -296,6 +384,7 @@ class ReportService {
       }
     }
   }
+
   /**
    * Recupera le segnalazioni dal database.
    *
@@ -343,6 +432,7 @@ class ReportService {
       throw createError("Errore interno del server", 500, message);
     }
   }
+  
   /**
    * Modifica una segnalazione nel database in base all'ID fornito.
    *
@@ -395,6 +485,28 @@ class ReportService {
     }
   }
 
+  /**
+   * Recupera le segnalazioni entro un certo raggio da una posizione geografica specifica.
+   *
+   * @async
+   * @param {number} latitude - La latitudine della posizione di riferimento.
+   * @param {number} longitude - La longitudine della posizione di riferimento.
+   * @param {number} radius - Il raggio (in chilometri o unità definite) entro cui cercare le segnalazioni.
+   * @param {number} [offset=0] - Il numero di segnalazioni da saltare per la paginazione.
+   * @param {number} [limit=0] - Il numero massimo di segnalazioni da restituire.
+   * @returns {Promise<Array<Report>>} Le segnalazioni filtrate in base alla distanza specificata.
+   * @throws {Error} Se si verifica un errore durante il recupero delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Costruisce una query Mongoose per recuperare tutte le segnalazioni dal database.
+   * 2. Applica l'offset se fornito, per saltare un certo numero di risultati.
+   * 3. Applica il limite se fornito, per limitare il numero di risultati restituiti.
+   * 4. Esegue la query per ottenere le segnalazioni.
+   * 5. Filtra i risultati utilizzando la funzione `distanceFilter`, confrontando la distanza tra ogni segnalazione e la posizione fornita.
+   * 6. Restituisce solo le segnalazioni che rientrano nel raggio specificato.
+   * 7. Se si verifica un errore durante l'elaborazione, solleva un errore 500 (Internal Server Error).
+   */
   async getReportsByLocation(latitude, longitude, radius, offset, limit) {
     try {
       let query = Report.find({});
@@ -418,7 +530,39 @@ class ReportService {
     }
   }
 
-  async getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit) {
+  /**
+   * Recupera le segnalazioni attive entro un certo raggio da una posizione geografica specifica e in una determinata data.
+   *
+   * @async
+   * @param {number} latitude - La latitudine della posizione di riferimento.
+   * @param {number} longitude - La longitudine della posizione di riferimento.
+   * @param {number} radius - Il raggio (in chilometri o unità definite) entro cui cercare le segnalazioni.
+   * @param {Date} date - La data di riferimento per determinare se una segnalazione è attiva.
+   * @param {number} [offset=0] - Il numero di segnalazioni da saltare per la paginazione.
+   * @param {number} [limit=0] - Il numero massimo di segnalazioni da restituire.
+   * @returns {Promise<Array<Report>>} Le segnalazioni attive filtrate per distanza e data.
+   * @throws {Error} Se si verifica un errore durante il recupero delle segnalazioni, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   *
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Costruisce una query Mongoose per cercare segnalazioni attive, cioè:
+   *    - Quelle con data di inizio (`duration.start`) inferiore o uguale alla data fornita.
+   *    - E con data di fine (`duration.end`) maggiore o uguale alla data fornita, oppure senza data di fine (null, undefined o non esistente).
+   * 2. Applica l'offset se fornito, per saltare un certo numero di risultati.
+   * 3. Applica il limite se fornito, per limitare il numero di risultati restituiti.
+   * 4. Esegue la query per ottenere le segnalazioni attive dal database.
+   * 5. Filtra i risultati utilizzando la funzione `distanceFilter`, confrontando la distanza tra ogni segnalazione e la posizione fornita.
+   * 6. Restituisce solo le segnalazioni attive che rientrano nel raggio specificato.
+   * 7. Se si verifica un errore durante l'elaborazione, solleva un errore 500 (Internal Server Error).
+   */
+  async getActiveReportsByLocation(
+    latitude,
+    longitude,
+    radius,
+    date,
+    offset,
+    limit
+  ) {
     try {
       let query = Report.find({
         $and: [
