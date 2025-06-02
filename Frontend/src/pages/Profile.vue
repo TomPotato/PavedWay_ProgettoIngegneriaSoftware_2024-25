@@ -36,7 +36,7 @@
                                 class="btn btn-primary w-[10vh]">Info</button>
                             <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina la
                                 Segnalazione!</button>
-                            <button @click="modifyReport(report.id)" class="btn btn-neutral w-full"
+                            <button @click="openModal('SegnalazioniModifica')" class="btn btn-neutral w-full"
                                 :disabled="report.status === 'solved'">Modifica la Segnalazione</button>
                             <button @click="statusReport(report.id, 'solved')" class="btn btn-neutral w-full"
                                 :disabled="report.status === 'solved'">Contrassegna come Risolta</button>
@@ -117,7 +117,39 @@
                 </div>
             </div>
         </div>
+
+        <dialog id="SegnalazioniModifica" class="modal">
+            <div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
+                <div class="overflow-y-auto p-4 flex-1">
+                    <fieldset class="fieldset gap-2 w-xs">
+                        <label class="label">Informazioni sulla Segnalazione</label>
+                        <input v-model="name" type="text" class="input" placeholder="Titolo della Segnalazione"
+                            required />
+                        <p v-if="!validateTitle" class="text-error">
+                            Il titolo della segnalazione deve essere compreso tra gli 0 e i 20 Caratteri
+                        </p>
+                        <input v-model="info" type="text" class="input" placeholder="Informazioni della Segnalazione"
+                            required />
+                        <p v-if="!validateInfo" class="text-error">
+                            Le informazioni devono essere lunghe tra 1 e 200 caratteri.
+                        </p>
+                    </fieldset>
+                </div>
+                <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+                    <div>
+                        <button class="btn btn-neutral w-full" @click="updateReport()"
+                            :disabled="!info || !start">Modifica</button>
+                    </div>
+                    <div>
+                        <button @click="closeModal('SegnalazioniModifica')"
+                            class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+                    </div>
+                </div>
+            </div>
+            <button class="modal-backdrop" @click="closeModal('SegnalazioniModifica')">Close</button>
+        </dialog>
     </div>
+
     <div class="toast">
         <div v-if="errorMessage" role="alert" class="alert alert-error">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
@@ -153,6 +185,16 @@ const ready = ref(true);
 const now = ref('tutti');
 const meters = ref('metri');
 
+const title = ref('');
+const validateTitle = computed(() => {
+    return title.value.length > 0 && title.value.length <= 20;
+});
+
+const info = ref('');
+const validateInfo = computed(() => {
+    return info.value.length > 0 && info.value.length <= 200;
+});
+
 const latitude = ref('');
 const longitude = ref('');
 
@@ -174,6 +216,20 @@ const validateCity = computed(() => {
 const code = ref('');
 const validateCode = computed(() => {
     return code.value.length >= 5 && code.value.length <= 5;
+});
+
+const start = ref('');
+const validateStart = computed(() => {
+    return validateService.validateDate(start.value);
+});
+
+const end = ref('');
+const validateEnd = computed(() => {
+    if (end.value != '') {
+        return (validateService.validateDate(end.value) && end.value > start.value);
+    } else {
+        return (end.value == '');
+    }
 });
 
 const radius = ref('');
@@ -242,7 +298,8 @@ const valMod = computed(() => {
 
 const valCerca = computed(() => {
     return (
-        (street.value && stNumber.value && city.value && radius.value && validateStreet && validateStNumber && validateCity && validateRadius)
+        (street.value && stNumber.value && city.value && radius.value && code.value && 
+        validateStreet && validateStNumber && validateCity && validateRadius && validateCode)
     );
 }
 )
@@ -283,6 +340,7 @@ const getReportsByUserId = async () => {
 const getActiveReportsByUserId = async () => {
     try {
         const reportData = {
+            'now': true,
             'my': true,
             'offset': 0,
             'limit': 0
@@ -337,6 +395,35 @@ const getReportsByUserIdByLoc = async (mtrs) => {
     }
 };
 
+const updateReport = async () => {
+    try {
+        const id = passEvent.value;
+        console.log('Updating report with id:', id);
+
+        start.value = new Date().toISOString(); 
+
+        if (!valMod.value) {
+            errorMessage.value = "Compila tutti i campi correttamente!";
+        } else {
+            const reportData = {
+                'name': title.value,
+                'info': info.value,
+                'start': start.value,
+                'photos': null,
+                'status': null
+            };
+            await siteService.updateReport(authStore.token, id, reportData);
+            resMod();
+            ready.value = false;
+            await getSites();
+            ready.value = true;
+            closeModal('CantieriModifica');
+        }
+    } catch (error) {
+        errorMessage.value = error.value;
+    }
+}
+
 const deleteReport = async (id) => {
     try {
         await reportService.deleteReport(authStore.token, id);
@@ -350,7 +437,9 @@ const deleteReport = async (id) => {
 
 const statusReport = async (id, status) => {
     try {
-        await reportService.statusReport(authStore.token, id, status);
+        const date = Date.now();
+        end.value = new Date(date).toISOString();
+        await reportService.statusReport(authStore.token, id, status, end.value);
         ready.value = false;
         await getReportsByUserId();
         ready.value = true;

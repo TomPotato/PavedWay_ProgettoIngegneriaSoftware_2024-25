@@ -80,7 +80,13 @@ router.get('/', async (req, res) => {
             const reports = await service.getReportsByUserId(userId, offset, limit);
             return res.status(200).json(reports);
         } else if (date && userId && !longitude && !latitude && !radius) {
-            const reports = await service.getActiveReportsByUserId(date, offset, limit);
+            const reports = await service.getActiveReportsByUserId(userId, date, offset, limit);
+            return res.status(200).json(reports);
+        }else if(userId && !longitude && !latitude && !radius && !date){
+            const reports = await service.getReportsByUserIdByLoc(userId,latitude, longitude, radius, offset, limit);
+            return res.status(200).json(reports);
+        }else if(date && userId && longitude && latitude && radius){
+            const reports = await service.getActiveReportsByUserIdByLoc(userId, latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
         } else {
             const reports = await service.getReports(offset, limit);
@@ -140,7 +146,7 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 router.patch('/:id', tokenChecker, async (req, res) => {
         
         const id = req.params.id;
-        let report = await service.getReportById(id);
+        const report = await service.getReportById(id);
 
 
         if (!req.body) {
@@ -168,12 +174,17 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             let data = null;
 
             if(req.user.role === 'citizen'){
-
+                if(!req.body.start){
+                    req.body.duration.start = report.duration.start.toISOString();
+                }
                 let dataCit = {
-                    'name':null,
-                    'info':null,
-                    'duration':null,
-                    'photos':null,
+                    'name': null,
+                    'info': null,
+                    'duration': {
+                        'start' : null,
+                        'end' : null,
+                    },
+                    'photos': null,
                     'status': null
                 }
                 
@@ -184,6 +195,8 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 });
 
                 data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
+
+                console.log(data);
 
             }else if (req.user.role === 'admin'){
 
@@ -199,13 +212,14 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
                 data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
 
-            }else 
+            }else {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare segnalazioni senza essere autenticato.'));
-
+            }
             await service.updateReport(id, data);
             res.status(204).json(null);
     } catch (error) {
+        console.log(error);
         res.status(error.code).json(error);
     }
 });

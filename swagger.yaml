@@ -1188,11 +1188,11 @@ components:
             type: string
             format: uri
           description: Lista degli URL delle foto associate alla segnalazione.
-          status:
-            type: string
-            enum:
-              - solved
-            description: Stato della segnalazione.
+        status:
+          type: string
+          enum:
+            - solved
+          description: Stato della segnalazione.
 
     UpdateReportAdmin:
       type: object

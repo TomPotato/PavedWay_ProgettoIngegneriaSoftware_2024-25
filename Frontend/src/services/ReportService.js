@@ -2,7 +2,6 @@ import api from "./Api";
 
 class ReportService {
   async getReports(offset, limit) {
-    console.log('Parte la richiesta');
     try {
       const response = await api.get(`/reports`, {
         offset: offset,
@@ -100,11 +99,14 @@ class ReportService {
     }
   }
 
-  async statusReport(token, reportId, status) {
+  async statusReport(token, reportId, status, end) {
     try {
       const response = await api.patch(
         `/reports/${reportId}`,
         {
+          duration:{
+            end: end,
+          },
           status: status,
         },
         {

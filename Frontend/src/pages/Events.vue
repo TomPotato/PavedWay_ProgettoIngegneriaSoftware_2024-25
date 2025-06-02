@@ -222,7 +222,7 @@
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
+				<button class="modal-backdrop" @click="closeModal('CantieriModifica')">Close</button>
 			</dialog>
 		</div>
 
@@ -880,7 +880,6 @@ const createReport = async () => {
 					'start': start.value
 				}
 			};
-			console.log('Creating report with data:', reportData);
 			await reportService.createReport(authStore.token, reportData);
 			resCreaReports();
 			ready.value = false;
