@@ -26,6 +26,10 @@ tags:
     description: >-
       Operazioni relative alla gestione dei cantieri, 
       inclusi la creazione, la visualizzazione e l'aggiornamento dei cantieri.
+  - name: Percorsi
+    description: >-
+      Operazioni relative alla gestione dei percorsi, 
+      inclusi la richiesta e la visualizzazione dei percorsi.
 
 paths:
   /auth/register:
@@ -248,6 +252,51 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /users/{id}:
+    delete:
+      tags:
+        - Utenti
+      summary: Elimina un utente specifico
+      description: >-
+        Permette di eliminare un utente specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare un utente o essere l'utente stesso.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da eliminare.
+      responses:
+        "204":
+          description: Utente eliminato con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per eliminare un altro utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /users/{id}/reports:
     get:
       tags:
@@ -320,6 +369,21 @@ paths:
           description: >-
             Se fornito, filtra le segnalazioni in corso nella data fornita.
             Non può essere usato insieme a "now".
+        - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: offset
           schema:
@@ -638,6 +702,21 @@ paths:
             Se fornito, filtra i cantieri in corso nella data fornita.
             Non può essere usato insieme a "now".
         - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
           name: offset
           schema:
             type: integer
@@ -938,6 +1017,118 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /geocode :
+    get:
+      tags:
+        - 
+      summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
+      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (puó essere inserito anche il numero), cittá e codice postale della cittá.
+      parameters:
+        - in: query
+          name: street
+          schema:
+            type: string
+          description: Nome della via che si vuole cercare.
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Nome della cittá in cui é situata la via che si vuole cercare.
+        - in: query
+          name: code
+          schema:
+            type: number
+          description: Numero postale della cittá che si vuole cercare.
+        - in: query
+          name: stNumber
+          schema:
+            type: string
+          description: Numero della casa che si vuole cercare.
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Query che contiene le informazioni del posto che si vuole cercare.
+      responses:
+        "200":
+          description: Ricerca effettuata con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lat: latitudine del luogo ricercato.
+                  lon: longitudine del luogo ricercato.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
+  /paths/direct:
+    get:
+      tags:
+        - Percorsi
+      summary: Restituisce un percorso diretto tra due punti
+      description: >-
+        Restituisce un percorso diretto tra due punti in formato GeoJSON specificati dalle coordinate geografiche.
+        Le coordinate devono essere fornite come latitudine e longitudine.
+      parameters:
+        - in: query
+          name: startLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di partenza.
+        - in: query
+          name: startLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di partenza.
+        - in: query
+          name: endLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di arrivo.
+        - in: query
+          name: endLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di arrivo.
+      responses:
+        "200":
+          description: OK. Percorso trovato.
+          content:
+            application/geo+json:
+              schema:
+                type: object
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -1180,6 +1371,7 @@ components:
                 - pending
                 - approved
                 - rejected
+                - solved
               description: Stato della segnalazione.
 
     UpdateReportCitizen:
@@ -1211,6 +1403,7 @@ components:
             - pending
             - approved
             - rejected
+            - solved
           description: Stato della segnalazione.
 
     Site:
