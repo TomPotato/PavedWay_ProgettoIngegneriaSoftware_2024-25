@@ -2,11 +2,15 @@
     <div class="tabs tabs-lift tabs-s">
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Info"
             checked="checked" />
-        <div class="tab-content bg-base-200 border-base-400 w-full p-6">
-            <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
-            <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
-            <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
-            <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
+        <div class="tab-content bg-base-200 border-base-400 w-full min-h-[70vh] p-6">
+            <div class="card lg:card-side bg-base-300 shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
+                    <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
+                    <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
+                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
+                </div>
+            </div>
         </div>
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Segnalazioni"
             v-if="authStore.isCitizen" />
@@ -47,7 +51,7 @@
                                 <i>Rating: {{ report?.rating || "0" }}</i>
                                 <p v-if="report.status === 'solved'">Segnalazione Risolta!</p>
                                 <div class="grid grid-cols-4 gap-5 w-auto">
-                                    <button @click="openModal('SegnalazioniInfo', report.id)"
+                                    <button @click="goToReportInfo(report.id)"
                                         class="btn btn-primary w-[10vh]">Info</button>
                                     <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina
                                         la
@@ -63,23 +67,6 @@
                         </div>
                     </div>
                 </div>
-
-                <dialog id="SegnalazioniInfo" class="modal" role="dialog">
-                    <div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
-                        <div class="overflow-y-auto p-4 flex-1">
-                            <h2 class="text-xl font-semibold">{{ rInfo.name }}</h2>
-                            <p>{{ rInfo.info }}</p>
-                            <p>Posizione: Lat: {{ rInfo.location?.latitude }} - Lon: {{ rInfo.location?.longitude }}
-                            </p>
-                            <p>Indirizzo: {{ rInfo.location?.street }}, {{ rInfo.location?.number }} in {{
-                                rInfo.location?.city }} ({{ rInfo.location?.code }})</p>
-                            <p>Durata: da {{ rInfo.duration?.start || " 'non inserita' " }} a {{ rInfo.duration?.end
-                                || " 'data da destinarsi' " }}</p>
-                            <i>Rating: {{ rInfo?.rating || "0" }}</i>
-                        </div>
-                    </div>
-                    <button class="modal-backdrop" @click="closeModal('SegnalazioniInfo')">Close</button>
-                </dialog>
 
                 <div class="drawer drawer-end h-full center-0">
                     <input id="SegnalazioniCerca" type="checkbox" class="drawer-toggle" />
@@ -188,6 +175,9 @@ import { useAuthStore } from '@/stores/authStores';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const errorMessage = ref(null);
 
@@ -459,5 +449,9 @@ const statusReport = async (id, status) => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
+};
+
+const goToReportInfo = (id) => {
+    router.push({ path: '/reportInfo', query: { id } });
 };
 </script>
