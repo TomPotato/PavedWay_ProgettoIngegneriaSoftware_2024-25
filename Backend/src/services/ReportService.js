@@ -1,4 +1,5 @@
-const { Report } = require("../models/Report");
+const { Report } = require('../models/Report');
+const { Comment } = require('../models/Comment');
 
 const userService = require("./UserService");
 
@@ -239,36 +240,36 @@ class ReportService {
         query = query.limit(limit);
       }
 
-      const reports = await query.exec();
-      return reports;
-    } catch (error) {
-      const message = "Errore interno del server durante la ricerca.";
-      throw createError("Errore interno del server", 500, message);
+            const reports = await query.exec();
+            return reports;
+        } catch (error) {
+            const message = 'Errore interno del server durante la ricerca.';
+            throw createError('Errore interno del server', 500, message);
+        }
     }
-  }
-  /**
-   * Modifica una segnalazione nel database in base all'ID fornito.
-   *
-   * @async
-   * @param {string} reportId - L'ID della segnalazione da modificare.
-   * @param {Object} reportData - I dati della segnalazione da modificare.
-   * @returns {Promise<Report>} La segnalazione modificata.
-   * @throws {Error} Se si verifica un errore durante la modifica della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-   *
-   * @description
-   * Questa funzione esegue i seguenti passaggi:
-   * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
-   * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
-   * 3. Se la segnalazione esiste, aggiorna la segnalazione nel database con i nuovi dati forniti.
-   * 4. Esegue la validazione dei dati della segnalazione.
-   * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
-   * 6. Se la validazione ha successo, salva la segnalazione nel database.
-   * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
-   * 8. Restituisce la segnalazione modificata.
-   */
-  async updateReport(reportId, reportData) {
-    try {
-      const reportExists = await Report.findById(reportId);
+    /**
+    * Modifica una segnalazione nel database in base all'ID fornito.
+    *
+    * @async
+    * @param {string} reportId - L'ID della segnalazione da modificare.
+    * @param {Object} reportData - I dati della segnalazione da modificare.
+    * @returns {Promise<Report>} La segnalazione modificata.
+    * @throws {Error} Se si verifica un errore durante la modifica della segnalazione, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+    * 3. Se la segnalazione esiste, aggiorna la segnalazione nel database con i nuovi dati forniti.
+    * 4. Esegue la validazione dei dati della segnalazione.
+    * 5. Se la validazione fallisce, solleva un errore 400 (Bad Request).
+    * 6. Se la validazione ha successo, salva la segnalazione nel database.
+    * 7. Se si verifica un errore durante il salvataggio, solleva un errore 500 (Internal Server Error).
+    * 8. Restituisce la segnalazione modificata.
+    */
+    async updateReport(reportId, reportData) {
+        try {
+            const reportExists = await Report.findById(reportId);
 
       if (!reportExists) {
         throw createError(
@@ -354,6 +355,98 @@ class ReportService {
       throw createError("Errore interno del server", 500, message);
     }
   }
+
+    /**
+     * Crea un commento associato a una segnalazione.
+     * 
+     * @async
+     * @param {string} reportId - L'ID della segnalazione a cui aggiungere il commento.
+     * @param {string} userId - L'ID dell'utente che sta creando il commento.
+     * @param {string} text - Il testo del commento da aggiungere.
+     * @returns {Promise<Report>} La segnalazione aggiornata con il nuovo commento.
+     * @throws {Error} Se si verifica un errore durante la creazione del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+     * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+     * 3. Se la segnalazione esiste, crea un nuovo commento con i dati forniti.
+     * 4. Aggiunge il commento alla lista dei commenti della segnalazione.
+     * 5. Salva la segnalazione aggiornata nel database.
+     * 6. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
+     * 7. Restituisce la segnalazione aggiornata con il nuovo commento.
+     */
+    async createComment(reportId, userId, text) {
+        try {
+            const report = await Report.findById(reportId);
+            if (!report) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            }
+
+            const comment = new Comment({
+                userId: userId,
+                text: text
+            });
+
+            report.comments.push(comment.toObject());
+            const updatedReport = await report.save();
+            return updatedReport;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la creazione del commento.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
+
+    /**
+    * Mostra una lista di commenti associati a una segnalazione.
+    *
+    * @async
+    * @param {string} reportid - L'ID della segnalazione di cui visualizzare i commenti.
+    * @param {number} offset - Il numero di commenti da saltare.
+    * @param {number} limit - Il numero massimo di commenti da recuperare.
+    * @returns {Promise<Array<Comments>>} Un array di commenti.
+    * @throws {Error} Se si verifica un errore durante la ricerca dei commenti, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+    * 
+    * @description
+    * Questa funzione esegue i seguenti passaggi:
+    * 1. Controlla se la segnalazione esiste nel database in base all'ID fornito.
+    * 2. Se la segnalazione non esiste, solleva un errore 404 (Not Found).
+    * 3. Se la segnalazione esiste, recupera i commenti associati alla segnalazione.
+    * 4. Se è fornito un offset e un limite, applica questi parametri alla lista dei commenti.
+    * 5. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+    * 6. Restituisce i commenti recuperati.
+    */
+    async getCommentsByReportid(reportid, offset, limit) {
+        try {
+            const report = await Report.findById(reportid);
+            if (!report) {
+                throw createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.');
+            }
+
+            let comments = report.comments;
+
+            if (offset && offset > 0) {
+                comments = comments.slice(offset);
+            }
+
+            if (limit && limit > 0) {
+                comments = comments.slice(0, limit);
+            }
+
+            return comments;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la lettura dei commenti.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
 }
 
 module.exports = new ReportService();

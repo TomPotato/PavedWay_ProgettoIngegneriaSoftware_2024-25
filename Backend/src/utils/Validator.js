@@ -26,6 +26,11 @@ class Validator {
         return dateRegex.test(date) || dateRegex2.test(date);
     }
 
+    validateComment(comment) {
+        const commentRegex = /^[\w\s.,!?'"()\-:;@&$%#*+=/\\]{1,200}$/;
+        return commentRegex.test(comment);
+    }
+
     validateRadius(radius) {
         return (radius <= 5000 && radius >0 && typeof(radius) === 'number');
     }
