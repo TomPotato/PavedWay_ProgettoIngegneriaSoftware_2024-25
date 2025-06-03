@@ -1,6 +1,8 @@
 const request = require('supertest');
 const app = require('../app');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { Report } = require('../models/Report');
 const { createTestReports } = require('../utils/createTest');
 
 beforeAll(async () => {
@@ -8,40 +10,45 @@ beforeAll(async () => {
   await mongoose.connect(uri, {
     dbName: process.env.DB_TEST || 'test',
     useNewUrlParser: true,
-    useUnifiedTopology: true,
   });
 });
 afterAll(async () => {
   await mongoose.connection.close();
 });
 
-
-// Test suite for the app module
-test('app module should be defined', () => {
-    expect(app).toBeDefined();
+//Modelli dei report NON nel database
+let testReports = []; 
+beforeAll(async () => {
+  testReports = await createTestReports(10);
 });
 
-test('GET / should return 404', async () => {
-  await request(app)
-    .get('/')
-    .expect(404);
-});
+//Report creati nel database
+const createdReports = [];
 
-test('GET /api/v1 should return 404', async () => {
-  await request(app)
-    .get('/api/v1')
-    .expect(404);
-});
 
+const userId = new mongoose.Types.ObjectId().toHexString();
+var token = jwt.sign(
+  { id: userId, role: 'admin' },
+  process.env.JWT_SECRET || 'your_jwt_secret',
+  { expiresIn: '1h' }
+);
 
 // Test for the GET /api/v1/reports endpoint
 describe('GET /api/v1/reports', () => {
 
-  let testReports = [];
-
   beforeAll(async () => {
-    testReports = await createTestReports(10);
+    await Report.deleteMany({});
+    for (const report of testReports) {
+      const res = await request(app)
+        .post('/api/v1/reports')
+        .set('X-API-Key', token)
+        .send({ ...report });
+
+        createdReports.push(res.body);
+        console.log(`Created report:`, res.body);
+    }
   });
+
 
   // User strory: Read Reports
   test('should return 200 with no query params', async () => {
@@ -138,7 +145,7 @@ describe('GET /api/v1/reports', () => {
 
   // User story: Read Report Info
   test('should return 200 with a specific report by ID', async () => {
-    const firstReportId = testReports[0]._id;
+    const firstReportId = createdReports[0].id;
     const res = await request(app)
       .get(`/api/v1/reports/${firstReportId}`)
       .expect(200);

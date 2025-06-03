@@ -10,7 +10,6 @@ beforeAll(async () => {
   await mongoose.connect(uri, {
     dbName: process.env.DB_TEST || 'test',
     useNewUrlParser: true,
-    useUnifiedTopology: true,
   });
 });
 afterAll(async () => {

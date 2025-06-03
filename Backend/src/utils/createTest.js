@@ -50,20 +50,46 @@ async function createTestReports(count = 10) {
     };
   });
 
-  const insertedReports = await Report.insertMany(testReports);
-  return insertedReports;
+  // const insertedReports = await Report.insertMany(testReports);
+  // return insertedReports;
+  return testReports;
 }
 
 /**
- * Crea dei cantieri (sites) di test completi nel database.
- * @param {number} count - Numero di site da creare.
- * @returns {Promise<void>}
+ * Crea degli user di test senza salvarli nel database.
+ * @param {number} count - Numero di utenti da creare.
+ * @return {Promise<Array>} - Array di oggetti utente di test.
  */
-async function createTestSites(count = 10) {
-  await Site.deleteMany({});
+async function createTestUsers(count = 1) {
+  const users = [];
 
-  const testSites = Array.from({ length: count }).map((_, i) => {
-    return {
+  for (let i = 0; i < count; i++) {
+
+    const user = {
+      username: `user${i + 1}`,
+      name: `Nome`,
+      surname: `Cognome`,
+      password: `Password${i + 1}_`,
+      email: `user${i + 1}@example.com`
+    };
+
+    users.push(user);
+  }
+
+  return users;
+}
+
+/**
+ * Crea dei cantieri di test senza salvarli nel database.
+ * @param {number} count - Numero di cantieri da creare.
+ * @return {Promise<Array>} - Array di oggetti cantiere di test.
+ */
+async function createTestSites(count = 1) {
+  const sites = [];
+
+  for (let i = 0; i < count; i++) {
+
+    const site = {
       name: `Cantiere ${i + 1}`,
       info: `Descrizione del cantiere numero ${i + 1}`,
       location: {
@@ -92,33 +118,62 @@ async function createTestSites(count = 10) {
       ],
       companyName: `Impresa ${i + 1}`,
     };
-  });
 
-  await Site.insertMany(testSites);
+    sites.push(site);
+  }
+
+  return sites;
 }
 
 /**
- * Crea degli user di test senza salvarli nel database.
- * @param {number} count - Numero di utenti da creare.
- * @return {Promise<Array>} - Array di oggetti utente di test.
+ * Crea delle segnalazioni di test senza salvarli nel database.
+ * @param {number} count - Numero di segnalazioni da creare.
+ * @return {Promise<Array>} - Array di oggetti segnalazione di test.
  */
-async function createTestUsers(count = 1) {
-  const users = [];
+async function createTestReportsQ(count = 1) {
+  const reports = [];
 
   for (let i = 0; i < count; i++) {
+    const userId = new mongoose.Types.ObjectId();
+    const createdBy = new mongoose.Types.ObjectId();
 
-    const user = {
-      username: `user${i + 1}`,
-      name: `Nome`,
-      surname: `Cognome`,
-      password: `Password${i + 1}_`,
-      email: `user${i + 1}@example.com`
+    const report = {
+      name: `Segnalazione ${i + 1}`,
+      info: `Descrizione dell'evento numero ${i + 1}`,
+      location: {
+        latitude: 45.0 + i * 0.01,
+        longitude: 9.0 + i * 0.01,
+        street: `Via Test ${i + 1}`,
+        number: `${i + 1}`,
+        city: `Città ${i + 1}`,
+        code: 10000 + i,
+      },
+      duration: {
+        start: new Date(Date.now() - i * 1000 * 60 * 60).toISOString(),
+        end: new Date(Date.now() + (i + 1) * 1000 * 60 * 60).toISOString(),
+      },
+      createdAt: new Date(Date.now() + i * 1000).toISOString(),
+      comments: [
+        {
+          userId: 1000 + i,
+          text: `Commento di test ${i + 1}`,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      // createdBy: createdBy,
+      // photos: [
+      //   `http://example.com/photo${i + 1}-1.jpg`,
+      //   `http://example.com/photo${i + 1}-2.jpg`,
+      // ],
+      rating: 0,
+      status: ['pending', 'approved', 'rejected'][i % 3],
     };
 
-    users.push(user);
+    reports.push(report);
+    console.log(report);
   }
 
-  return users;
+  return reports;
 }
 
 

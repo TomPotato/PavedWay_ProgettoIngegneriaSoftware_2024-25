@@ -1,6 +1,8 @@
 const request = require('supertest');
 const app = require('../app');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { Site } = require('../models/Site');
 const { createTestSites } = require('../utils/createTest');
 
 
@@ -9,21 +11,37 @@ beforeAll(async () => {
   await mongoose.connect(uri, {
     dbName: process.env.DB_TEST || 'test',
     useNewUrlParser: true,
-    useUnifiedTopology: true,
   });
 });
 afterAll(async () => {
   await mongoose.connection.close();
 });
 
+let testSites = [];
+beforeAll(async () => {
+  testSites = await createTestSites(10);
+});
+
+var token = jwt.sign(
+  { userId: 'testUserId', role: 'admin' },
+  process.env.JWT_SECRET || 'your_jwt_secret',
+  { expiresIn: '1h' }
+);
+
 
 // Test for the GET /api/v1/sites endpoint
 describe('GET /api/v1/sites', () => {
 
   beforeAll(async () => {
-    await createTestSites(10);
+    await Site.deleteMany({});
+    for (const site of testSites) {
+      const res = await request(app)
+        .post('/api/v1/sites')
+        .set('X-API-Key', token)
+        .send({ ...site });
+    }
   });
-  
+
   // User story: Read Sites
   test('should return 200 with no query params', async () => {
     const res = await request(app)
