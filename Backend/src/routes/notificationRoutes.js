@@ -5,6 +5,7 @@ const service = require('../services/NotificationService');
 
 const createError = require('../utils/createError');
 const tokenChecker = require('../utils/tokenChecker');
+const toValidInt = require('../utils/tovalidInt');
 const validator = require('../utils/Validator');
 
 router.post('/', tokenChecker, async (req, res) => {
@@ -40,11 +41,7 @@ router.get('/', async (req, res) => {
 
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
-    if (offset < 0 || limit <= 0) {
-        return res.status(400).json(createError('Richiesta non valida', 400,
-            'I parametri di offset e limit devono essere numeri interi validi.'));
-    }
-    
+
     try {
         const notifications = await service.getNotifications();
         res.status(200).json(notifications);

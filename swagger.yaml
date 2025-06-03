@@ -1027,12 +1027,12 @@ components:
           type: string
           format: date-time
           description: Data e ora di creazione della notifica.
-        report: 
-          allOf:
-            - $ref: "#/components/schemas/Report"
-        site:
-          allOf:
-            - $ref: "#/components/schemas/Site"
+        reportId: 
+          type: string
+          description: Id del report che si vuole mostrare nella notifica.
+        siteId:
+          type: string
+          description: Id del cantiere che si vuole mostrare nella notifica.
 
     Event:
       type: object

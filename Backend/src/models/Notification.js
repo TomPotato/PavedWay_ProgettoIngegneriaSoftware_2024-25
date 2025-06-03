@@ -15,10 +15,10 @@ const notificationSchema = new Schema({
         default: Date.now,
     },
     report: {
-        type: reportSchema,
+        type: String,
     },
     site: {
-        type: siteSchema,
+        type: String,
     },
 });
 

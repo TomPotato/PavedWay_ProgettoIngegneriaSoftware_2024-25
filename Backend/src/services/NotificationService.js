@@ -6,9 +6,10 @@ class NotificationService {
 
     async createNotification(notificationData) {
         try {
+            console.log(notificationData);
             const notification = new Notification(notificationData);
 
-            const validationError = report.validateSync();
+            const validationError = notification.validateSync();
             if (validationError) {
                 const message = 'Errore di validazione: alcuni campi non sono corretti.';
                 throw createError('Richiesta non valida', 400, message);
@@ -20,6 +21,7 @@ class NotificationService {
             if (error.code) {
                 throw error;
             } else {
+                            console.log(error);
                 const message = 'Errore interno del server durante il salvataggio.';
                 throw createError('Errore interno del server', 500, message);
             }
