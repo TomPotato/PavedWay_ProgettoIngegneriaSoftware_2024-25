@@ -3,13 +3,13 @@
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Info"
             checked="checked" />
         <div class="tab-content bg-base-200 border-base-400 w-full p-6">
-                <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
-                <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
-                <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
-                <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
-            </div>
-        <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]"
-            aria-label="Segnalazioni" v-if="authStore.isCitizen"/>
+            <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
+            <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
+            <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
+            <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
+        </div>
+        <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Segnalazioni"
+            v-if="authStore.isCitizen" />
         <div class="tab-content bg-base-200 border-base-400 w-full p-6">
             <div class="bg-base-200 border-base-400 w-full p-6">
                 <div class="flex w-full h-[60vh] flex-col">
@@ -166,8 +166,6 @@
                 </dialog>
             </div>
         </div>
-        <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Commenti" v-if="authStore.isCitizen"/>
-        <div class="tab-content bg-base-200 border-base-400 w-full p-6"></div>
     </div>
     <div class="toast">
         <div v-if="errorMessage" role="alert" class="alert alert-error">
