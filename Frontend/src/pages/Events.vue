@@ -262,8 +262,7 @@
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
 							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
 							<div class="grid grid-cols-5 gap-5 w-auto">
-								<button @click="openModal('SegnalazioniInfo', report.id)"
-									class="btn btn-primary w-[10vh]">Info</button>
+								<button class="btn btn-primary w-[10vh]" @click="goToReportInfo(report.id)">Info</button>
 								<button @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
@@ -335,22 +334,6 @@
 					</div>
 				</div>
 			</div>
-
-			<dialog id="SegnalazioniInfo" class="modal" role="dialog">
-				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
-					<div class="overflow-y-auto p-4 flex-1">
-						<h2 class="text-xl font-semibold">{{ rInfo.name }}</h2>
-						<p>{{ rInfo.info }}</p>
-						<p>Posizione: Lat: {{ rInfo.location?.latitude }} - Lon: {{ rInfo.location?.longitude }}</p>
-						<p>Indirizzo: {{ rInfo.location?.street }}, {{ rInfo.location?.number }} in {{
-							rInfo.location?.city }} ({{ rInfo.location?.code }})</p>
-						<p>Durata: da {{ rInfo.duration?.start || " 'non inserita' " }} a {{ rInfo.duration?.end
-							|| " 'data da destinarsi' " }}</p>
-						<i>Rating: {{ rInfo?.rating || "0" }}</i>
-					</div>
-				</div>
-				<button class="modal-backdrop" @click="closeModal('SegnalazioniInfo')">Close</button>
-			</dialog>
 
 			<dialog id="SegnalazioniCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
@@ -424,12 +407,15 @@
 <script setup>
 
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
+
+const router = useRouter();
 
 const errorMessage = ref(null);
 
@@ -520,8 +506,6 @@ const openModal = (id, eventId = '') => {
 	} else if (id === 'SegnalazioniCrea') {
 		const date = Date.now();
 		start.value = new Date(date).toISOString().split('T')[0];
-	} else if (id === 'SegnalazioniInfo') {
-		rInfo.value = reports.value.find(r => r.id === eventId);
 	}
 	document.getElementById(id).showModal();
 };
@@ -910,6 +894,10 @@ const statusReport = async (id, status) => {
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
+};
+
+const goToReportInfo = (id) => {
+	router.push({ path: '/reportInfo', query: { id } });
 };
 
 </script>

@@ -13,6 +13,15 @@ class ReportService {
     }
   }
 
+  async getReportById(id){
+        try {
+      const response = await api.get(`/reports/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async getActiveReports(offset, limit) {
     try {
       const response = await api.get(`/reports`, {
