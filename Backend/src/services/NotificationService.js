@@ -6,7 +6,6 @@ class NotificationService {
 
     async createNotification(notificationData) {
         try {
-            console.log(notificationData);
             const notification = new Notification(notificationData);
 
             const validationError = notification.validateSync();
@@ -21,7 +20,6 @@ class NotificationService {
             if (error.code) {
                 throw error;
             } else {
-                            console.log(error);
                 const message = 'Errore interno del server durante il salvataggio.';
                 throw createError('Errore interno del server', 500, message);
             }
