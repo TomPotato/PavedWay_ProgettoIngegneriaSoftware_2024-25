@@ -232,4 +232,39 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     }
 });
 
+router.post('/:id/comments', tokenChecker, async (req, res) => {
+    const id = req.params.id;
+    const userId = req.user.id;
+
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire un commento nel corpo della richiesta.'));
+    }
+
+    if (!validator.validateComment(req.body.text)) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Il commento non può essere vuoto, deve contenere al massimo 200 caratteri e può includere lettere, numeri, spazi e alcuni simboli.'));
+    }
+
+    try {
+        const report = await service.createComment(id, userId, req.body.text);
+        res.status(201).json(report);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
+router.get('/:id/comments', async (req, res) => {
+    const reportID = req.params.id;
+    const offset = toValidInt(req.query.offset);
+    const limit = toValidInt(req.query.limit);
+
+    try {
+        const comments = await service.getCommentsByReportid(reportID, offset, limit);
+        res.status(200).json(comments);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 module.exports = router;

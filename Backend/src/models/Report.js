@@ -40,7 +40,7 @@ const reportSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected' ,'solved'],
+        enum: ['pending', 'approved', 'rejected', 'solved'],
         default: 'pending',
     },
     comments: [commentSchema],

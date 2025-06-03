@@ -572,6 +572,108 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /reports/{id}/comments:
+    get:
+      tags:
+        - Segnalazioni
+      summary: Restituisce la lista dei commenti di una segnalazione
+      description: >-
+        Restituisce la lista dei commenti di una segnalazione specifica in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione di cui restituire i commenti.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di commenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di commenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Segnalazioni
+      summary: Aggiunge un commento a una segnalazione
+      description: >-
+        Permette di aggiungere un commento a una segnalazione specifica.
+        Devi essere autenticato per aggiungere un commento.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione a cui aggiungere il commento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
+      responses:
+        "201":
+          description: Commento aggiunto con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /sites:
     get:
       tags:
@@ -800,6 +902,110 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Eliminazione fallita. Nessun cantiere trovato con l'ID fornito.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sites/{id}/comments:
+    post:
+      tags:
+        - Cantieri
+      summary: Aggiunge un commento a un cantiere
+      description: >-
+        Permette di aggiungere un commento a un cantiere specifico.
+        Devi essere autenticato per aggiungere un commento.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere a cui aggiungere il commento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
+
+      responses:
+        "201":
+          description: Commento aggiunto con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Cantieri
+      summary: Restituisce la lista dei commenti di un cantiere
+      description: >-
+        Restituisce la lista dei commenti di un cantiere specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere di cui restituire i commenti.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di commenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di commenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "404":
+          description: Cantiere non trovato.
           content:
             application/json:
               schema:
@@ -1091,7 +1297,6 @@ components:
     Comment:
       type: object
       required:
-        - userId
         - text
       properties:
         id:
