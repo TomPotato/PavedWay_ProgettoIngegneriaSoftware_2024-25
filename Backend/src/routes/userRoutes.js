@@ -27,6 +27,17 @@ router.get('/', tokenChecker, async (req, res) => {
     }
 });
 
+router.get('/:id', tokenChecker, async (req, res) => {
+    let id = req.params.id;
+    try {
+        const user = await userService.getUserById(id);
+        res.status(200).json(user);
+    }
+    catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 router.post('/', tokenChecker, async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400,
