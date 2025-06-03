@@ -15,7 +15,7 @@ const routes = [
     { path: '/register', name: 'register', component: Register },
     { path: '/events', name: 'events', component: Events },
     { path: '/profile', name: 'profile', component: Profile },
-    {path: '/reportInfo', name: 'reportInfo', component: ReportInfo},
+    {path: '/reportInfo(.*)*', name: 'reportInfo', component: ReportInfo},
     { path: '/:pathMatch(.*)*', redirect: '/' }, // Redirect to home for any unmatched routes
 ];
 
