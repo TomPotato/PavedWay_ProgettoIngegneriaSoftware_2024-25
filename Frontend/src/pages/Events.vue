@@ -1,17 +1,19 @@
 <template>
 	<div class="tabs tabs-lift tabs-s">
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri"
-			checked="checked" />
+			checked="checked" @click="getSites" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
 			<div class="flex w-full h-[66vh] flex-col">
 				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
 					<div class="w-full grid grid-cols-7 gap-2">
-						<button class="btn btn-neutral w-auto" @click="getSites">Mostra tutti i
-							Cantieri!</button>
-						<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
-						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-auto">Crea un
-							Cantiere!</button>
+						<button @click="getSites" class="btn btn-square btn-primary drawer-button">
+							<img src="/refresh.svg"/>
+						</button>
 						<button @click="openDrawer('CantieriCerca')" class="btn btn-square btn-primary drawer-button">
+							<img src="/search.svg"/>
+						</button>
+						<button v-if="isAdmin" @click="openModal('CantieriCrea')"
+							class="btn btn-square btn-primary drawer-button">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
 								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
 								class="feather feather-search" viewBox="0 0 24 24">
@@ -19,6 +21,7 @@
 								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 							</svg>
 						</button>
+						<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
 					</div>
 				</div>
 				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
@@ -222,8 +225,8 @@
 			</dialog>
 		</div>
 
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]"
-			aria-label="Segnalazioni" />
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]" aria-label="Segnalazioni"
+			@click="getReports" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
 			<div class="flex w-full h-[66vh] flex-col">
 				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
@@ -262,7 +265,8 @@
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
 							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
 							<div class="grid grid-cols-5 gap-5 w-auto">
-								<button class="btn btn-primary w-[10vh]" @click="goToReportInfo(report.id)">Info</button>
+								<button class="btn btn-primary w-[10vh]"
+									@click="goToReportInfo(report.id)">Info</button>
 								<button @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
@@ -414,6 +418,7 @@ import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 
@@ -899,5 +904,9 @@ const statusReport = async (id, status) => {
 const goToReportInfo = (id) => {
 	router.push({ path: '/report/(.*)*', query: { id } });
 };
+
+onMounted(() => {
+	getSites();
+});
 
 </script>

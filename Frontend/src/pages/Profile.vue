@@ -441,7 +441,7 @@ const statusReport = async (id, status) => {
     }
 };
 
-const goToReportInfo = (id) => {
-    router.push({ path: '/report/(.*)*', query: { id } });
-};
+/*const goToReportInfo = (id) => {
+    router.push({ path: '/reports/(.*)*', query: { id } });
+};*/
 </script>
