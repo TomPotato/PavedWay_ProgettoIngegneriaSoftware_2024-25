@@ -50,22 +50,6 @@ router.get('/', async (req, res) => {
 		radius = Number(req.query.radius);
 	}
 
-    let userId;
-
-    if (req.query.my) {
-        try {
-            await new Promise((resolve, reject) => {
-                tokenChecker(req, res, (err) => {
-                    if (err) return reject(createError('Token non valido', 401, 'Autenticazione richiesta.'));
-                    resolve();
-                });
-            });
-            userId = req.user.id;   
-        } catch (error) {
-            return res.status(error.code || 401).json(error);
-        }
-    }
-
     try {
         if (date && !longitude && !latitude && !radius && !userId) {
             const reports = await service.getActiveReports(date, offset, limit);
@@ -76,19 +60,7 @@ router.get('/', async (req, res) => {
         } else if(longitude && latitude && radius && date && !userId){
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
-        }else if(userId && !longitude && !latitude && !radius && !date){
-            const reports = await service.getReportsByUserId(userId, offset, limit);
-            return res.status(200).json(reports);
-        } else if (date && userId && !longitude && !latitude && !radius) {
-            const reports = await service.getActiveReportsByUserId(userId, date, offset, limit);
-            return res.status(200).json(reports);
-        }else if(userId && longitude && latitude && radius && !date){
-            const reports = await service.getReportsByUserIdByLoc(userId,latitude, longitude, radius, offset, limit);
-            return res.status(200).json(reports);
-        }else if(date && userId && longitude && latitude && radius){
-            const reports = await service.getActiveReportsByUserIdByLoc(userId, latitude, longitude, radius, date, offset, limit);
-            return res.status(200).json(reports);
-        } else {
+        }else {
             const reports = await service.getReports(offset, limit);
             return res.status(200).json(reports);
         }

@@ -5,10 +5,10 @@
         <div class="tab-content bg-base-200 border-base-400 w-full min-h-[70vh] p-6">
             <div class="card lg:card-side bg-base-300 shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
-                    <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
-                    <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
-                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
+                    <h2 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h2>
+                    <p>Nome: {{ authStore.user?.name }}, Cognome: {{ authStore.user?.surname }}</p>
+                    <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user?.email }}</i></p>
+                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user?.office }}</i></p>
                 </div>
             </div>
         </div>
@@ -111,7 +111,7 @@
                                     <p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
                                     <p v-else>Le Segnalazioni ancora attive?</p>
                                     <input @click="nowChange" type="checkbox" checked="checked"
-                                        class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+                                        class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
                                 </label>
                                 <button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
                                     @click="getReportsByUserIdByLoc(meters)"
@@ -231,13 +231,6 @@ const validateStart = computed(() => {
 });
 
 const end = ref('');
-const validateEnd = computed(() => {
-    if (end.value != '') {
-        return (validateService.validateDate(end.value) && end.value > start.value);
-    } else {
-        return (end.value == '');
-    }
-});
 
 const radius = ref('');
 const validateRadius = computed(() => {
@@ -324,12 +317,12 @@ const resCerca = () => {
 const getReportsByUserId = async () => {
     try {
         const reportData = {
-            'my': true,
             'offset': 0,
             'limit': 0
         };
         ready.value = false;
-        reports.value = await reportService.getReportsByUserId(authStore.token, reportData);
+        console.log(authStore.user.id);
+        reports.value = await reportService.getReportsByUserId(reportData, authStore.user.id);
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
@@ -340,12 +333,11 @@ const getActiveReportsByUserId = async () => {
     try {
         const reportData = {
             'now': true,
-            'my': true,
             'offset': 0,
             'limit': 0
         };
         ready.value = false;
-        reports.value = await reportService.getActiveReportsByUserId(authStore.token, reportData);
+        reports.value = await reportService.getActiveReportsByUserId(reportData, authStore.user.id);
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
@@ -365,7 +357,6 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
         if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
             if (now.value === 'tutti') {
                 const reportData = {
-                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
@@ -375,10 +366,9 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
                 console.log('Passa');
                 console.log(reportData);
                 ready.value = false;
-                reports.value = await reportService.getReportsByUserIdByLoc(authStore.token, reportData);
+                reports.value = await reportService.getReportsByUserIdByLoc(reportData, authStore.user.id);
             } else {
                 const reportData = {
-                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
@@ -387,7 +377,7 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
                     'limit': 0
                 }
                 ready.value = false;
-                reports.value = await reportService.getActiveReportsByUserIdByLoc(authStore.token, reportData);
+                reports.value = await reportService.getActiveReportsByUserIdByLoc(reportData, authStore.user.id);
             }
             resCerca();
             closeDrawer('SegnalazioniCerca');

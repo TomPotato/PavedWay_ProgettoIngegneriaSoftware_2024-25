@@ -95,7 +95,7 @@
 								<p v-if="now === 'tutti'">Tutti i cantieri?</p>
 								<p v-else>I cantieri ancora attivi?</p>
 								<input @click="nowChange" type="checkbox"
-									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
 							</label>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
 								:disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
@@ -325,7 +325,7 @@
 								<p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
 								<p v-else>Le Segnalazioni ancora attive?</p>
 								<input @click="nowChange" type="checkbox" checked="checked"
-									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
 							</label>
 							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
 								@click="getReportsByLoc(meters)"

@@ -53,44 +53,36 @@ class ReportService {
     }
   }
 
-  async getReportsByUserId(token, reportData) {
+  async getReportsByUserId(reportData, userId) {
     try {
-      const response = await api.get(`/reports`, reportData, {
-        headers: { "x-api-key": token },
-      });
+      const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-    async getActiveReportsByUserId(token, reportData) {
+    async getActiveReportsByUserId(reportData, userId) {
     try {
-      const response = await api.get(`/reports`, reportData, {
-        headers: { "x-api-key": token },
-      });
+      const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-    async getReportsByUserIdByLoc(token, reportData) {
+    async getReportsByUserIdByLoc(reportData, userId) {
     try {
-      const response = await api.get(`/reports`, reportData, {
-        headers: { "x-api-key": token },
-      });
+      const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-      async getActiveReportsByUserIdByLoc(token, reportData) {
+      async getActiveReportsByUserIdByLoc(reportData, userId) {
     try {
-      const response = await api.get(`/reports`, reportData, {
-        headers: { "x-api-key": token },
-      });
+      const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
