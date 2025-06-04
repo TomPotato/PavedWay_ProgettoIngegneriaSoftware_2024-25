@@ -84,6 +84,7 @@ import reportService from '@/services/ReportService';
 import MapService from '@/services/MapService';
 import pathService from '@/services/PathService';
 import { nextTick } from 'vue';
+import router from '@/routes';
 
 const primaryColor = '#f18e29';
 const secondaryColor = '#26353d';
@@ -260,12 +261,18 @@ onMounted(async () => {
 
     getLocation();
 
+    console.log(sites);
+    console.log(reports);
     sites.forEach(site => {
-        map.addMarker(site.location.latitude, site.location.longitude, site.name, siteIcon);
+        map.addEventMarker(site.location.latitude, site.location.longitude, site.id, site.name, siteIcon, null, (id) => {
+            router.push(`/sites/${id}`);
+        });
     });
 
     reports.forEach(report => {
-        map.addMarker(report.location.latitude, report.location.longitude, report.name, reportIcon);
+        map.addEventMarker(report.location.latitude, report.location.longitude, report.id, report.name, reportIcon, null, (id) => {
+            router.push(`/reports/${id}`);
+        });
     });
 });
 

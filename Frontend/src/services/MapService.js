@@ -32,23 +32,36 @@ class MapService {
         this.map.setView([lat, lng], zoom);
     }
 
-    addMarker(lat, lng, name, iconUrl = null, color = 'blue') {
+    addEventMarker(lat, lng, id, name, iconUrl = null, color = 'blue', navigateFn = null) {
         if (!this.map) {
             console.error('Mappa non inizializzata');
             return;
         }
+
         const markerIcon = iconUrl ? L.icon({
             iconUrl,
             iconSize: [32, 32],
             iconAnchor: [16, 16],
             popupAnchor: [0, -16],
             shadowSize: [0, 0]
-
         }) : null;
+
+        const popupContent = `<a href="/reports/${id}" id="popup-link-${id}" class="font-medium text-primary dark:text-primary hover:underline">${name}</a>`;
+
         const newMarker = L.marker([lat, lng], {
-            id: name,
+            id: id,
             icon: markerIcon
-        }).bindPopup(name).addTo(this.map);
+        }).bindPopup(popupContent).addTo(this.map);
+
+        newMarker.on('popupopen', () => {
+            const link = document.getElementById(`popup-link-${id}`);
+            if (link && typeof navigateFn === 'function') {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateFn(id);
+                });
+            }
+        });
     }
 
     addControl(icon, onClick) {
