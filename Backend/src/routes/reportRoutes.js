@@ -51,13 +51,13 @@ router.get('/', async (req, res) => {
 	}
 
     try {
-        if (date && !longitude && !latitude && !radius && !userId) {
+        if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && !date && !userId) {
+        } else if(longitude && latitude && radius && !date) {
             const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && date && !userId){
+        } else if(longitude && latitude && radius && date){
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
         }else {

@@ -13,29 +13,22 @@
             </div>
         </div>
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Segnalazioni"
-            v-if="authStore.isCitizen" />
+            v-if="authStore.isCitizen" @click="getReportsByUserId" />
         <div class="tab-content bg-base-200 border-base-400 w-full p-6">
             <div class="bg-base-200 border-base-400 w-full p-6">
                 <div class="flex w-full h-[60vh] flex-col">
-                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
-                        <div class="w-full grid grid-cols-7 gap-2">
-                            <button class="btn btn-neutral w-auto" @click="getReportsByUserId">Mostra
-                                le mie
-                                Segnalazioni!</button>
-                            <button class="btn btn-neutral w-auto" @click="getActiveReportsByUserId">Le mie
-                                Segnalazioni
-                                ancora
-                                attive!</button>
-                            <button @click="openDrawer('SegnalazioniCerca')"
-                                class="btn btn-square btn-primary drawer-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-search" viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                            </button>
-                        </div>
+                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
+                        <button @click="getReportsByUserId" class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/refresh.svg" />
+                        </button>
+                        <button @click="openDrawer('SegnalazioniCerca')"
+                            class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/search.svg" />
+                        </button>
+                        <button class="btn btn-neutral w-auto" @click="getActiveReportsByUserId">Le mie
+                            Segnalazioni
+                            ancora
+                            attive!</button>
                     </div>
 
                     <div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
