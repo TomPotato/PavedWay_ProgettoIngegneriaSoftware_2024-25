@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
     }
 
     try {
-        if (date && !longitude && !latitude && !radius && !userId) {
+        if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
         } else if (longitude && latitude && radius && date === null) {
@@ -119,21 +119,21 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
     const id = req.params.id;
 
-        if (!req.body) {
-            return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
-        }
-        
-        if(req.body.status){
-            if (req.user.role !== 'admin' && req.body.status !== 'solved') {
-                return res.status(403).json(createError('Accesso negato. ', 403,
-                    'Devi essere un amministratore per modificare questo dato'));
-            }
-        }
+    if (!req.body) {
+        return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
+    }
 
-        if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
+    if (req.body.status) {
+        if (req.user.role !== 'admin' && req.body.status !== 'solved') {
             return res.status(403).json(createError('Accesso negato. ', 403,
-                'Puoi modificare solo le segnalazioni che hai creato.'));
+                'Devi essere un amministratore per modificare questo dato'));
         }
+    }
+
+    if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Puoi modificare solo le segnalazioni che hai creato.'));
+    }
 
     if (req.user.role === 'admin' && (req.body.name || req.body.info ||
         req.body.duration || req.body.photos)) {
@@ -145,27 +145,27 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
         let data = null;
 
-            if(req.user.role === 'citizen'){
+        if (req.user.role === 'citizen') {
 
-                if(!req.body.start){
-                    req.body.duration.start = report.duration.start.toISOString();
+            if (!req.body.start) {
+                req.body.duration.start = report.duration.start.toISOString();
+            }
+            let dataCit = {
+                'name': null,
+                'info': null,
+                'duration': {
+                    'start': null,
+                    'end': null,
+                },
+                'photos': null,
+                'status': null
+            }
+
+            Object.keys(dataCit).forEach(key => {
+                if (req.body.hasOwnProperty(key)) {
+                    dataCit[key] = req.body[key];
                 }
-                let dataCit = {
-                    'name': null,
-                    'info': null,
-                    'duration': {
-                        'start' : null,
-                        'end' : null,
-                    },
-                    'photos': null,
-                    'status': null
-                }
-                
-                Object.keys(dataCit).forEach(key => {
-                    if(req.body.hasOwnProperty(key)){
-                        dataCit[key] = req.body[key];
-                    }
-                });
+            });
 
             data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
 
@@ -183,12 +183,12 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
             data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
 
-        } else{
+        } else {
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare segnalazioni senza essere autenticato.'));
-            }
-            await service.updateReport(id, data);
-            res.status(204).json(null);
+        }
+        await service.updateReport(id, data);
+        res.status(204).json(null);
     } catch (error) {
         console.log(error);
         res.status(error.code).json(error);

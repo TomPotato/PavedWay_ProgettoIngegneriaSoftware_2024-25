@@ -3,7 +3,7 @@ import api from './Api';
 class PathService {
     async getPlace(street, city, code, stNumber) {
         try {
-            const response = await api.get("/geocode", {
+            const response = await api.get("/locations", {
                 street: street,
                 city: city,
                 code: code,
@@ -21,23 +21,20 @@ class PathService {
 
     async getSuggestions(q) {
         try {
-            const response = await api.get("/geocode", {
+            const response = await api.get("/locations", {
                 q: q
             });
 
-            return response.data.map(place => ({
-                name: place.display_name,
-                latitude: place.lat,
-                longitude: place.lon
-            }));
+            return response.data;
         } catch (error) {
             throw error.data;
         }
     }
 
-    async getDirectPath(sLat, sLon, eLat, eLon) {
+    async getDirectPath(sLat, sLon, eLat, eLon, model = 'direct') {
         try {
-            const response = await api.get("/paths/direct", {
+            const response = await api.get("/paths", {
+                model: model,
                 startLatitude: sLat,
                 startLongitude: sLon,
                 endLatitude: eLat,

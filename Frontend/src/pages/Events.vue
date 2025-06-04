@@ -66,7 +66,7 @@
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<input v-model="city" type="text" class="input" placeholder="Città" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -296,7 +296,7 @@
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" />
+							<input v-model="city" type="text" class="input" placeholder="Città" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -414,6 +414,7 @@ import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 
@@ -899,5 +900,13 @@ const statusReport = async (id, status) => {
 const goToReportInfo = (id) => {
 	router.push({ path: '/report/(.*)*', query: { id } });
 };
+
+onMounted(() => {
+	if (authStore.isCitizen) {
+		getReports();
+	} else if (authStore.isAdmin) {
+		getSites();
+	}
+});
 
 </script>

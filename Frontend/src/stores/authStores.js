@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watchEffect } from 'vue';
 import { jwtDecode } from 'jwt-decode';
-import service from '../services/AuthService';
+import authService from '../services/AuthService';
+import userService from '../services/UserService';
 
 export const useAuthStore = defineStore('auth', () => {
     const token = ref(null);
@@ -27,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     const login = async (username, password) => {
         try {
-            const response = await service.login(username, password);
+            const response = await authService.login(username, password);
             token.value = response.token;
             user.value = response.user;
             error.value = null;
@@ -38,9 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
-    const register = async (username, name, surname, email, password) => {
+    const register = async (userData) => {
         try {
-            const response = await service.register(username, name, surname, email, password);
+            await userService.createUser(userData, token.value);
+            console.log('Registrazione completata con successo');
+            const response = await authService.login(userData.username, userData.password);
+            console.log('Login dopo registrazione:', response);
             token.value = response.token;
             user.value = response.user;
             error.value = null;

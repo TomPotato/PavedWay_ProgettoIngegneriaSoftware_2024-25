@@ -104,7 +104,7 @@ router.get("/", async (req, res) => {
           "User-Agent": "PavedWay", // OpenStreetMap lo richiede!
         },
       });
-    } else if(q && !street && !code && !city){
+    } else if (q && !street && !code && !city) {
       response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           q: q,
@@ -115,7 +115,13 @@ router.get("/", async (req, res) => {
         },
       });
     }
-    res.status(200).json(response.data);
+    const data = response.data.map(item => ({
+      name: item.display_name,
+      latitude: item.lat,
+      longitude: item.lon,
+    }));
+
+    res.status(200).json(data);
   } catch (error) {
     if (typeof error != "number") {
       return res

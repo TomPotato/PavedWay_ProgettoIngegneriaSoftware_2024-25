@@ -27,7 +27,7 @@ class PathService {
      * 3. Se la richiesta ha successo, restituisce un oggetto GeoJSON che rappresenta il percorso.
      * 4. Se si verifica un errore, solleva un'eccezione con un messaggio di errore e un codice di stato appropriati.
      */
-    async getPath(sLat, sLon, eLat, eLon) {
+    async getPath(sLat, sLon, eLat, eLon, model = 'direct') {
         try {
             const response = await this.directions.calculate({
                 coordinates: [[sLon, sLat], [eLon, eLat]],

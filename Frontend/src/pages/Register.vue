@@ -124,7 +124,14 @@ const router = useRouter();
 
 const register = async () => {
     errorMessage.value = null;
-    await store.register(username.value, name.value, surname.value, email.value, password.value);
+    const formData = {
+        username: username.value,
+        email: email.value,
+        name: name.value,
+        surname: surname.value,
+        password: password.value,
+    };
+    await store.register(formData);
 
     if (store.isAuthenticated) {
         const redirectPath = store.originalPath || '/';
