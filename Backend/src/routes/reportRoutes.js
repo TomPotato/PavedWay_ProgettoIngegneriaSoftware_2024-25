@@ -29,12 +29,12 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
-    let latitude;
-    let longitude;
-    let radius;
+    let latitude = null;
+    let longitude = null;
+    let radius = null;
 
-    if(req.query.latitude && req.query.longitude){
-        if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
+    if (req.query.latitude && req.query.longitude) {
+        if (!validator.validateLocation(Number(req.query.latitude), Number(req.query.longitude))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire una location valida.'));
         }
@@ -42,51 +42,23 @@ router.get('/', async (req, res) => {
         longitude = Number(req.query.longitude);
     }
 
-	if(req.query.radius){
-		if(!validator.validateRadius(Number(req.query.radius))){
-			return res.status(400).json(createError('Richiesta non valida', 400,
+    if (req.query.radius) {
+        if (!validator.validateRadius(Number(req.query.radius))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
-		}
-		radius = Number(req.query.radius);
-	}
-
-    let userId;
-
-    if (req.query.my) {
-        try {
-            await new Promise((resolve, reject) => {
-                tokenChecker(req, res, (err) => {
-                    if (err) return reject(createError('Token non valido', 401, 'Autenticazione richiesta.'));
-                    resolve();
-                });
-            });
-            userId = req.user.id;   
-        } catch (error) {
-            return res.status(error.code || 401).json(error);
         }
+        radius = Number(req.query.radius);
     }
 
     try {
         if (date && !longitude && !latitude && !radius && !userId) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && !date && !userId) {
+        } else if (longitude && latitude && radius && date === null) {
             const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && date && !userId){
+        } else if (longitude && latitude && radius && date) {
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
-            return res.status(200).json(reports);
-        }else if(userId && !longitude && !latitude && !radius && !date){
-            const reports = await service.getReportsByUserId(userId, offset, limit);
-            return res.status(200).json(reports);
-        } else if (date && userId && !longitude && !latitude && !radius) {
-            const reports = await service.getActiveReportsByUserId(userId, date, offset, limit);
-            return res.status(200).json(reports);
-        }else if(userId && longitude && latitude && radius && !date){
-            const reports = await service.getReportsByUserIdByLoc(userId,latitude, longitude, radius, offset, limit);
-            return res.status(200).json(reports);
-        }else if(date && userId && longitude && latitude && radius){
-            const reports = await service.getActiveReportsByUserIdByLoc(userId, latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
         } else {
             const reports = await service.getReports(offset, limit);
@@ -144,11 +116,8 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-        
-        console.log('passa1');
 
-        const id = req.params.id;
-        const report = await service.getReportById(id);
+    const id = req.params.id;
 
         if (!req.body) {
             return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
@@ -166,22 +135,18 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 'Puoi modificare solo le segnalazioni che hai creato.'));
         }
 
-        if (req.user.role === 'admin' && (req.body.name || req.body.info ||
-            req.body.duration || req.body.photos )) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
-        }
-        
-        console.log('passa');
+    if (req.user.role === 'admin' && (req.body.name || req.body.info ||
+        req.body.duration || req.body.photos)) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
+    }
 
-        console.log(req);
+    try {
 
-        try {
-
-            let data = null;
+        let data = null;
 
             if(req.user.role === 'citizen'){
-                console.log('passa');
+
                 if(!req.body.start){
                     req.body.duration.start = report.duration.start.toISOString();
                 }
@@ -202,25 +167,23 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                     }
                 });
 
-                data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
+            data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
 
-                console.log(data);
+        } else if (req.user.role === 'admin') {
 
-            }else if (req.user.role === 'admin'){
+            let dataAdm = {
+                'status': null
+            }
 
-                let dataAdm = {
-                    'status':null
+            Object.keys(dataAdm).forEach(key => {
+                if (req.body.hasOwnProperty(key)) {
+                    dataAdm[key] = req.body[key];
                 }
+            });
 
-                Object.keys(dataAdm).forEach(key => {
-                    if(req.body.hasOwnProperty(key)){
-                        dataAdm[key] = req.body[key];
-                    }
-                });
+            data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
 
-                data = Object.fromEntries(Object.entries(dataAdm).filter(([_, v]) => v != null));
-
-            }else {
+        } else{
             return res.status(403).json(createError('Accesso negato. ', 403,
                 'Non puoi modificare segnalazioni senza essere autenticato.'));
             }

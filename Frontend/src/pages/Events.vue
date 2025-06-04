@@ -132,7 +132,7 @@
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="city" type="text" class="input" placeholder="Città" required />
 							<p v-if="!validateCity" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -365,7 +365,7 @@
 								Il numero civico deve essere lungo tra 1 e 4 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá" required />
+							<input v-model="city" type="text" class="input" placeholder="Città" required />
 							<p v-if="!validateCity" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
@@ -413,7 +413,7 @@ import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
-import nominatim from '@/services/Nominatim';
+import pathService from '@/services/PathService';
 
 const router = useRouter();
 
@@ -666,7 +666,7 @@ const getSitesByLoc = async (mtrs) => {
 		radius.value = radius.value * 1000;
 	}
 	if (street.value != '' && city.value != '' && code.value != '') {
-		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		const response = await pathService.getPlace(street.value, city.value, code.value);
 		latitude.value = response.lat;
 		longitude.value = response.lon;
 	}
@@ -708,7 +708,7 @@ const createSite = async () => {
 		if (!valCreaSite.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
-			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			const response = await pathService.getPlace(street.value, city.value, code.value, stNumber.value);
 			latitude.value = response.lat;
 			longitude.value = response.lon;
 			const siteData = {
@@ -801,7 +801,7 @@ const getReportsByLoc = async (mtrs) => {
 		radius.value = radius.value * 1000;
 	}
 	if (street.value != '' && city.value != '' && code.value != '') {
-		const response = await nominatim.getPlace(street.value, city.value, code.value);
+		const response = await pathService.getPlace(street.value, city.value, code.value);
 		latitude.value = response.lat;
 		longitude.value = response.lon;
 	}
@@ -843,7 +843,7 @@ const createReport = async () => {
 		if (!valCreaReport.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
-			const response = await nominatim.getPlace(street.value, city.value, code.value, stNumber.value);
+			const response = await pathService.getPlace(street.value, city.value, code.value, stNumber.value);
 			latitude.value = response.lat;
 			longitude.value = response.lon;
 			const reportData = {

@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo una via errata,  deve essere una parola e non puó essere piú lunga di 34 caratteri (es. Viale Giovanni Pierluigi da Palestrina)"
+            "Stai inserendo una via errata,  deve essere una parola e non può essere più lunga di 34 caratteri (es. Viale Giovanni Pierluigi da Palestrina)"
           )
         );
     }
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo erratamente la cittá, deve essere una parola e non puó essere piú lunga di 34 caratteri (es. San Valentino in Abruzzo Citeriore)"
+            "Stai inserendo erratamente la città, deve essere una parola e non può essere più lunga di 34 caratteri (es. San Valentino in Abruzzo Citeriore)"
           )
         );
     }
@@ -66,7 +66,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo un numero di via errato,deve essere un numero e non puó essere piú lunga di 5 caratteri"
+            "Stai inserendo un numero di via errato,deve essere un numero e non può essere più lunga di 5 caratteri"
           )
         );
     }

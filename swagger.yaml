@@ -1020,9 +1020,9 @@ paths:
   /geocode :
     get:
       tags:
-        - 
+        -
       summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
-      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (puó essere inserito anche il numero), cittá e codice postale della cittá.
+      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (può essere inserito anche il numero), città e codice postale della città.
       parameters:
         - in: query
           name: street
@@ -1033,12 +1033,12 @@ paths:
           name: city
           schema:
             type: string
-          description: Nome della cittá in cui é situata la via che si vuole cercare.
+          description: Nome della città in cui è situata la via che si vuole cercare.
         - in: query
           name: code
           schema:
             type: number
-          description: Numero postale della cittá che si vuole cercare.
+          description: Numero postale della città che si vuole cercare.
         - in: query
           name: stNumber
           schema:
@@ -1071,7 +1071,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-                
+
   /paths/direct:
     get:
       tags:
@@ -1424,4 +1424,4 @@ components:
             realDuration:
               allOf:
                 - $ref: "#/components/schemas/Duration"
-              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+              description: Durata reale del cantiere, può divergere da quella inserita alla creazione del cantiere.

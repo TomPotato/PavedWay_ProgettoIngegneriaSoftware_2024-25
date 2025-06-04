@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
+import { jwtDecode } from 'jwt-decode';
 import service from '../services/AuthService';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -11,10 +12,18 @@ export const useAuthStore = defineStore('auth', () => {
     const message = ref(null);
 
     const isAuthenticated = computed(() => token.value !== null);
-
     const isAdmin = computed(() => user.value?.role === 'admin');
-
     const isCitizen = computed(() => user.value?.role === 'citizen');
+    const isExpired = computed(() => {
+        if (!token.value) return true;
+
+        try {
+            const decoded = jwtDecode(token.value);
+            return decoded.exp * 1000 < Date.now();
+        } catch (error) {
+            return true;
+        }
+    });
 
     const login = async (username, password) => {
         try {
@@ -42,6 +51,11 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    const logout = () => {
+        token.value = null;
+        user.value = null;
+    }
+
     const setRedirect = (path) => {
         originalPath.value = path;
     };
@@ -58,6 +72,12 @@ export const useAuthStore = defineStore('auth', () => {
         message.value = null;
     };
 
+    watchEffect(() => {
+        if (token.value && isExpired.value) {
+            logout();
+        }
+    });
+
     return {
         token,
         user,
@@ -65,13 +85,17 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         isAdmin,
         isCitizen,
+        isExpired,
         originalPath,
         message,
         login,
         register,
+        logout,
         setRedirect,
         clearRedirect,
         setMessage,
         clearMessage,
     };
+}, {
+    persist: true,
 });

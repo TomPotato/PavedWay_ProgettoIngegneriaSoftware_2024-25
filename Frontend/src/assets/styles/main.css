@@ -10,6 +10,9 @@
     --color-link: var(--color-secondary);
 }
 
+@plugin "daisyui" {
+    exclude: rootscrollgutter;
+}
 
 @plugin "daisyui/theme" {
     name: "pavedway-light";
@@ -49,4 +52,11 @@
 #app {
     min-height: 100vh;
     height: auto;
+}
+
+:root:has( :is(.modal-open,
+        .modal:target,
+        .modal-toggle:checked + .modal,
+        .modal[open])) {
+    scrollbar-gutter: unset;
 }
