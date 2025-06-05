@@ -15,8 +15,8 @@
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Segnalazioni"
             v-if="authStore.isCitizen" @click="getReportsByUserId" />
         <div class="tab-content bg-base-200 border-base-400 w-full p-6">
-            <div class="bg-base-200 border-base-400 w-full p-6">
-                <div class="flex w-full h-[60vh] flex-col">
+            <div class="bg-base-200 border-base-400 w-full">
+                <div class="flex w-full h-[66vh] flex-col">
                     <div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
                         <button @click="getReportsByUserId" class="btn btn-square btn-primary drawer-button p-1">
                             <img src="/refresh.svg" />
@@ -44,8 +44,8 @@
                                 <i>Rating: {{ report?.rating || "0" }}</i>
                                 <p v-if="report.status === 'solved'">Segnalazione Risolta!</p>
                                 <div class="grid grid-cols-4 gap-5 w-auto">
-                                    <button @click="goToReportInfo(report.id)"
-                                        class="btn btn-primary w-[10vh]">Info</button>
+                                    <button class="btn btn-primary w-[10vh]"
+                                        @click="goToReportInfo(report.id)">Info</button>
                                     <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina
                                         la
                                         Segnalazione!</button>
@@ -129,6 +129,10 @@
                                 <p v-if="!validateInfo" class="text-error">
                                     Le informazioni devono essere lunghe tra 1 e 200 caratteri.
                                 </p>
+
+                                <label class="label">Inserisci le immagini:</label>
+                                <input type="file" class="file-input" @change="photoUpload" multiple />
+                                <label class="label">Max size 2MB</label>
                             </fieldset>
                         </div>
                         <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
@@ -169,6 +173,7 @@ import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
 import { useRouter } from 'vue-router';
+import imageCompression from 'browser-image-compression';
 
 const router = useRouter();
 
@@ -177,6 +182,7 @@ const errorMessage = ref(null);
 const authStore = useAuthStore();
 
 const reports = ref([]);
+const base64Photos = ref([]);
 
 const rInfo = ref({});
 
@@ -307,6 +313,32 @@ const resCerca = () => {
     now.value = 'tutti';
 };
 
+async function photoUpload(event) {
+    const files = event.target.files;
+    if (!files) return;
+
+    try {
+        const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true
+        };
+        const base64Photo = [];
+
+        for (const file of files) {
+            const compressedFile = await imageCompression(file, options);
+            const base64photo = await imageCompression.getDataUrlFromFile(compressedFile);
+            const base64Only = base64photo.split(',')[1];
+            base64Photo.push(base64Only);
+        }
+
+        base64Photos.value = base64Photo;
+
+    } catch (error) {
+        console.error("Errore durante la compressione:", error);
+    }
+}
+
 const getReportsByUserId = async () => {
     try {
         const reportData = {
@@ -314,7 +346,6 @@ const getReportsByUserId = async () => {
             'limit': 0
         };
         ready.value = false;
-        console.log(authStore.user.id);
         reports.value = await reportService.getReportsByUserId(reportData, authStore.user.id);
         ready.value = true;
     } catch (error) {
@@ -356,8 +387,6 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
                     'offset': 0,
                     'limit': 0
                 }
-                console.log('Passa');
-                console.log(reportData);
                 ready.value = false;
                 reports.value = await reportService.getReportsByUserIdByLoc(reportData, authStore.user.id);
             } else {
@@ -396,7 +425,7 @@ const updateReport = async () => {
                 'duration': {
                     'start': start.value,
                 },
-                'photos': null,
+                'photos': base64Photos.value,
             };
             await reportService.updateReport(authStore.token, id, reportData);
             resMod();
@@ -434,7 +463,7 @@ const statusReport = async (id, status) => {
     }
 };
 
-/*const goToReportInfo = (id) => {
-    router.push({ path: '/reports/(.*)*', query: { id } });
-};*/
+const goToReportInfo = (id) => {
+    router.push({ path: '/report/(.*)*', query: { id } });
+};
 </script>

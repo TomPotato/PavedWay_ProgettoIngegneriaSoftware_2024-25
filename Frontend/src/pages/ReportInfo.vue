@@ -1,9 +1,12 @@
 <template>
     <div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col w-full">
-        <div class="card lg:card-side bg-base-300 shadow-sm">
-            <figure>
-                <div v-for="photo in report.photos" :key="photo.id" class="col-start-2">
-                    <p>{{ photo }}</p>
+        <div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
+            <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+        </div>
+        <div v-else class="card lg:card-side bg-base-300 shadow-sm">
+            <figure class="w-auto h-[65vh]">
+                <div v-for="(photo,index) in photoDisplay" :key="index" class="w-auto h-[40vh]">
+                    <img :src="'data:image/jpg;base64,' + photo " alt="Immagine codificata" class="h-[40vh]"/>
                 </div>
             </figure>
             <div class="card-body">
@@ -41,6 +44,9 @@ import { onMounted } from 'vue';
 
 const errorMessage = ref(null);
 
+const ready = ref(false);
+const photoDisplay = ref([]);
+
 const route = useRoute();
 const id = route.query.id;
 
@@ -48,8 +54,9 @@ const report = ref({});
 
 const getReportById = async () => {
     try {
+        ready.value = false;
         report.value = await reportService.getReportById(id);
-        ready.value = true;
+        photoDisplay.value = report.value.photos;
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;

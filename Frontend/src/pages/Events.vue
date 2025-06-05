@@ -224,7 +224,7 @@
 			<div class="flex w-full h-[66vh] flex-col">
 				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
 					<button @click="getReports" class="btn btn-square btn-primary drawer-button p-1">
-						<img src="/refresh.svg"/>
+						<img src="/refresh.svg" />
 					</button>
 					<button @click="openDrawer('SegnalazioniCerca')"
 						class="btn btn-square btn-primary drawer-button p-1">
@@ -364,6 +364,10 @@
 							<p v-if="!validateCode" class="text-error">
 								Il codice postale deve essere lungo 5 caratteri.
 							</p>
+
+							<label class="label">Inserisci le immagini:</label>
+							<input type="file" class="file-input" @change="photoUpload" multiple/>
+							<label class="label">Max size 2MB</label>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
@@ -405,6 +409,7 @@ import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
 import { onMounted } from 'vue';
+import imageCompression from 'browser-image-compression';
 
 const router = useRouter();
 
@@ -415,7 +420,7 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
-const rInfo = ref({});
+const base64Photos = ref([]);
 
 const ready = ref(true);
 
@@ -632,6 +637,32 @@ const resCerca = () => {
 	now.value = 'tutti';
 };
 
+async function photoUpload(event) {
+	const files = event.target.files;
+	if (!files) return;
+
+	try {
+		const options = {
+			maxSizeMB: 0.2,
+			maxWidthOrHeight: 1024,
+			useWebWorker: true
+		};
+		const base64Photo = [];
+
+		for (const file of files) {
+			const compressedFile = await imageCompression(file, options);
+			const base64photo = await imageCompression.getDataUrlFromFile(compressedFile);
+			const base64Only = base64photo.split(',')[1];
+			base64Photo.push(base64Only);
+		}
+
+		base64Photos.value = base64Photo;
+
+	} catch (error) {
+		console.error("Errore durante la compressione:", error);
+	}
+}
+
 const getSites = async () => {
 	try {
 		ready.value = false;
@@ -743,7 +774,6 @@ const deleteSite = async (id) => {
 const updateSite = async () => {
 	try {
 		const id = passEvent.value;
-		console.log('Updating site with id:', id);
 		if (!valMod.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
@@ -850,7 +880,8 @@ const createReport = async () => {
 				},
 				'duration': {
 					'start': start.value
-				}
+				},
+				'photos': base64Photos.value,
 			};
 			await reportService.createReport(authStore.token, reportData);
 			resCreaReports();
@@ -862,7 +893,6 @@ const createReport = async () => {
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
-
 };
 
 const deleteReport = async (id) => {

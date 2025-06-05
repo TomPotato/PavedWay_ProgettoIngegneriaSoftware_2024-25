@@ -65,7 +65,6 @@ router.get('/', async (req, res) => {
             return res.status(200).json(reports);
         }
     } catch (error) {
-        console.log(error);
         res.status(error.code).json(error);
     }
 });
@@ -117,8 +116,6 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 
 router.patch('/:id', tokenChecker, async (req, res) => {
         
-        console.log('passa1');
-
         const id = req.params.id;
         const report = await service.getReportById(id);
 
@@ -144,16 +141,11 @@ router.patch('/:id', tokenChecker, async (req, res) => {
                 'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
         }
         
-        console.log('passa');
-
-        console.log(req);
-
         try {
 
             let data = null;
 
             if(req.user.role === 'citizen'){
-                console.log('passa');
                 if(!req.body.start){
                     req.body.duration.start = report.duration.start.toISOString();
                 }
@@ -176,8 +168,6 @@ router.patch('/:id', tokenChecker, async (req, res) => {
 
                 data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
 
-                console.log(data);
-
             }else if (req.user.role === 'admin'){
 
                 let dataAdm = {
@@ -199,7 +189,6 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             await service.updateReport(id, data);
             res.status(204).json(null);
     } catch (error) {
-        console.log(error);
         res.status(error.code).json(error);
     }
 });
