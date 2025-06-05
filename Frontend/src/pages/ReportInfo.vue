@@ -4,9 +4,12 @@
             <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
         </div>
         <div v-else class="card lg:card-side bg-base-300 shadow-sm">
-            <figure class="w-auto h-[65vh]">
-                <div v-for="(photo,index) in photoDisplay" :key="index" class="w-auto h-[40vh]">
-                    <img :src="'data:image/jpg;base64,' + photo " alt="Immagine codificata" class="h-[40vh]"/>
+            <figure class="w-full flex justify-center">
+                <div class="flex flex-wrap gap-4 justify-center items-center">
+                    <div v-for="(photo, index) in photoDisplay" :key="index" class="h-auto w-auto">
+                        <img :src="'data:image/jpg;base64,' + photo" alt="Immagine codificata"
+                            class="h-[40vh] object-contain" />
+                    </div>
                 </div>
             </figure>
             <div class="card-body">
