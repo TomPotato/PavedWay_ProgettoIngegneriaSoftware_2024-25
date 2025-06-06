@@ -29,7 +29,7 @@
                                 <RouterLink to="/login">Accedi</RouterLink>
                             </li>
                             <li v-else>
-                                <RouterLink to="/me">Profilo</RouterLink>
+                                <RouterLink to="/profile">Profilo</RouterLink>
                             </li>
                             <li v-if="!store.token">
                                 <RouterLink to="/register">Registrati</RouterLink>

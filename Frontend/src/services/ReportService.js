@@ -4,9 +4,18 @@ class ReportService {
   async getReports(offset, limit) {
     try {
       const response = await api.get(`/reports`, {
-        offset,
-        limit,
+        offset: offset,
+        limit: limit,
       });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+  async getReportById(id){
+        try {
+      const response = await api.get(`/reports/${id}`);
       return response.data;
     } catch (error) {
       throw error.data;
@@ -26,27 +35,54 @@ class ReportService {
     }
   }
 
-  async getReportsByLoc(siteData) {
+  async getReportsByLoc(reportData) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async getActiveReportsByLoc(siteData) {
+  async getActiveReportsByLoc(reportData) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-  async getReportsByLoc(siteData) {
+  async getReportsByUserId(reportData, userId) {
     try {
-      const response = await api.get(`/reports`, siteData);
+      const response = await api.get(`/users/${userId}/reports`, reportData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+    async getActiveReportsByUserId(reportData, userId) {
+    try {
+      const response = await api.get(`/users/${userId}/reports`, reportData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+    async getReportsByUserIdByLoc(reportData, userId) {
+    try {
+      const response = await api.get(`/users/${userId}/reports`, reportData);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+      async getActiveReportsByUserIdByLoc(reportData, userId) {
+    try {
+      const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
     } catch (error) {
       throw error.data;
@@ -86,11 +122,14 @@ class ReportService {
     }
   }
 
-  async statusReport(token, reportId, status) {
+  async statusReport(token, reportId, status, end) {
     try {
       const response = await api.patch(
         `/reports/${reportId}`,
         {
+          duration:{
+            end: end,
+          },
           status: status,
         },
         {

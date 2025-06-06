@@ -1,25 +1,21 @@
 <template>
 	<div class="tabs tabs-lift tabs-s">
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Cantieri"
-			checked="checked" />
+			checked="checked" @click="getSites" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
 			<div class="flex w-full h-[66vh] flex-col">
-				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
-					<div class="w-full grid grid-cols-7 gap-2">
-						<button class="btn btn-neutral w-auto" @click="getSites">Mostra tutti i
-							Cantieri!</button>
-						<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
-						<button v-if="isAdmin" @click="openModal('CantieriCrea')" class="btn btn-primary w-auto">Crea un
-							Cantiere!</button>
-						<button @click="openDrawer('CantieriCerca')" class="btn btn-square btn-primary drawer-button">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-								class="feather feather-search" viewBox="0 0 24 24">
-								<circle cx="11" cy="11" r="8"></circle>
-								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-							</svg>
-						</button>
-					</div>
+				<div class="w-full bg-base-200 border-base-400 p-2 flex gap-2">
+					<button @click="getSites" class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/refresh.svg" class="" />
+					</button>
+					<button @click="openDrawer('CantieriCerca')" class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/search.svg" />
+					</button>
+					<button v-if="isAdmin" @click="openModal('CantieriCrea')"
+						class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/add.svg" />
+					</button>
+					<button class="btn btn-neutral w-auto" @click="getActiveSites">Cantieri ancora attivi!</button>
 				</div>
 				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
@@ -61,20 +57,17 @@
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca i cantieri per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="code" type="text" class="input" placeholder="Codice Postale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
 							<p v-if="!validateCode && code != ''" class="text-error">
 								Il codice postale deve essere lungo 5 caratteri.
 							</p>
@@ -98,11 +91,10 @@
 								<p v-if="now === 'tutti'">Tutti i cantieri?</p>
 								<p v-else>I cantieri ancora attivi?</p>
 								<input @click="nowChange" type="checkbox"
-									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
 							</label>
 							<button for="CantieriCerca" class="btn btn-neutral mt-4" @click="getSitesByLoc(meters)"
-								:disabled="((!latitude || !longitude || !radius) && (!street && !city && !code)) ||
-									((!street || !city || !code || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
+								:disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
@@ -222,41 +214,33 @@
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click="closeModal('CantieriCrea')">Close</button>
+				<button class="modal-backdrop" @click="closeModal('CantieriModifica')">Close</button>
 			</dialog>
 		</div>
 
-		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]"
-			aria-label="Segnalazioni" />
+		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]" aria-label="Segnalazioni"
+			@click="getReports" />
 		<div class="tab-content bg-base-200 border-base-400 w-full p-6">
 			<div class="flex w-full h-[66vh] flex-col">
-				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
-					<div class="w-full grid grid-cols-7 gap-2">
-						<button class="btn btn-neutral w-auto" @click="getReports">Mostra
-							tutte le
-							Segnalazioni!</button>
-						<button class="btn btn-neutral w-auto" @click="getActiveReports">Segnalazioni ancora
-							attive!</button>
-						<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
-							class="btn btn-primary w-full">Crea
-							una
-							Segnalazione!</button>
-						<button @click="openDrawer('SegnalazioniCerca')"
-							class="btn btn-square btn-primary drawer-button">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-								stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-								class="feather feather-search" viewBox="0 0 24 24">
-								<circle cx="11" cy="11" r="8"></circle>
-								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-							</svg>
-						</button>
-					</div>
+				<div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
+					<button @click="getReports" class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/refresh.svg" />
+					</button>
+					<button @click="openDrawer('SegnalazioniCerca')"
+						class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/search.svg" />
+					</button>
+					<button v-if="isCitizen" @click="openModal('SegnalazioniCrea')"
+						class="btn btn-square btn-primary drawer-button p-1">
+						<img src="/add.svg" />
+					</button>
+					<button class="btn btn-neutral w-auto" @click="getActiveReports">Segnalazioni ancora
+						attive!</button>
 				</div>
-				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+				<div v-if="!ready" class="flex items-center justify-center w-full min-h-[65vh]">
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
-
-				<div class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
+				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
 					<div class="space-y-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
@@ -267,23 +251,20 @@
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
 							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
 							<div class="grid grid-cols-5 gap-5 w-auto">
-								<button @click="openModal('SegnalazioniInfo', report.id)"
-									class="btn btn-primary w-[10vh]">Info</button>
+								<button class="btn btn-primary w-[10vh]"
+									@click="goToReportInfo(report.id)">Info</button>
 								<button @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva
-									la
+									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
-									la
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
 									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
-									come
-									Risolta!</button>
+									come Risolta!</button>
 							</div>
 						</div>
 					</div>
@@ -300,23 +281,21 @@
 						<fieldset class="fieldset bg-base-200 border-base-200 w-xs h-full border p-4">
 							<h2 class="text-xl font-semibold">Cerca le segnalazioni per posizione</h2>
 							<label class="label">Posizione per via</label>
-							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="street" type="text" class="input" placeholder="Via/Strada/Viale" />
 							<p v-if="!validateStreet && street != ''" class="text-error">
 								La via deve essere lunga tra 1 e 34 caratteri.
 							</p>
 
-							<input v-model="stNumber" type="text" class="input" placeholder="Numero Civico"
-								:disabled="longitude != '' || latitude != ''" />
-							<p v-if="!validateStNumber && stNumber != ''" class="text-error">
-								Il numero civico deve essere lungo tra 1 e 4 caratteri.
-							</p>
-
-							<input v-model="city" type="text" class="input" placeholder="Cittá"
-								:disabled="longitude != '' || latitude != ''" />
+							<input v-model="city" type="text" class="input" placeholder="Cittá" />
 							<p v-if="!validateCity && city != ''" class="text-error">
 								La città deve essere lunga tra 1 e 34 caratteri.
 							</p>
+
+							<input v-model="code" type="text" class="input" placeholder="Codice Postale" />
+							<p v-if="!validateCode && code != ''" class="text-error">
+								Il codice postale deve essere lungo 5 caratteri.
+							</p>
+
 							<label class="label w-full flex">E inserisci il raggio in {{ meters }}
 								<input @click="metersChange" type="checkbox" checked="checked"
 									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
@@ -336,31 +315,15 @@
 								<p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
 								<p v-else>Le Segnalazioni ancora attive?</p>
 								<input @click="nowChange" type="checkbox" checked="checked"
-									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+									class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
 							</label>
-							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4" 
-								@click="getReportsByLoc(meters)" :disabled="((!latitude || !longitude || !radius) && (!street && !city && !stNumber)) ||
-									((!street || !city || !stNumber || !radius) && (!latitude && !longitude)) || (!radius)">Cerca!</button>
+							<button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
+								@click="getReportsByLoc(meters)"
+								:disabled="(!street || !city || !code || !radius) || (!radius)">Cerca!</button>
 						</fieldset>
 					</div>
 				</div>
 			</div>
-
-			<dialog id="SegnalazioniInfo" class="modal" role="dialog">
-				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
-					<div class="overflow-y-auto p-4 flex-1">
-						<h2 class="text-xl font-semibold">{{ rInfo.name }}</h2>
-						<p>{{ rInfo.info }}</p>
-						<p>Posizione: Lat: {{ rInfo.location?.latitude }} - Lon: {{ rInfo.location?.longitude }}</p>
-						<p>Indirizzo: {{ rInfo.location?.street }}, {{ rInfo.location?.number }} in {{
-							rInfo.location?.city }} ({{ rInfo.location?.code }})</p>
-						<p>Durata: da {{ rInfo.duration?.start || " 'non inserita' " }} a {{ rInfo.duration?.end
-							|| " 'data da destinarsi' " }}</p>
-						<i>Rating: {{ rInfo?.rating || "0" }}</i>
-					</div>
-				</div>
-				<button class="modal-backdrop" @click="closeModal('SegnalazioniInfo')">Close</button>
-			</dialog>
 
 			<dialog id="SegnalazioniCrea" class="modal" role="dialog">
 				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[80vh]">
@@ -401,12 +364,16 @@
 							<p v-if="!validateCode" class="text-error">
 								Il codice postale deve essere lungo 5 caratteri.
 							</p>
+
+							<label class="label">Inserisci le immagini:</label>
+							<input type="file" class="file-input" @change="photoUpload" multiple/>
+							<label class="label">Max size 2MB</label>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<button class="btn btn-neutral w-full" @click="createReport"
-								:disabled="!title || !info || !latitude || !longitude || !street || !stNumber || !city || !code">Crea</button>
+								:disabled="!title || !info || !street || !stNumber || !city || !code">Crea</button>
 						</div>
 						<div>
 							<button @click="closeModal('SegnalazioniCrea')"
@@ -434,12 +401,17 @@
 <script setup>
 
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import nominatim from '@/services/Nominatim';
+import { onMounted } from 'vue';
+import imageCompression from 'browser-image-compression';
+
+const router = useRouter();
 
 const errorMessage = ref(null);
 
@@ -448,7 +420,7 @@ const authStore = useAuthStore();
 const sites = ref([]);
 const reports = ref([]);
 
-const rInfo = ref({});
+const base64Photos = ref([]);
 
 const ready = ref(true);
 
@@ -530,8 +502,6 @@ const openModal = (id, eventId = '') => {
 	} else if (id === 'SegnalazioniCrea') {
 		const date = Date.now();
 		start.value = new Date(date).toISOString().split('T')[0];
-	} else if (id === 'SegnalazioniInfo') {
-		rInfo.value = reports.value.find(r => r.id === eventId);
 	}
 	document.getElementById(id).showModal();
 };
@@ -667,6 +637,32 @@ const resCerca = () => {
 	now.value = 'tutti';
 };
 
+async function photoUpload(event) {
+	const files = event.target.files;
+	if (!files) return;
+
+	try {
+		const options = {
+			maxSizeMB: 0.2,
+			maxWidthOrHeight: 1024,
+			useWebWorker: true
+		};
+		const base64Photo = [];
+
+		for (const file of files) {
+			const compressedFile = await imageCompression(file, options);
+			const base64photo = await imageCompression.getDataUrlFromFile(compressedFile);
+			const base64Only = base64photo.split(',')[1];
+			base64Photo.push(base64Only);
+		}
+
+		base64Photos.value = base64Photo;
+
+	} catch (error) {
+		console.error("Errore durante la compressione:", error);
+	}
+}
+
 const getSites = async () => {
 	try {
 		ready.value = false;
@@ -778,7 +774,6 @@ const deleteSite = async (id) => {
 const updateSite = async () => {
 	try {
 		const id = passEvent.value;
-		console.log('Updating site with id:', id);
 		if (!valMod.value) {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
@@ -885,9 +880,9 @@ const createReport = async () => {
 				},
 				'duration': {
 					'start': start.value
-				}
+				},
+				'photos': base64Photos.value,
 			};
-			console.log('Creating report with data:', reportData);
 			await reportService.createReport(authStore.token, reportData);
 			resCreaReports();
 			ready.value = false;
@@ -898,7 +893,6 @@ const createReport = async () => {
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
-
 };
 
 const deleteReport = async (id) => {
@@ -922,5 +916,13 @@ const statusReport = async (id, status) => {
 		errorMessage.value = reportService.error;
 	}
 };
+
+const goToReportInfo = (id) => {
+	router.push({ path: '/report/(.*)*', query: { id } });
+};
+
+onMounted(() => {
+	getSites();
+});
 
 </script>
