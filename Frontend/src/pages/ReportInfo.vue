@@ -51,7 +51,7 @@ const ready = ref(false);
 const photoDisplay = ref([]);
 
 const route = useRoute();
-const id = route.query.id;
+const id = route.params.id;
 
 const report = ref({});
 

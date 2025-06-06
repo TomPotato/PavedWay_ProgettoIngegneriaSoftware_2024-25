@@ -32,11 +32,11 @@ class Validator {
     }
 
     validateRadius(radius) {
-        return (radius <= 5000 && radius >0 && typeof(radius) === 'number');
+        return (radius <= 5000 && radius > 0 && typeof (radius) === 'number');
     }
 
     validateLocation(latitude, longitude) {
-        return (latitude !== undefined && longitude !== undefined && typeof(latitude) === 'number' && typeof(longitude) === 'number');
+        return (latitude !== undefined && longitude !== undefined && typeof (latitude) === 'number' && typeof (longitude) === 'number');
     }
 }
 

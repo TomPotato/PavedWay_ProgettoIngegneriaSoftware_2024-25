@@ -10,8 +10,8 @@ function haversineFunction(lat1, lon1, lat2, lon2, earthRad = 6371) {
   lat2 = toRadians(lat2);
 
   const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1) * Math.cos(lat2) *
-            Math.sin(dLon / 2) ** 2;
+    Math.cos(lat1) * Math.cos(lat2) *
+    Math.sin(dLon / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -26,7 +26,7 @@ function distanceFilter(latitude, longitude, collection, radius) {
       item.location.latitude,
       item.location.longitude
     );
-    return distance < radius/1000;
+    return distance < radius / 1000;
   });
   return result;
 }

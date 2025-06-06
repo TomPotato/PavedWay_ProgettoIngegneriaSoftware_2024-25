@@ -1,10 +1,10 @@
 <template>
     <div class="flex flex-col items-center">
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4" @keyup.enter="submit">
             <legend class="fieldset-legend">Registrati</legend>
 
             <label class="label">Nome utente</label>
-            <input v-model="username" type="text" class="input" placeholder="Nome utente" required />
+            <input id="default" v-model="username" type="text" class="input" placeholder="Nome utente" required />
             <p v-if="!validateUsername" class="text-error">
                 Il nome utente deve avere una lunghezza tra 3 e 20 caratteri e
                 può contenere solo lettere, numeri e trattini bassi
@@ -43,8 +43,7 @@
                 Le password non coincidono
             </p>
 
-            <button class="btn btn-neutral mt-4" @click="register"
-                :disabled="!validateUsername || !validateEmail || !validateName || !validateSurname || !validatePassword || !validatePasswordVerify">
+            <button class="btn btn-neutral mt-4" @click="submit" :disabled="!validateForm">
                 Registrati
             </button>
         </fieldset>
@@ -64,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -125,7 +124,14 @@ const router = useRouter();
 
 const register = async () => {
     errorMessage.value = null;
-    await store.register(username.value, name.value, surname.value, email.value, password.value);
+    const formData = {
+        username: username.value,
+        email: email.value,
+        name: name.value,
+        surname: surname.value,
+        password: password.value,
+    };
+    await store.register(formData);
 
     if (store.isAuthenticated) {
         const redirectPath = store.originalPath || '/';
@@ -136,4 +142,18 @@ const register = async () => {
         errorMessage.value = store.error;
     }
 };
+
+const submit = () => {
+    if (validateForm.value) {
+        register();
+    }
+};
+
+onMounted(() => {
+    if (store.isAuthenticated) {
+        router.replace({ path: '/' });
+    }
+
+    document.getElementById('default').focus();
+});
 </script>

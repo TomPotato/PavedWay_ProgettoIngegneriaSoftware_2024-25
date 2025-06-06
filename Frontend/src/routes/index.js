@@ -8,15 +8,19 @@ import Register from '../pages/Register.vue';
 import Events from '../pages/Events.vue';
 import Profile from '../pages/Profile.vue';
 import ReportInfo from '../pages/ReportInfo.vue';
+import Users from '../pages/Users.vue';
+import Refresh from '../pages/Refresh.vue';
 
 const routes = [
     { path: '/', name: 'home', component: Home },
     { path: '/login', name: 'login', component: Login },
     { path: '/register', name: 'register', component: Register },
     { path: '/events', name: 'events', component: Events },
+    { path: '/refresh', name: 'refresh', component: Refresh },
+    { path: '/users', name: 'users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true}},
-    { path: '/report/(.*)*', name: 'reportInfo', component: ReportInfo },
-    { path: '/:pathMatch(.*)*', redirect: '/' }, // Redirect to home for any unmatched routes
+    { path: '/reports/:id', name: 'reportInfo', component: ReportInfo },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
 const router = createRouter({

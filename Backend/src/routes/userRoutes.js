@@ -7,6 +7,7 @@ const userService = require('../services/UserService');
 const createError = require('../utils/createError');
 const toValidInt = require('../utils/toValidInt');
 const tokenChecker = require('../utils/tokenChecker');
+const { tokenDecoder } = require('../utils/tokenChecker');
 const validator = require('../utils/Validator');
 
 router.get('/', tokenChecker, async (req, res) => {
@@ -38,15 +39,21 @@ router.get('/:id', tokenChecker, async (req, res) => {
     }
 });
 
-router.post('/', tokenChecker, async (req, res) => {
+router.post('/', tokenDecoder, async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Il corpo della richiesta non può essere vuoto. Devi fornire nome utente, nome, cognome, password, ruolo e email o ufficio.'));
     }
 
-    if (!req.body.username || !req.body.name || !req.body.surname || !req.body.password || !req.body.role) {
+    if (!req.body.username || !req.body.name || !req.body.surname || !req.body.password || !req.body.role || (!req.body.email && !req.body.office)) {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Devi fornire nome utente, nome, cognome, password, ruolo e email o ufficio.'));
+    }
+
+    if (req.user && req.user.role !== 'admin' && req.body.role === 'admin') {
+        return res.status(403).json(createError('Accesso negato', 403,
+            'Devi essere un amministratore per creare un nuovo utente amministratore.'));
+
     }
 
     if (req.body.role !== 'citizen' && req.body.role !== 'admin') {
@@ -101,6 +108,8 @@ router.get('/:id/reports', async (req, res) => {
     const userId = req.params.id;
     const offset = toValidInt(req.query.offset);
     const limit = toValidInt(req.query.limit);
+
+  await userService.getUserById(userId);
         let date;
     
         if (req.query.now === 'true' && req.query.date) {
@@ -138,7 +147,6 @@ router.get('/:id/reports', async (req, res) => {
             }
             radius = Number(req.query.radius);
         }
-        
     try {
         if(userId && !longitude && !latitude && !radius && !date){
             const reports = await reportService.getReportsByUserId(userId, offset, limit);
@@ -160,6 +168,8 @@ router.get('/:id/reports', async (req, res) => {
 
 router.delete('/:id', tokenChecker, async (req, res) => {
     const userId = req.params.id;
+
+    await userService.getUserById(userId);
 
     if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json(createError('Accesso negato', 403,

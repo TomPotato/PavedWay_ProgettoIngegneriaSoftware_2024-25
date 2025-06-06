@@ -6,7 +6,15 @@ const service = require('../services/PathService');
 const createError = require('../utils/createError');
 const toValidFloat = require('../utils/toValidFloat');
 
-router.get('/direct', async (req, res) => {
+router.get('/', async (req, res) => {
+    let model;
+
+    if (!req.query.model || !['direct', 'alternate'].includes(req.query.model)) {
+        model = 'direct';
+    } else {
+        model = req.query.model;
+    }
+
     const sLat = toValidFloat(req.query.startLatitude);
     const sLon = toValidFloat(req.query.startLongitude);
     const eLat = toValidFloat(req.query.endLatitude);
@@ -24,7 +32,7 @@ router.get('/direct', async (req, res) => {
     }
 
     try {
-        const path = await service.getPath(sLat, sLon, eLat, eLon);
+        const path = await service.getPath(sLat, sLon, eLat, eLon, model);
         res.status(200).json(path);
     } catch (error) {
         res.status(error.code).json(error);

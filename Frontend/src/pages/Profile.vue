@@ -75,7 +75,7 @@
                                     La via deve essere lunga tra 1 e 34 caratteri.
                                 </p>
 
-                                <input v-model="city" type="text" class="input" placeholder="Cittá" />
+                                <input v-model="city" type="text" class="input" placeholder="Città" />
                                 <p v-if="!validateCity && city != ''" class="text-error">
                                     La città deve essere lunga tra 1 e 34 caratteri.
                                 </p>
@@ -171,7 +171,7 @@ import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
-import nominatim from '@/services/Nominatim';
+import pathService from '@/services/PathService';
 import { useRouter } from 'vue-router';
 import imageCompression from 'browser-image-compression';
 
@@ -373,7 +373,7 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
         radius.value = radius.value * 1000;
     }
     if (street.value != '' && city.value != '' && code.value != '') {
-        const response = await nominatim.getPlace(street.value, city.value, code.value);
+        const response = await pathService.getPlace(street.value, city.value, code.value);
         latitude.value = response.lat;
         longitude.value = response.lon;
     }
@@ -464,6 +464,6 @@ const statusReport = async (id, status) => {
 };
 
 const goToReportInfo = (id) => {
-    router.push({ path: '/report/(.*)*', query: { id } });
+    router.push({ path: `/reports/${id}` });
 };
 </script>

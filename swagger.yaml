@@ -12,8 +12,7 @@ servers:
 tags:
   - name: Autenticazione
     description: >-
-      Operazioni relative all'autenticazione degli utenti, 
-      inclusi la registrazione e il login.
+      Operazioni relative all'autenticazione degli utenti.
   - name: Utenti
     description: >-
       Operazioni relative alla gestione degli utenti, 
@@ -32,57 +31,7 @@ tags:
       inclusi la richiesta e la visualizzazione dei percorsi.
 
 paths:
-  /auth/register:
-    post:
-      tags:
-        - Autenticazione
-      summary: Registrazione di un nuovo utente cittadino
-      description: >-
-        Permette la registrazione di un nuovo utente come cittadino. 
-        L'utente deve fornire nome utente, nome, cognome, email e password.
-        Se la registrazione ha successo, l'utente cittadino viene creato e
-        restituito insieme a un token JWT per l'autenticazione.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Citizen"
-      responses:
-        "201":
-          description: Registrazione riuscita.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: Token JWT per l'autenticazione.
-                  user:
-                    allOf:
-                      - $ref: "#/components/schemas/UserInfo"
-                    description: Informazioni sull'utente registrato. Include nome utente, nome, cognome e ruolo.
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "409":
-          description: Nome utente o email già in uso.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /auth/login:
+  /authentication:
     post:
       tags:
         - Autenticazione
@@ -195,8 +144,8 @@ paths:
         - Utenti
       summary: Crea un nuovo utente
       description: >-
-        Permette l'aggiunta manuale di un nuovo utente senza la registrazione.
-        Solo un amministratore può creare un nuovo utente tramite questa API. 
+        Permette la registrazione di un nuovo utente.
+        Solo un amministratore può creare un nuovo utente amministratore. 
         L'amministratore deve fornire nome utente, nome, cognome, password, ruolo 
         e email o ufficio in base al tipo di utente (rispettivamente cittadino o amministratore).
       security:
@@ -234,7 +183,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "403":
-          description: Accesso negato. Devi essere un amministratore per creare un utente.
+          description: Accesso negato. Devi essere un amministratore per creare un utente amministratore.
           content:
             application/json:
               schema:
@@ -387,13 +336,15 @@ paths:
         - in: query
           name: latitude
           schema:
-            type: float
-          description: Latitudine del punto attorno a cui si vuole ricercare delle segnalazioni.
+            type: number
+            format: double
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: longitude
           schema:
-            type: float
-          description: Longitudine del punto attorno a cui si vuole ricercare delle segnalazioni.
+            type: number
+            format: double
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: radius
           schema:
@@ -719,12 +670,14 @@ paths:
         - in: query
           name: latitude
           schema:
-            type: float
+            type: number
+            format: double
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: longitude
           schema:
-            type: float
+            type: number
+            format: double
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: radius
@@ -1032,12 +985,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /geocode :
+  /locations:
     get:
       tags:
-        - 
+        - Percorsi
       summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
-      description: Restituisce le coordinate geografiche dell'indirizzo inserito, per funzionare necessita di via (puó essere inserito anche il numero), cittá e codice postale della cittá.
+      description: >-
+        Restituisce le coordinate geografiche dell'indirizzo inserito.
+        È possibile ricercare per via (può essere inserito anche il numero), città e codice postale della città
+        oppure per query libera.
       parameters:
         - in: query
           name: street
@@ -1048,32 +1004,43 @@ paths:
           name: city
           schema:
             type: string
-          description: Nome della cittá in cui é situata la via che si vuole cercare.
+          description: Nome della città in cui è situata la via che si vuole cercare.
         - in: query
           name: code
           schema:
-            type: number
-          description: Numero postale della cittá che si vuole cercare.
+            type: string
+          description: Codice postale della città che si vuole cercare.
         - in: query
           name: stNumber
           schema:
             type: string
-          description: Numero della casa che si vuole cercare.
+          description: Numero civico.
         - in: query
           name: q
           schema:
             type: string
-          description: Query che contiene le informazioni del posto che si vuole cercare.
+          description: Query libera che contiene le informazioni del posto che si vuole cercare.
       responses:
         "200":
           description: Ricerca effettuata con successo.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  lat: latitudine del luogo ricercato.
-                  lon: longitudine del luogo ricercato.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nome del luogo ricercato.
+                    lat:
+                      type: number
+                      format: double
+                      description: Latitudine del luogo ricercato.
+                    lon:
+                      type: number
+                      format: double
+                      description: Longitudine del luogo ricercato.
         "400":
           description: Richiesta non valida.
           content:
@@ -1086,8 +1053,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-                
-  /paths/direct:
+
+  /paths:
     get:
       tags:
         - Percorsi
@@ -1096,6 +1063,18 @@ paths:
         Restituisce un percorso diretto tra due punti in formato GeoJSON specificati dalle coordinate geografiche.
         Le coordinate devono essere fornite come latitudine e longitudine.
       parameters:
+        - in: query
+          name: model
+          required: true
+          schema:
+            type: string
+            enum:
+              - direct
+              - alternate
+          description: >-
+            Tipo di percorso.
+            Diretto per il percorso più breve.
+            Alternativo per il percorso che evita gli eventi in corso.
         - in: query
           name: startLatitude
           required: true
@@ -1439,4 +1418,4 @@ components:
             realDuration:
               allOf:
                 - $ref: "#/components/schemas/Duration"
-              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+              description: Durata reale del cantiere, può divergere da quella inserita alla creazione del cantiere.

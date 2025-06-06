@@ -2,7 +2,7 @@
 	<div id="app" class="font-lexend" data-theme="pavedway-light">
 		<Navbar />
 		<main>
-			<router-view />
+			<router-view :key="$route.fullPath" />
 		</main>
 	</div>
 </template>

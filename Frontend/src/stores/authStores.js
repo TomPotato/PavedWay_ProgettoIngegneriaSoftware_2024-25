@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import service from '../services/AuthService';
+import { ref, computed, watchEffect } from 'vue';
+import { jwtDecode } from 'jwt-decode';
+import authService from '../services/AuthService';
+import userService from '../services/UserService';
 
 export const useAuthStore = defineStore('auth', () => {
     const token = ref(null);
@@ -11,14 +13,22 @@ export const useAuthStore = defineStore('auth', () => {
     const message = ref(null);
 
     const isAuthenticated = computed(() => token.value !== null);
-
     const isAdmin = computed(() => user.value?.role === 'admin');
-
     const isCitizen = computed(() => user.value?.role === 'citizen');
+    const isExpired = computed(() => {
+        if (!token.value) return true;
+
+        try {
+            const decoded = jwtDecode(token.value);
+            return decoded.exp * 1000 < Date.now();
+        } catch (error) {
+            return true;
+        }
+    });
 
     const login = async (username, password) => {
         try {
-            const response = await service.login(username, password);
+            const response = await authService.login(username, password);
             token.value = response.token;
             user.value = response.user;
             error.value = null;
@@ -29,9 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
-    const register = async (username, name, surname, email, password) => {
+    const register = async (userData) => {
         try {
-            const response = await service.register(username, name, surname, email, password);
+            await userService.createUser(userData, token.value);
+            console.log('Registrazione completata con successo');
+            const response = await authService.login(userData.username, userData.password);
+            console.log('Login dopo registrazione:', response);
             token.value = response.token;
             user.value = response.user;
             error.value = null;
@@ -41,6 +54,11 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = null;
         }
     };
+
+    const logout = () => {
+        token.value = null;
+        user.value = null;
+    }
 
     const setRedirect = (path) => {
         originalPath.value = path;
@@ -58,6 +76,12 @@ export const useAuthStore = defineStore('auth', () => {
         message.value = null;
     };
 
+    watchEffect(() => {
+        if (token.value && isExpired.value) {
+            logout();
+        }
+    });
+
     return {
         token,
         user,
@@ -65,13 +89,17 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         isAdmin,
         isCitizen,
+        isExpired,
         originalPath,
         message,
         login,
         register,
+        logout,
         setRedirect,
         clearRedirect,
         setMessage,
         clearMessage,
     };
+}, {
+    persist: true,
 });
