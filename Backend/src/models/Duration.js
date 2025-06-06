@@ -22,7 +22,7 @@ const durationSchema = new Schema({
         },
         validate: {
             validator: function (v) {
-                return v > this.start;
+                return !v || !this.start || v > this.start;
             },
             message: (props) => `La data di fine deve essere successiva alla date di inizio. Ricevuto: ${props.value}`,
         },

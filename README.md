@@ -3,7 +3,7 @@
 <h1>Paved Way</h1>
 </div>
 <div align="center">
-<q>Per una mobilitá senza intoppi</q>
+<q>Per una mobilità senza intoppi</q>
 </div>
 <div>
 <br>
