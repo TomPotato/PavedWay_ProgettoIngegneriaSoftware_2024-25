@@ -92,12 +92,12 @@
                                 <input v-model="radius" v-if="meters === 'metri'" type="text" class="input"
                                     placeholder="Raggio in metri" />
                                 <p v-if="!validateRadius && meters === 'metri'" class="text-error">
-                                    Puoi cercare solamente entro UN chilometro.
+                                    Puoi cercare solamente entro 1 chilometro.
                                 </p>
                                 <input v-model="radius" v-if="meters === 'chilometri'" type="text" class="input"
                                     placeholder="Raggio in chilometri" />
                                 <p v-if="!validateRadius && meters === 'chilometri'" class="text-error">
-                                    Puoi cercare solamente entro CINQUE chilometri.
+                                    Puoi cercare solamente entro 5 chilometri.
                                 </p>
                                 <label class="label w-full flex">E vuoi visualizzare cosa:</label>
                                 <label class="label w-full flex">
@@ -132,7 +132,8 @@
 
                                 <label class="label">Inserisci le immagini:</label>
                                 <input type="file" class="file-input" @change="photoUpload" multiple />
-                                <label class="label">Max size 2MB</label>
+                                <label class="label">Dimensione Massima: 2MB </label>
+                                <label class="label"><i>Attualmente contiene {{ photos.length }}</i><i v-if="photos < 2">immagine</i><i v-else>immagini</i></label>
                             </fieldset>
                         </div>
                         <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
@@ -183,6 +184,7 @@ const authStore = useAuthStore();
 
 const reports = ref([]);
 const base64Photos = ref([]);
+const photos = ref([]);
 
 const rInfo = ref({});
 
@@ -246,6 +248,7 @@ const openModal = (id, eventId = '') => {
         const report = reports.value.find(r => r.id === eventId);
         title.value = report.name;
         info.value = report.info;
+        photos.value = report.photos;
     } else if (id === 'SegnalazioniInfo') {
         rInfo.value = reports.value.find(r => r.id === eventId);
     }
@@ -332,7 +335,18 @@ async function photoUpload(event) {
             base64Photo.push(base64Only);
         }
 
+        console.log('wow',base64Photo);
+
+        console.log('iniziale',photos.value);
+
+        photos.value.forEach(photo => {
+            base64Photo.push(photo);
+        });
+        console.log('wow',base64Photo);
+
         base64Photos.value = base64Photo;
+
+        console.log('finale',base64Photos.value);
 
     } catch (error) {
         console.error("Errore durante la compressione:", error);
@@ -419,6 +433,7 @@ const updateReport = async () => {
         if (!valMod.value) {
             errorMessage.value = "Compila tutti i campi correttamente!";
         } else {
+            base
             const reportData = {
                 'name': title.value,
                 'info': info.value,
