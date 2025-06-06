@@ -366,9 +366,9 @@ class SiteService {
    * 5. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
    * 6. Restituisce il cantiere aggiornato con il nuovo commento.
    */
-  async createComment(reportId, userId, text) {
+  async createComment(siteId, userId, text) {
     try {
-      const site = await Site.findById(reportId);
+      const site = await Site.findById(siteId);
       if (!site) {
         throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
       }

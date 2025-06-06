@@ -76,6 +76,17 @@ class SiteService {
       throw error.data;
     }
   }
+
+  async createComment(token, commentData, id){
+    try {
+      const response = await api.post(`/sites/${id}/comments`, commentData, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
 }
 
 export default new SiteService();
