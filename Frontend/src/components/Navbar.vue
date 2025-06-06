@@ -43,6 +43,30 @@
                         </ul>
                     </div>
                 </li>
+                <li>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0">
+                            <div class="indicator">
+                                <span v-if="notifications" class="indicator-item badge badge-secondary">{{
+                                    notifications.length
+                                    }}</span>
+                                <button class="btn btn-square btn-ghost drawer-button h-8 w-5">
+                                    <img src="/bell.svg" />
+                                </button>
+                            </div>
+                        </div>
+                        <ul tabindex="0"
+                            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                            <li v-for="(notify, index) in notifications" :key="index">
+                                <router-link :to="`/report/${notify.report}`">
+                                    <p>{{ notify.message }}, </p>
+                                    <p v-if="notify.report">{{ notify.report }}</p>
+                                    <p v-if="notify.site">{{ notify.site }}</p>
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>
@@ -67,11 +91,14 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStores';
-import { nextTick } from 'vue';
+import notificationService from '@/services/NotificationService';
+import { onMounted, ref } from 'vue';
 
 const router = useRouter();
 const route = useRoute();
 const store = useAuthStore();
+
+const notifications = ref([]);
 
 const openModal = () => {
     document.getElementById('logout').showModal();
@@ -83,12 +110,20 @@ const closeModal = () => {
     document.body.classList.remove('modal-open');
 };
 
+const getNotifications = async () => {
+    notifications.value = await notificationService.getNotifications();
+}
+
 const logout = () => {
     store.logout();
     store.setMessage('Logout effettuato con successo!');
     router.replace({ path: '/refresh', query: { redirect: route.fullPath } });
     closeModal();
 };
+
+onMounted(() => {
+    getNotifications();
+});
 
 defineOptions({ name: 'Navbar' });
 </script>
