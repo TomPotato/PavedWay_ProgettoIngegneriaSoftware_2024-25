@@ -109,55 +109,55 @@ router.get('/:id/reports', async (req, res) => {
     const offset = toValidInt(req.query.offset);
     const limit = toValidInt(req.query.limit);
 
-  await userService.getUserById(userId);
-        let date;
-    
-        if (req.query.now === 'true' && req.query.date) {
+    await userService.getUserById(userId);
+    let date;
+
+    if (req.query.now === 'true' && req.query.date) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire solo una data o il parametro "now" con valore "true".'));
+    }
+
+    if (req.query.date) {
+        if (!validator.validateDate(req.query.date)) {
             return res.status(400).json(createError('Richiesta non valida', 400,
-                'Devi fornire solo una data o il parametro "now" con valore "true".'));
+                'Devi fornire una data valida in formato ISO 8601.'));
         }
-    
-        if (req.query.date) {
-            if (!validator.validateDate(req.query.date)) {
-                return res.status(400).json(createError('Richiesta non valida', 400,
-                    'Devi fornire una data valida in formato ISO 8601.'));
-            }
-            date = req.query.date;
-        } else if (req.query.now === 'true') {
-            date = new Date().toISOString();
+        date = req.query.date;
+    } else if (req.query.now === 'true') {
+        date = new Date().toISOString();
+    }
+
+    let latitude;
+    let longitude;
+    let radius;
+
+    if (req.query.latitude && req.query.longitude) {
+        if (!validator.validateLocation(Number(req.query.latitude), Number(req.query.longitude))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire una location valida.'));
         }
-    
-        let latitude;
-        let longitude;
-        let radius;
-    
-        if(req.query.latitude && req.query.longitude){
-            if (!validator.validateLocation(Number(req.query.latitude) , Number(req.query.longitude))) {
-                return res.status(400).json(createError('Richiesta non valida', 400,
-                    'Devi fornire una location valida.'));
-            }
-            latitude = Number(req.query.latitude);
-            longitude = Number(req.query.longitude);
+        latitude = Number(req.query.latitude);
+        longitude = Number(req.query.longitude);
+    }
+
+    if (req.query.radius) {
+        if (!validator.validateRadius(Number(req.query.radius))) {
+            return res.status(400).json(createError('Richiesta non valida', 400,
+                'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
         }
-    
-        if(req.query.radius){
-            if(!validator.validateRadius(Number(req.query.radius))){
-                return res.status(400).json(createError('Richiesta non valida', 400,
-                    'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
-            }
-            radius = Number(req.query.radius);
-        }
+        radius = Number(req.query.radius);
+    }
     try {
-        if(userId && !longitude && !latitude && !radius && !date){
+        if (userId && !longitude && !latitude && !radius && !date) {
             const reports = await reportService.getReportsByUserId(userId, offset, limit);
             return res.status(200).json(reports);
         } else if (date && userId && !longitude && !latitude && !radius) {
             const reports = await reportService.getActiveReportsByUserId(userId, date, offset, limit);
             return res.status(200).json(reports);
-        }else if(userId && longitude && latitude && radius && !date){
-            const reports = await reportService.getReportsByUserIdByLoc(userId,latitude, longitude, radius, offset, limit);
+        } else if (userId && longitude && latitude && radius && !date) {
+            const reports = await reportService.getReportsByUserIdByLoc(userId, latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
-        }else if(date && userId && longitude && latitude && radius){
+        } else if (date && userId && longitude && latitude && radius) {
             const reports = await reportService.getActiveReportsByUserIdByLoc(userId, latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
         }

@@ -46,21 +46,21 @@ router.get('/', async (req, res) => {
         if (!validator.validateRadius(Number(req.query.radius))) {
             return res.status(400).json(createError('Richiesta non valida', 400,
                 'Devi fornire un raggio entro cui cercare che sia maggiore di 0 e minore di 5000.'));
-		}
-		radius = Number(req.query.radius);
-	}
+        }
+        radius = Number(req.query.radius);
+    }
 
     try {
         if (date && !longitude && !latitude && !radius) {
             const reports = await service.getActiveReports(date, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && !date) {
+        } else if (longitude && latitude && radius && !date) {
             const reports = await service.getReportsByLocation(latitude, longitude, radius, offset, limit);
             return res.status(200).json(reports);
-        } else if(longitude && latitude && radius && date){
+        } else if (longitude && latitude && radius && date) {
             const reports = await service.getActiveReportsByLocation(latitude, longitude, radius, date, offset, limit);
             return res.status(200).json(reports);
-        }else {
+        } else {
             const reports = await service.getReports(offset, limit);
             return res.status(200).json(reports);
         }
@@ -115,8 +115,9 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-        const id = req.params.id;
-        const report = await service.getReportById(id);
+
+    const id = req.params.id;
+    const report = await service.getReportById(id);
 
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
@@ -129,35 +130,48 @@ router.patch('/:id', tokenChecker, async (req, res) => {
         }
     }
 
-        if (req.user.role === 'admin' && (req.body.name || req.body.info ||
-            req.body.duration || req.body.photos )) {
-            return res.status(403).json(createError('Accesso negato. ', 403,
-                'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
-        }
-        
-        try {
+    if (req.user.role === 'citizen' && req.user.id !== report.createdBy.toString()) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Puoi modificare solo le segnalazioni che hai creato.'));
+    }
 
+    if (req.user.role === 'admin' && (req.body.name || req.body.info ||
+        req.body.duration || req.body.photos)) {
+        return res.status(403).json(createError('Accesso negato. ', 403,
+            'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
+    }
+
+    try {
         let data = null;
 
-            if(req.user.role === 'citizen'){
-                if(!req.body.start){
-                    req.body.duration.start = report.duration.start.toISOString();
-                }
-                let dataCit = {
-                    'name': null,
-                    'info': null,
-                    'duration': {
-                        'start' : null,
-                        'end' : null,
-                    },
-                    'photos': null,
-                    'status': null
+        if (req.user.role === 'citizen') {
+            if (!req.body.start) {
+                req.body.duration.start = report.duration.start.toISOString();
+            }
+            let dataCit = {
+                'name': null,
+                'info': null,
+                'duration': {
+                    'start': null,
+                    'end': null,
+                },
+                'photos': null,
+                'status': null
+            }
+
+            Object.keys(dataCit).forEach(key => {
+                if (req.body.hasOwnProperty(key)) {
+                    dataCit[key] = req.body[key];
                 }
             });
 
             data = Object.fromEntries(Object.entries(dataCit).filter(([_, v]) => v != null));
 
-            }else if (req.user.role === 'admin'){
+        } else if (req.user.role === 'admin') {
+
+            let dataAdm = {
+                'status': null
+            }
 
             Object.keys(dataAdm).forEach(key => {
                 if (req.body.hasOwnProperty(key)) {

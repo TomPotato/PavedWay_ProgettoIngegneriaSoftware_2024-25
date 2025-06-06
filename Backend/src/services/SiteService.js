@@ -347,96 +347,96 @@ class SiteService {
     }
   }
 
-    /**
-     * Crea un commento associato a un cantiere.
-     * 
-     * @async
-     * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
-     * @param {string} userId - L'ID dell'utente che sta creando il commento.
-     * @param {string} text - Il testo del commento da aggiungere.
-     * @returns {Promise<Site>} Il cantiere aggiornato con il nuovo commento.
-     * @throws {Error} Se si verifica un errore durante la creazione del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-     * 
-     * @description
-     * Questa funzione esegue i seguenti passaggi:
-     * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
-     * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
-     * 3. Se il cantiere esiste, crea un nuovo commento con l'ID utente e il testo forniti.
-     * 4. Aggiunge il commento al cantiere e lo salva nel database.
-     * 5. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
-     * 6. Restituisce il cantiere aggiornato con il nuovo commento.
-     */
-    async createComment(reportId, userId, text) {
-        try {
-            const site = await Site.findById(reportId);
-            if (!site) {
-                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
-            }
+  /**
+   * Crea un commento associato a un cantiere.
+   * 
+   * @async
+   * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
+   * @param {string} userId - L'ID dell'utente che sta creando il commento.
+   * @param {string} text - Il testo del commento da aggiungere.
+   * @returns {Promise<Site>} Il cantiere aggiornato con il nuovo commento.
+   * @throws {Error} Se si verifica un errore durante la creazione del commento, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   * 
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+   * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+   * 3. Se il cantiere esiste, crea un nuovo commento con l'ID utente e il testo forniti.
+   * 4. Aggiunge il commento al cantiere e lo salva nel database.
+   * 5. Se si verifica un errore durante la creazione del commento, solleva un errore 500 (Internal Server Error).
+   * 6. Restituisce il cantiere aggiornato con il nuovo commento.
+   */
+  async createComment(reportId, userId, text) {
+    try {
+      const site = await Site.findById(reportId);
+      if (!site) {
+        throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+      }
 
-            const comment = new Comment({
-                userId: userId,
-                text: text
-            });
+      const comment = new Comment({
+        userId: userId,
+        text: text
+      });
 
-            site.comments.push(comment.toObject());
-            const updatedSite = await site.save();
-            return updatedSite;
-        } catch (error) {
-            if (error.code) {
-                throw error;
-            } else {
-                const message = 'Errore interno del server durante la creazione del commento.';
-                throw createError('Errore interno del server', 500, message);
-            }
-        }
+      site.comments.push(comment.toObject());
+      const updatedSite = await site.save();
+      return updatedSite;
+    } catch (error) {
+      if (error.code) {
+        throw error;
+      } else {
+        const message = 'Errore interno del server durante la creazione del commento.';
+        throw createError('Errore interno del server', 500, message);
+      }
     }
+  }
 
-    /**
-    * Mostra una lista di commenti associati a un cantiere.
-    *
-    * @async
-    * @param {string} siteId - L'ID del cantiere di cui visualizzare i commenti.
-    * @param {number} offset - Il numero di commenti da saltare.
-    * @param {number} limit - Il numero massimo di commenti da recuperare.
-    * @returns {Promise<Array<Comments>>} Un array di commenti.
-    * @throws {Error} Se si verifica un errore durante la ricerca dei commenti, viene sollevato un errore con un messaggio e un codice di stato appropriati.
-    * 
-    * @description
-    * Questa funzione esegue i seguenti passaggi:
-    * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
-    * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
-    * 3. Se il cantiere esiste, recupera i commenti associati al cantiere.
-    * 4. Se è fornito un offset e un limite, applica questi parametri alla lista dei commenti.
-    * 5. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
-    * 6. Restituisce i commenti recuperati.
-    */
-    async getCommentsBySiteid(siteId, offset, limit) {
-        try {
-            const site = await Site.findById(siteId);
-            if (!site) {
-                throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
-            }
+  /**
+  * Mostra una lista di commenti associati a un cantiere.
+  *
+  * @async
+  * @param {string} siteId - L'ID del cantiere di cui visualizzare i commenti.
+  * @param {number} offset - Il numero di commenti da saltare.
+  * @param {number} limit - Il numero massimo di commenti da recuperare.
+  * @returns {Promise<Array<Comments>>} Un array di commenti.
+  * @throws {Error} Se si verifica un errore durante la ricerca dei commenti, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+  * 
+  * @description
+  * Questa funzione esegue i seguenti passaggi:
+  * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+  * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+  * 3. Se il cantiere esiste, recupera i commenti associati al cantiere.
+  * 4. Se è fornito un offset e un limite, applica questi parametri alla lista dei commenti.
+  * 5. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+  * 6. Restituisce i commenti recuperati.
+  */
+  async getCommentsBySiteid(siteId, offset, limit) {
+    try {
+      const site = await Site.findById(siteId);
+      if (!site) {
+        throw createError('Cantiere non trovato', 404, 'Nessun cantiere trovato con questo ID.');
+      }
 
-            let comments = site.comments;
+      let comments = site.comments;
 
-            if (offset && offset > 0) {
-                comments = comments.slice(offset);
-            }
+      if (offset && offset > 0) {
+        comments = comments.slice(offset);
+      }
 
-            if (limit && limit > 0) {
-                comments = comments.slice(0, limit);
-            }
+      if (limit && limit > 0) {
+        comments = comments.slice(0, limit);
+      }
 
-            return comments;
-        } catch (error) {
-            if (error.code) {
-                throw error;
-            } else {
-                const message = 'Errore interno del server durante la lettura dei commenti.';
-                throw createError('Errore interno del server', 500, message);
-            }
-        }
+      return comments;
+    } catch (error) {
+      if (error.code) {
+        throw error;
+      } else {
+        const message = 'Errore interno del server durante la lettura dei commenti.';
+        throw createError('Errore interno del server', 500, message);
+      }
     }
+  }
 
 }
 
