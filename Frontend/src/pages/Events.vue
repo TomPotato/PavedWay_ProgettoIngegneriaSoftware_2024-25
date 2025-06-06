@@ -34,12 +34,31 @@
 							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
-							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica', site.id)"
+							<br />
+							<div class="w-full flex gap-5">
+								<div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
+									<input type="radio" name="my-accordion-2" />
+									<div class="collapse-title font-semibold">Commenti:</div>
+									<div class="collapse-content text-sm">
+										<div class="bg-base-100 border border-base-200 w-full p-6"
+											v-for="(comment, index) in site.comments" :key="index">
+											<p>{{ comment.userId }}</p>
+											<p>{{ comment.text }}</p>
+											<p>{{ comment.createdAt }}</p>
+										</div>
+									</div>
+								</div>
+								<div v-if="isCitizen" class="flex items-start">
+									<button @click="openModal('CommentoCrea')" class="btn btn-square btn-primary p-1">
+										<img src="/comment.svg" />
+									</button>
+								</div>
+							</div>
+							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
+								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
-								<button @click="deleteSite(site.id)" v-if="isAdmin"
-									class="btn btn-primary w-full">Elimina il
+								<button @click="deleteSite(site.id)" class="btn btn-primary w-full">Elimina il
 									cantiere!</button>
 							</div>
 						</div>
@@ -147,7 +166,8 @@
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di inizio.
+								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di
+								inizio.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -260,7 +280,8 @@
 									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
+									la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
 									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
@@ -366,7 +387,7 @@
 							</p>
 
 							<label class="label">Inserisci le immagini:</label>
-							<input type="file" class="file-input" @change="photoUpload" multiple/>
+							<input type="file" class="file-input" @change="photoUpload" multiple />
 							<label class="label">Max size 2MB</label>
 						</fieldset>
 					</div>

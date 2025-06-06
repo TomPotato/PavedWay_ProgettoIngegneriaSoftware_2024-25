@@ -28,11 +28,17 @@
                         report.duration?.end
                         || " 'data da destinarsi' " }}</p>
                 <i class=" text-yellow-600">Rating: {{ report?.rating || "0" }}</i>
-                <p>Commenti:</p>
-                <div v-for="comment in report.comments" :key="comment.id">
-                    <p>{{ comment.userId }}</p>
-                    <p>{{ comment.text }}</p>
-                    <p>{{ comment.createdAt }}</p>
+                <div class="collapse collapse-arrow bg-base-200 border border-base-100">
+                    <input type="radio" name="my-accordion-2" />
+                    <div class="collapse-title font-semibold">Commenti:</div>
+                    <div class="collapse-content text-sm">
+                        <div class="bg-base-100 border border-base-200 w-full p-6"
+                            v-for="(comment, index) in report.comments" :key="index">
+                            <p>{{ comment.userId }}</p>
+                            <p>{{ comment.text }}</p>
+                            <p>{{ comment.createdAt }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
