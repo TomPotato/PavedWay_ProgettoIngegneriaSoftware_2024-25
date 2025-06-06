@@ -27,7 +27,7 @@ class Validator {
     }
 
     validateNotification(notification) {
-        const notificationRegex = /^[a-zA-ZÀ-ÿ0-9.,:;!?()'"“”‘’\- ]{1,100}$/u;
+        const notificationRegex = /^[a-zA-ZÀ-ÿ0-9.,:;!?()'"“”‘’\- ]{1,100}$/;
         return notificationRegex.test(notification);
     }
 }
