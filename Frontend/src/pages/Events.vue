@@ -262,7 +262,8 @@
 							<p v-if="isAdmin">Status: {{ report.status }}</p>
 							<p v-if="!isAdmin && report.status === 'solved'">Segnalazione Risolta!</p>
 							<div class="grid grid-cols-5 gap-5 w-auto">
-								<button class="btn btn-primary w-[10vh]" @click="goToReportInfo(report.id)">Info</button>
+								<button class="btn btn-primary w-[10vh]"
+									@click="goToReportInfo(report.id)">Info</button>
 								<button @click="deleteReport(report.id)" v-if="isAdmin"
 									class="btn btn-primary w-full">Elimina la
 									Segnalazione!</button>
@@ -898,7 +899,7 @@ const statusReport = async (id, status) => {
 };
 
 const goToReportInfo = (id) => {
-	router.push({ path: '/report/(.*)*', query: { id } });
+	router.push({ path: `/reports/${id}` });
 };
 
 onMounted(() => {

@@ -42,7 +42,7 @@ import { onMounted } from 'vue';
 const errorMessage = ref(null);
 
 const route = useRoute();
-const id = route.query.id;
+const id = route.params.id;
 
 const report = ref({});
 

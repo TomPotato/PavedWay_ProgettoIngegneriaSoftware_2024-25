@@ -19,7 +19,7 @@ const routes = [
     { path: '/refresh', name: 'refresh', component: Refresh },
     { path: '/users', name: 'users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/profile', name: 'profile', component: Profile },
-    {path: '/report/:id', name: 'reportInfo', component: ReportInfo},
+    { path: '/reports/:id', name: 'reportInfo', component: ReportInfo },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
