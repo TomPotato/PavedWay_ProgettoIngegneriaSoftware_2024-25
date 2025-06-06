@@ -111,6 +111,7 @@ class AuthService {
             });
 
             const userInfo = {
+                id: user._id,
                 username: user.username,
                 name: user.name,
                 surname: user.surname,

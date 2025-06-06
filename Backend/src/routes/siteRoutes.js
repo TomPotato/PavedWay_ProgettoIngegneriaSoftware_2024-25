@@ -64,7 +64,6 @@ router.get('/', async (req, res) => {
             return res.status(200).json(sites);
         }
     } catch (error) {
-        console.log(error);
         res.status(error.code).json(error);
     }
 });

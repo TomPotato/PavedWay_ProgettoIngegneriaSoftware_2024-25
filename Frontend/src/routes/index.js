@@ -18,7 +18,7 @@ const routes = [
     { path: '/events', name: 'events', component: Events },
     { path: '/refresh', name: 'refresh', component: Refresh },
     { path: '/users', name: 'users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
-    { path: '/profile', name: 'profile', component: Profile },
+    { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true}},
     { path: '/reports/:id', name: 'reportInfo', component: ReportInfo },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];

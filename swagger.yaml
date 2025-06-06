@@ -260,6 +260,21 @@ paths:
             type: string
           description: ID dell'utente di cui restituire le segnalazioni.
         - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
           name: offset
           schema:
             type: integer
@@ -334,7 +349,7 @@ paths:
           name: radius
           schema:
             type: integer
-          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare delle segnalazioni.
         - in: query
           name: offset
           schema:

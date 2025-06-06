@@ -5,37 +5,30 @@
         <div class="tab-content bg-base-200 border-base-400 w-full min-h-[70vh] p-6">
             <div class="card lg:card-side bg-base-300 shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-xl font-semibold">Username: {{ authStore.user.username }}</h2>
-                    <p>Nome: {{ authStore.user.name }}, Cognome: {{ authStore.user.surname }}</p>
-                    <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user.email }}</i></p>
-                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user.office }}</i></p>
+                    <h2 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h2>
+                    <p>Nome: {{ authStore.user?.name }}, Cognome: {{ authStore.user?.surname }}</p>
+                    <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user?.email }}</i></p>
+                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user?.office }}</i></p>
                 </div>
             </div>
         </div>
         <input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]" aria-label="Segnalazioni"
-            v-if="authStore.isCitizen" />
+            v-if="authStore.isCitizen" @click="getReportsByUserId" />
         <div class="tab-content bg-base-200 border-base-400 w-full p-6">
-            <div class="bg-base-200 border-base-400 w-full p-6">
-                <div class="flex w-full h-[60vh] flex-col">
-                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2">
-                        <div class="w-full grid grid-cols-7 gap-2">
-                            <button class="btn btn-neutral w-auto" @click="getReportsByUserId">Mostra
-                                le mie
-                                Segnalazioni!</button>
-                            <button class="btn btn-neutral w-auto" @click="getActiveReportsByUserId">Le mie
-                                Segnalazioni
-                                ancora
-                                attive!</button>
-                            <button @click="openDrawer('SegnalazioniCerca')"
-                                class="btn btn-square btn-primary drawer-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-search" viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                            </button>
-                        </div>
+            <div class="bg-base-200 border-base-400 w-full">
+                <div class="flex w-full h-[66vh] flex-col">
+                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
+                        <button @click="getReportsByUserId" class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/refresh.svg" />
+                        </button>
+                        <button @click="openDrawer('SegnalazioniCerca')"
+                            class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/search.svg" />
+                        </button>
+                        <button class="btn btn-neutral w-auto" @click="getActiveReportsByUserId">Le mie
+                            Segnalazioni
+                            ancora
+                            attive!</button>
                     </div>
 
                     <div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
@@ -51,8 +44,8 @@
                                 <i>Rating: {{ report?.rating || "0" }}</i>
                                 <p v-if="report.status === 'solved'">Segnalazione Risolta!</p>
                                 <div class="grid grid-cols-4 gap-5 w-auto">
-                                    <button @click="goToReportInfo(report.id)"
-                                        class="btn btn-primary w-[10vh]">Info</button>
+                                    <button class="btn btn-primary w-[10vh]"
+                                        @click="goToReportInfo(report.id)">Info</button>
                                     <button @click="deleteReport(report.id)" class="btn btn-primary w-full">Elimina
                                         la
                                         Segnalazione!</button>
@@ -111,7 +104,7 @@
                                     <p v-if="now === 'tutti'">Tutte le Segnalazioni?</p>
                                     <p v-else>Le Segnalazioni ancora attive?</p>
                                     <input @click="nowChange" type="checkbox" checked="checked"
-                                        class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-7" />
+                                        class="toggle border-blue-600 bg-blue-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800 absolute right-10" />
                                 </label>
                                 <button for="SegnalazioniCerca" class="btn btn-neutral mt-4"
                                     @click="getReportsByUserIdByLoc(meters)"
@@ -136,6 +129,10 @@
                                 <p v-if="!validateInfo" class="text-error">
                                     Le informazioni devono essere lunghe tra 1 e 200 caratteri.
                                 </p>
+
+                                <label class="label">Inserisci le immagini:</label>
+                                <input type="file" class="file-input" @change="photoUpload" multiple />
+                                <label class="label">Max size 2MB</label>
                             </fieldset>
                         </div>
                         <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
@@ -176,6 +173,7 @@ import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
 import { useRouter } from 'vue-router';
+import imageCompression from 'browser-image-compression';
 
 const router = useRouter();
 
@@ -184,6 +182,7 @@ const errorMessage = ref(null);
 const authStore = useAuthStore();
 
 const reports = ref([]);
+const base64Photos = ref([]);
 
 const rInfo = ref({});
 
@@ -231,13 +230,6 @@ const validateStart = computed(() => {
 });
 
 const end = ref('');
-const validateEnd = computed(() => {
-    if (end.value != '') {
-        return (validateService.validateDate(end.value) && end.value > start.value);
-    } else {
-        return (end.value == '');
-    }
-});
 
 const radius = ref('');
 const validateRadius = computed(() => {
@@ -321,15 +313,40 @@ const resCerca = () => {
     now.value = 'tutti';
 };
 
+async function photoUpload(event) {
+    const files = event.target.files;
+    if (!files) return;
+
+    try {
+        const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true
+        };
+        const base64Photo = [];
+
+        for (const file of files) {
+            const compressedFile = await imageCompression(file, options);
+            const base64photo = await imageCompression.getDataUrlFromFile(compressedFile);
+            const base64Only = base64photo.split(',')[1];
+            base64Photo.push(base64Only);
+        }
+
+        base64Photos.value = base64Photo;
+
+    } catch (error) {
+        console.error("Errore durante la compressione:", error);
+    }
+}
+
 const getReportsByUserId = async () => {
     try {
         const reportData = {
-            'my': true,
             'offset': 0,
             'limit': 0
         };
         ready.value = false;
-        reports.value = await reportService.getReportsByUserId(authStore.token, reportData);
+        reports.value = await reportService.getReportsByUserId(reportData, authStore.user.id);
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
@@ -340,12 +357,11 @@ const getActiveReportsByUserId = async () => {
     try {
         const reportData = {
             'now': true,
-            'my': true,
             'offset': 0,
             'limit': 0
         };
         ready.value = false;
-        reports.value = await reportService.getActiveReportsByUserId(authStore.token, reportData);
+        reports.value = await reportService.getActiveReportsByUserId(reportData, authStore.user.id);
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
@@ -365,20 +381,16 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
         if (!valCerca) { errorMessage.value = 'Non hai inserito correttamente i campi della ricerca!'; } else {
             if (now.value === 'tutti') {
                 const reportData = {
-                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
                     'offset': 0,
                     'limit': 0
                 }
-                console.log('Passa');
-                console.log(reportData);
                 ready.value = false;
-                reports.value = await reportService.getReportsByUserIdByLoc(authStore.token, reportData);
+                reports.value = await reportService.getReportsByUserIdByLoc(reportData, authStore.user.id);
             } else {
                 const reportData = {
-                    'my': true,
                     'latitude': latitude.value,
                     'longitude': longitude.value,
                     'radius': radius.value,
@@ -387,7 +399,7 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
                     'limit': 0
                 }
                 ready.value = false;
-                reports.value = await reportService.getActiveReportsByUserIdByLoc(authStore.token, reportData);
+                reports.value = await reportService.getActiveReportsByUserIdByLoc(reportData, authStore.user.id);
             }
             resCerca();
             closeDrawer('SegnalazioniCerca');
@@ -413,7 +425,7 @@ const updateReport = async () => {
                 'duration': {
                     'start': start.value,
                 },
-                'photos': null,
+                'photos': base64Photos.value,
             };
             await reportService.updateReport(authStore.token, id, reportData);
             resMod();
