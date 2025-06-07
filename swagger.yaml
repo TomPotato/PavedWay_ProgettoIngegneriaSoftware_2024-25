@@ -209,6 +209,7 @@ paths:
       description: >-
         Permette di eliminare un utente specifico in base all'ID fornito. 
         Devi essere autenticato come amministratore per eliminare un utente o essere l'utente stesso.
+        Non è possibile eliminare l'ultimo utente amministratore del sistema.
       security:
         - ApiKeyAuth: []
       parameters:
@@ -235,6 +236,14 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: >-
+            Non è possibile eliminare l'ultimo utente amministratore del sistema.
+            Devi prima creare un altro utente amministratore.
           content:
             application/json:
               schema:
