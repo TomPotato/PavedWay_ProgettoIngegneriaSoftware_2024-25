@@ -43,8 +43,8 @@
                         </ul>
                     </div>
                 </li>
-                <li>
-                    <div class="dropdown dropdown-end">
+                <li v-if="store.isCitizen">
+                    <div class="dropdown dropdown-end" ref="notificationDropdown">
                         <div tabindex="0">
                             <div class="indicator">
                                 <span v-if="notifications" class="indicator-item badge badge-secondary">{{
@@ -56,13 +56,17 @@
                             </div>
                         </div>
                         <ul tabindex="0"
-                            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
                             <li v-for="(notify, index) in notifications" :key="index">
-                                <router-link :to="`/report/${notify.report}`">
-                                    <p>{{ notify.message }}, </p>
+                                <div class="block px-2 py-1" @click="goToReportInfo(index)">
+                                    <p>{{ notify.message }}</p>
                                     <p v-if="notify.report">{{ notify.report }}</p>
                                     <p v-if="notify.site">{{ notify.site }}</p>
-                                </router-link>
+                                </div>
+                            </li>
+                            <li>
+                                <button class="btn btn-primary drawer-button h-auto"
+                                    @click="openDrawer('Notifiche')">Centro Notifiche</button>
                             </li>
                         </ul>
                     </div>
@@ -86,6 +90,22 @@
             <button @click="closeModal">Annulla</button>
         </form>
     </dialog>
+
+    <div class="drawer drawer-end h-full center-0" style="z-index: 1050">
+        <input id="Notifiche" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-side" style="z-index: 1060">
+            <button @click="closeDrawer('Notifiche')" aria-label="close sidebar" class="drawer-overlay"></button>
+            <div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
+                <div v-for="(notify, index) in notifications" :key="index">
+                    <button class="block px-2 py-1 btn btn-ghost h-auto" @click="goToReportInfo(index) || goToSiteInfo(index)">
+                        <p>{{ notify.message }}</p>
+                        <p v-if="notify.report">{{ notify.report }}</p>
+                        <p v-if="notify.site">{{ notify.site }}</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -110,6 +130,15 @@ const closeModal = () => {
     document.body.classList.remove('modal-open');
 };
 
+const openDrawer = (id) => {
+    getNotifications();
+    document.getElementById(id).checked = true;
+};
+
+const closeDrawer = (id) => {
+    document.getElementById(id).checked = false;
+};
+
 const getNotifications = async () => {
     notifications.value = await notificationService.getNotifications();
 }
@@ -121,8 +150,22 @@ const logout = () => {
     closeModal();
 };
 
+const goToReportInfo = (index) => {
+    if (notifications.value[index].report) {
+        const id = notifications.value[index].report;
+        router.push({ path: `/reports/${id}` });
+    }
+};
+
+const goToSiteInfo = (index) => {
+    if (notifications.value[index].site) {
+        const id = notifications.value[index].site;
+        router.push({ path: `/sites/${id}` });
+    }
+};
+
 onMounted(() => {
-    getNotifications();
+    getNotifications(0, 5);
 });
 
 defineOptions({ name: 'Navbar' });

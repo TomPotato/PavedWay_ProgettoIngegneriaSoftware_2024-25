@@ -87,6 +87,17 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const site = await service.getSiteById(id);
+        res.status(200).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
 router.patch('/:id', tokenChecker, async (req, res) => {
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
