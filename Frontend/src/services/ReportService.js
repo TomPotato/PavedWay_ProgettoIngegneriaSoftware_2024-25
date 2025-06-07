@@ -13,8 +13,8 @@ class ReportService {
     }
   }
 
-  async getReportById(id){
-        try {
+  async getReportById(id) {
+    try {
       const response = await api.get(`/reports/${id}`);
       return response.data;
     } catch (error) {
@@ -62,7 +62,7 @@ class ReportService {
     }
   }
 
-    async getActiveReportsByUserId(reportData, userId) {
+  async getActiveReportsByUserId(reportData, userId) {
     try {
       const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
@@ -71,7 +71,7 @@ class ReportService {
     }
   }
 
-    async getReportsByUserIdByLoc(reportData, userId) {
+  async getReportsByUserIdByLoc(reportData, userId) {
     try {
       const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
@@ -80,7 +80,7 @@ class ReportService {
     }
   }
 
-      async getActiveReportsByUserIdByLoc(reportData, userId) {
+  async getActiveReportsByUserIdByLoc(reportData, userId) {
     try {
       const response = await api.get(`/users/${userId}/reports`, reportData);
       return response.data;
@@ -124,25 +124,33 @@ class ReportService {
 
   async statusReport(token, reportId, status, end) {
     try {
-      const response = await api.patch(
-        `/reports/${reportId}`,
-        {
-          duration:{
-            end: end,
+      if (status !== "approved") {
+        const response = await api.patch(`/reports/${reportId}`,
+          {
+            duration: {
+              end: end,
+            },
+            status: status,
           },
-          status: status,
-        },
-        {
-          headers: { "x-api-key": token },
-        }
-      );
+          {
+            headers: { "x-api-key": token },
+          });
+      } else {
+        const response = await api.patch(`/reports/${reportId}`,
+          {
+            status: status,
+          },
+          {
+            headers: { "x-api-key": token },
+          });
+      }
       return response.data;
     } catch (error) {
       throw error.data;
     }
   }
 
-    async createComment(token, commentData, id){
+  async createComment(token, commentData, id) {
     try {
       const response = await api.post(`/reports/${id}/comments`, commentData, {
         headers: { "x-api-key": token },

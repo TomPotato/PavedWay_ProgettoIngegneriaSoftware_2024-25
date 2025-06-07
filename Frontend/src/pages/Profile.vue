@@ -176,7 +176,7 @@
                     </div>
 
                     <div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
-                        <div class="space-y-4">
+                        <div class="space-y-4 grid grid-cols-3 gap-4">
                             <div class="bg-base-300 border border-base-200 w-full p-6"
                                 v-for="(notify, index) in notifications" :key="index">
                                 <h2 class="text-xl font-semibold">{{ notify.title }}</h2>
@@ -202,7 +202,7 @@
                     <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
                         <div>
                             <button class="btn btn-neutral w-full" @click="createNotification"
-                                :disabled="!text">Crea</button>
+                                :disabled="!message">Crea</button>
                         </div>
                         <div>
                             <button @click="closeModal('NotificheCrea')"
@@ -210,7 +210,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="modal-backdrop" @click="closeModal('CommentiCrea')">Close</button>
+                <button class="modal-backdrop" @click="closeModal('NotificheCrea')">Close</button>
             </dialog>
         </div>
     </div>
@@ -548,6 +548,7 @@ const createNotification = async () => {
         ready.value = false;
         await getNotifications();
         ready.value = true;
+        closeModal('NotificheCrea');
     } catch (error) {
         errorMessage.value = notificationService.error;
     }

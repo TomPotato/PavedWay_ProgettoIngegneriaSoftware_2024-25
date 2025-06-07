@@ -49,7 +49,7 @@
                             <div class="indicator">
                                 <span v-if="notifications" class="indicator-item badge badge-secondary">{{
                                     notifications.length
-                                    }}</span>
+                                }}</span>
                                 <button class="btn btn-square btn-ghost drawer-button h-8 w-5">
                                     <img src="/bell.svg" />
                                 </button>
@@ -58,7 +58,9 @@
                         <ul tabindex="0"
                             class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
                             <li v-for="(notify, index) in notifications" :key="index">
-                                <button class="block px-2 py-1" @click="notify.report ? goToReportInfo(index) : goToSiteInfo(index)">
+                                <button class="block px-2 py-1"
+                                    @click="notify.report ? goToReportInfo(index) : goToSiteInfo(index)"
+                                    :disabled="!notify.report && !notify.site">
                                     <p>{{ notify.message }}</p>
                                     <p v-if="notify.report">{{ notify.report }}</p>
                                     <p v-if="notify.site">{{ notify.site }}</p>
@@ -96,8 +98,10 @@
         <div class="drawer-side" style="z-index: 1060">
             <button @click="closeDrawer('Notifiche')" aria-label="close sidebar" class="drawer-overlay"></button>
             <div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
-                <div v-for="(notify, index) in notifications" :key="index">
-                    <button class="block px-2 py-1 btn btn-ghost h-auto" @click="goToReportInfo(index) || goToSiteInfo(index)">
+                <div v-for="(notify, index) in notificationsDrawer" :key="index">
+                    <button class="block px-2 py-1 btn btn-ghost h-auto"
+                        @click="goToReportInfo(index) || goToSiteInfo(index)"
+                        :disabled="!notify.report && !notify.site">
                         <p>{{ notify.message }}</p>
                         <p v-if="notify.report">{{ notify.report }}</p>
                         <p v-if="notify.site">{{ notify.site }}</p>
@@ -119,6 +123,8 @@ const route = useRoute();
 const store = useAuthStore();
 
 const notifications = ref([]);
+const notificationsDrawer = ref([]);
+
 
 const openModal = () => {
     document.getElementById('logout').showModal();
@@ -139,8 +145,12 @@ const closeDrawer = (id) => {
     document.getElementById(id).checked = false;
 };
 
-const getNotifications = async () => {
-    notifications.value = await notificationService.getNotifications();
+const getNotifications = async (offset, limit) => {
+    if (offset != undefined && limit != undefined) {
+        notifications.value = await notificationService.getNotifications(offset, limit);
+    } else {
+        notificationsDrawer.value = await notificationService.getNotifications(0, 0);
+    }
 }
 
 const logout = () => {
@@ -164,8 +174,9 @@ const goToSiteInfo = (index) => {
     }
 };
 
-onMounted(() => {
-    getNotifications(0, 5);
+onMounted(async () => {
+    const allNotifications = await notificationService.getNotifications(0, 0);
+    notifications.value = allNotifications.slice(-5).reverse();
 });
 
 defineOptions({ name: 'Navbar' });
