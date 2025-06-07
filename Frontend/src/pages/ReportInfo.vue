@@ -27,6 +27,7 @@
                     {{
                         report.duration?.end
                         || " 'data da destinarsi' " }}</p>
+                <p>Creato da: {{ userId }}</p>
                 <i class=" text-yellow-600">Rating: {{ report?.rating || "0" }}</i>
                 <div class="w-full flex gap-5">
                     <div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
@@ -35,7 +36,7 @@
                         <div class="collapse-content text-sm">
                             <div class="bg-base-100 border border-base-200 w-full p-6"
                                 v-for="(comment, index) in report.comments" :key="index">
-                                <p>{{ comment.userId }}</p>
+                                <p>{{ commentDisplay[index] }}</p>
                                 <p>{{ comment.text }}</p>
                                 <p>{{ comment.createdAt }}</p>
                             </div>
@@ -81,6 +82,7 @@ import reportService from '@/services/ReportService';
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStores';
+import userService from '@/services/UserService';
 
 const authStore = useAuthStore();
 
@@ -90,9 +92,12 @@ const errorMessage = ref(null);
 
 const ready = ref(false);
 const photoDisplay = ref([]);
+const commentDisplay = ref([]);
 
 const route = useRoute();
 const id = route.params.id;
+
+const userId = ref('');
 
 const report = ref({});
 
@@ -117,6 +122,19 @@ const getReportById = async () => {
         ready.value = false;
         report.value = await reportService.getReportById(id);
         photoDisplay.value = report.value.photos;
+        if (report.value.comments.length !== 0) {
+            for (const element of report.value.comments) {
+                let commentUser;
+                if (element.userId.length !== 24) {
+                    commentUser = 'Utente Eliminato';
+                } else {
+                    commentUser = await userService.findUserById(element.userId);
+                }
+                commentDisplay.value.push(commentUser);
+            }
+        };
+        const user = await userService.findUserById(report.value.createdBy);
+        userId.value = user;
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
@@ -129,12 +147,12 @@ const createComment = async () => {
         const commentData = {
             'text': text.value
         }
-        await reportService.createComment(authStore.token, commentData, id);
         ready.value = false;
+        closeModal('CommentiCrea');
+        await reportService.createComment(authStore.token, commentData, id);
+        text.value = '';
         await getReportById();
         ready.value = true;
-        text.value = '';
-        closeModal('CommentiCrea');
     } catch (error) {
         errorMessage.value = reportService.error;
     }

@@ -124,7 +124,7 @@ class ReportService {
 
   async statusReport(token, reportId, status, end) {
     try {
-      if (status !== "approved") {
+      if (status !== 'approved') {
         const response = await api.patch(`/reports/${reportId}`,
           {
             duration: {
@@ -135,6 +135,7 @@ class ReportService {
           {
             headers: { "x-api-key": token },
           });
+        return response.data;
       } else {
         const response = await api.patch(`/reports/${reportId}`,
           {
@@ -143,8 +144,8 @@ class ReportService {
           {
             headers: { "x-api-key": token },
           });
+        return response.data;
       }
-      return response.data;
     } catch (error) {
       throw error.data;
     }

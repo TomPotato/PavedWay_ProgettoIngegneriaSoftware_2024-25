@@ -99,7 +99,7 @@
             <button @click="closeDrawer('Notifiche')" aria-label="close sidebar" class="drawer-overlay"></button>
             <div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
                 <div v-for="(notify, index) in notificationsDrawer" :key="index">
-                    <button class="block px-2 py-1 btn btn-ghost h-auto"
+                    <button class="block px-2 py-1 btn btn-ghost h-auto text-black"
                         @click="goToReportInfo(index) || goToSiteInfo(index)"
                         :disabled="!notify.report && !notify.site">
                         <p>{{ notify.message }}</p>

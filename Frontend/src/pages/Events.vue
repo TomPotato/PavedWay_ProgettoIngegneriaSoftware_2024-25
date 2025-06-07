@@ -21,40 +21,17 @@
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
 				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
-					<div class="space-y-4">
+					<div class="space-y-4 grid grid-cols-2 gap-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
 							<i>{{ site.info }}</i>
 							<p>Posizione:</p>
-							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
 							<p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
 								site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
 								"/'data da destinarsi'/" }}</p>
-							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
-								site.realDuration?.end || " 'data da destinarsi' " }}</p>
-							<p>Impresa Edile: {{ site.companyName }}</p>
 							<br />
-							<div class="w-full flex gap-5">
-								<div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
-									<input type="radio" name="my-accordion-2" />
-									<div class="collapse-title font-semibold">Commenti:</div>
-									<div class="collapse-content text-sm">
-										<div class="bg-base-100 border border-base-200 w-full p-6"
-											v-for="(comment, index) in site.comments" :key="index">
-											<p>{{ comment.userId }}</p>
-											<p>{{ comment.text }}</p>
-											<p>{{ comment.createdAt }}</p>
-										</div>
-									</div>
-								</div>
-								<div v-if="isCitizen" class="flex items-start">
-									<button @click="openModal('CommentiCrea', site.id)"
-										class="btn btn-square btn-primary p-1">
-										<img src="/comment.svg" />
-									</button>
-								</div>
-							</div>
+							<button class="btn btn-primary w-[10vh]" @click="goToSiteInfo(site.id)">Info</button>
 							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
 								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
@@ -793,7 +770,6 @@ const createSite = async () => {
 			errorMessage.value = "Compila tutti i campi correttamente!";
 		} else {
 			const response = await pathService.getPlace(street.value, city.value, code.value, stNumber.value);
-			console.log(response);
 			latitude.value = response.lat;
 			longitude.value = response.lon;
 			const siteData = {
@@ -983,8 +959,8 @@ const statusReport = async (id, status) => {
 		await reportService.statusReport(authStore.token, id, status, end.value);
 		if (status === 'approved') {
 			const notificationData = {
-				'message': `Nuova segnalazione dagli utenti approvata`,
-				'report': id,
+				'message': `È stata approvata una segnalazione degli utenti`,
+				'report': id
 			};
 			await notifyService.createNotification(authStore.token, notificationData);
 		}
@@ -1012,6 +988,10 @@ const createComment = async () => {
 		errorMessage.value = reportService.error;
 	}
 }
+
+const goToSiteInfo = (id) => {
+	router.push({ path: `/sites/${id}` });
+};
 
 const goToReportInfo = (id) => {
 	router.push({ path: `/reports/${id}` });

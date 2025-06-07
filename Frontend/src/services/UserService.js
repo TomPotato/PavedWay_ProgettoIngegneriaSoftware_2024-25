@@ -48,6 +48,15 @@ class UserService {
             throw error.data;
         }
     }
+
+    async findUserById(id) {
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            throw error.data || error;
+        }
+    }
 }
 
 export default new UserService();

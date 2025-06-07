@@ -24,42 +24,121 @@
                         <div class="collapse-content text-sm">
                             <div class="bg-base-100 border border-base-200 w-full p-6"
                                 v-for="(comment, index) in site.comments" :key="index">
-                                <p>{{ comment.userId }}</p>
+                                <p>{{ commentDisplay[index] }}</p>
                                 <p>{{ comment.text }}</p>
                                 <p>{{ comment.createdAt }}</p>
                             </div>
                         </div>
                     </div>
+                    <div v-if="isCitizen" class="flex items-start">
+                        <button @click="openModal('CommentiCrea', site.id)" class="btn btn-square btn-primary p-1">
+                            <img src="/comment.svg" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <dialog id="CommentiCrea" class="modal" role="dialog">
+        <div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[40vh]">
+            <div class="overflow-y-auto p-4 flex-1">
+                <fieldset class="fieldset gap-2 w-xs">
+                    <textarea v-model="text" type="text" class="textarea" placeholder="Testo Commento"
+                        required></textarea>
+                    <p v-if="!validateComment" class="text-error">
+                        Hai un massimo di 140 caratteri per scrivere un commento.
+                    </p>
+                </fieldset>
+            </div>
+            <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+                <div>
+                    <button class="btn btn-neutral w-full" @click="createComment" :disabled="!text">Crea</button>
+                </div>
+                <div>
+                    <button @click="closeModal('CommentiCrea')"
+                        class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+                </div>
+            </div>
+        </div>
+        <button class="modal-backdrop" @click="closeModal('CommentiCrea')">Close</button>
+    </dialog>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import siteService from '@/services/SiteService';
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
+import { useAuthStore } from '@/stores/authStores';
+import userService from '@/services/UserService';
 
 const errorMessage = ref(null);
+const authStore = useAuthStore();
+const isCitizen = authStore.isCitizen;
+
 
 const ready = ref(false);
 
 const route = useRoute();
 const id = route.params.id;
 
+const commentDisplay = ref([]);
+
 const site = ref({});
+
+const text = ref('');
+const validateComment = computed(() => {
+    return text.value.length < 140;
+});
+
+const passEvent = ref('');
+
+const openModal = (id, eventId = '') => {
+    passEvent.value = eventId;
+    document.getElementById(id).showModal();
+};
+
+const closeModal = (id) => {
+    document.getElementById(id).close();
+};
 
 const getSiteById = async () => {
     try {
         ready.value = false;
         site.value = await siteService.getSiteById(id);
+        if (site.value.comments.length !== 0) {
+            for (const element of site.value.comments) {
+                let commentUser;
+                if (element.userId.length !== 24) {
+                    commentUser = 'Utente Eliminato';
+                } else {
+                    commentUser = await userService.findUserById(element.userId);
+                }
+                commentDisplay.value.push(commentUser);
+            };
+        };
         ready.value = true;
     } catch (error) {
         errorMessage.value = siteService.error;
     }
 };
+
+const createComment = async () => {
+    try {
+        const id = passEvent.value;
+        const commentData = {
+            'text': text.value
+        }
+        ready.value = false;
+        closeModal('CommentiCrea');
+        await siteService.createComment(authStore.token, commentData, id);
+        text.value = '';
+        await getSiteById();
+        ready.value = true;
+    } catch (error) {
+        errorMessage.value = siteService.error;
+    }
+}
 
 onMounted(() => {
     getSiteById();

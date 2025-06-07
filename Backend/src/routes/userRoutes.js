@@ -28,11 +28,11 @@ router.get('/', tokenChecker, async (req, res) => {
     }
 });
 
-router.get('/:id', tokenChecker, async (req, res) => {
+router.get('/:id', async (req, res) => {
     let id = req.params.id;
     try {
-        const user = await userService.getUserById(id);
-        res.status(200).json(user);
+        const users = await userService.getUserByUsername(id);
+        res.status(200).json(users);
     }
     catch (error) {
         res.status(error.code).json(error);
