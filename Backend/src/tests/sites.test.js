@@ -313,3 +313,49 @@ describe('PATCH /api/v1/sites/:id', () => {
       .expect(404);
   });
 });
+
+
+
+// Test for the DELETE /api/v1/sites/:id endpoint 
+describe('DELETE /api/v1/sites/:id', () => {
+
+  // User story: Delete Site
+  test('should return 204 for successful deletion', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    await request(app)
+      .delete(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(204);
+
+    const res = await request(app)
+      .get(`/api/v1/sites/${firstSiteId}`)
+      .expect(404);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    await request(app)
+      .delete(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    await request(app)
+      .delete(`/api/v1/sites/${firstSiteId}`)
+      .expect(401);
+  });
+
+  test('should return 404 for non-existent site ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    await request(app)
+      .delete(`/api/v1/sites/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(404);
+  });
+});
