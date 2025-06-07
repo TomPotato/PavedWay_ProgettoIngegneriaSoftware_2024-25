@@ -160,15 +160,28 @@ class UserService {
      * Questa funzione esegue i seguenti passaggi:
      * 1. Controlla se l'utente esiste nel database in base all'ID fornito.
      * 2. Se l'utente non esiste, solleva un errore 404 (Not Found).
-     * 3. Se l'utente esiste, elimina l'utente dal database.
-     * 4. Se si verifica un errore durante l'eliminazione, solleva un errore 500 (Internal Server Error).
+     * 3. Se l'utente è un amministratore, verifica se è l'ultimo amministratore nel sistema.
+     * 4. Se è l'ultimo amministratore, solleva un errore 403 (Forbidden).
+     * 5. Se l'utente esiste e non è l'ultimo amministratore, elimina l'utente dal database.
+     * 6. Se si verifica un errore durante l'eliminazione, solleva un errore 500 (Internal Server Error).
+     * 7. Restituisce l'utente eliminato.
      */
     async deleteUser(id) {
         try {
-            const user = await User.findByIdAndDelete(id);
+            const user = await User.findById(id);
+
             if (!user) {
                 throw createError('Utente non trovato', 404, 'Nessun utente trovato con questo ID.');
             }
+
+            if (user.__t === 'admin') {
+                const adminsNumber = await Admin.countDocuments();
+                if (adminsNumber <= 1) {
+                    throw createError('Eliminazione fallita', 403, 'Non puoi eliminare l\'ultimo amministratore.');
+                }
+            }
+
+            await User.findByIdAndDelete(id);
             return user;
         } catch (error) {
             if (error.code) {

@@ -8,7 +8,9 @@
                     <h2 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h2>
                     <p>Nome: {{ authStore.user?.name }}, Cognome: {{ authStore.user?.surname }}</p>
                     <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user?.email }}</i></p>
-                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user?.office }}</i></p>
+                    <p v-if="authStore.isAdmin">Ufficio di competenza: <i>{{ authStore.user?.office }}</i></p>
+                    <button @click="openModal('UtentiElimina')" class="btn btn-primary w-full">Elimina il
+                        profilo!</button>
                 </div>
             </div>
         </div>
@@ -162,18 +164,35 @@
         </div>
     </div>
     <RedirectMessage />
+
+    <dialog id="UtentiElimina" class="modal">
+        <div class="modal-box max-w-md w-full">
+            <h3 class="text-lg font-bold">Disconnessione</h3>
+            <p class="py-2">Sei sicuro di volerti disconnettere?</p>
+            <div class="modal-action">
+                <form method="dialog" class="flex flex-row gap-2">
+                    <button class="btn btn-neutral" @click="deleteUser(authStore.user.id)">Disconnettiti</button>
+                    <button class="btn btn-neutral" @click="closeModal">Annulla</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button @click="closeModal('UtentiElimina')">Annulla</button>
+        </form>
+    </dialog>
 </template>
 
 <script setup>
 
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import imageCompression from 'browser-image-compression';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
-import { useRouter } from 'vue-router';
-import imageCompression from 'browser-image-compression';
+import userService from '@/services/UserService';
 
 const router = useRouter();
 
@@ -242,13 +261,20 @@ const passEvent = ref('');
 
 const openModal = (id, eventId = '') => {
     passEvent.value = eventId;
-    if (id === 'SegnalazioniModifica') {
-        const report = reports.value.find(r => r.id === eventId);
-        title.value = report.name;
-        info.value = report.info;
-    } else if (id === 'SegnalazioniInfo') {
-        rInfo.value = reports.value.find(r => r.id === eventId);
+
+    switch (id) {
+        case 'SegnalazioniModifica':
+            const report = reports.value.find(r => r.id === eventId);
+            title.value = report.name;
+            info.value = report.info;
+            break;
+        case 'SegnalazioniInfo':
+            rInfo.value = reports.value.find(r => r.id === eventId);
+            break;
+        default:
+            break;
     }
+
     document.getElementById(id).showModal();
 };
 
@@ -339,7 +365,7 @@ async function photoUpload(event) {
     }
 }
 
-const getReportsByUserId = async () => {
+async function getReportsByUserId() {
     try {
         const reportData = {
             'offset': 0,
@@ -351,9 +377,9 @@ const getReportsByUserId = async () => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const getActiveReportsByUserId = async () => {
+async function getActiveReportsByUserId() {
     try {
         const reportData = {
             'now': true,
@@ -366,9 +392,9 @@ const getActiveReportsByUserId = async () => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
+async function getReportsByUserIdByLoc(mtrs) {
     if (mtrs === 'chilometri') {
         radius.value = radius.value * 1000;
     }
@@ -408,9 +434,9 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const updateReport = async () => {
+async function updateReport() {
     try {
         const id = passEvent.value;
 
@@ -439,7 +465,7 @@ const updateReport = async () => {
     }
 }
 
-const deleteReport = async (id) => {
+async function deleteReport(id) {
     try {
         await reportService.deleteReport(authStore.token, id);
         ready.value = false;
@@ -448,9 +474,9 @@ const deleteReport = async (id) => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const statusReport = async (id, status) => {
+async function statusReport(id, status) {
     try {
         const date = Date.now();
         end.value = new Date(date).toISOString();
@@ -461,9 +487,20 @@ const statusReport = async (id, status) => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const goToReportInfo = (id) => {
+async function goToReportInfo(id) {
     router.push({ path: `/reports/${id}` });
 };
+
+async function deleteUser(id) {
+    try {
+        await userService.deleteUser(id, authStore.token);
+        authStore.logout();
+        authStore.setMessage('Profilo eliminato con successo!');
+        router.push({ path: '/' });
+    } catch (error) {
+        errorMessage.value = error.message || 'Errore durante l\'eliminazione del profilo.';
+    }
+}
 </script>
