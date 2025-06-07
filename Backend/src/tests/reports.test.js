@@ -363,4 +363,46 @@ describe('DELETE /api/v1/reports/:id', () => {
       .set('X-API-Key', tokenCitizen)
       .expect(403);
   });
+
+  //User story: Delete Report
+  test('should return 204 for successful deletion', async () => {
+
+    const report = testReports[0];
+    const res = await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenCitizen)
+      .send({ ...report })
+      .expect(201);
+
+    await request(app)
+      .delete(`/api/v1/reports/${res.body.id}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(204);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const reportId = createdReports[1].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    await request(app)
+      .delete(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .expect(401);
+  });
 });
