@@ -141,6 +141,17 @@ class ReportService {
       throw error.data;
     }
   }
+
+    async createComment(token, commentData, id){
+    try {
+      const response = await api.post(`/reports/${id}/comments`, commentData, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
 }
 
 export default new ReportService();
