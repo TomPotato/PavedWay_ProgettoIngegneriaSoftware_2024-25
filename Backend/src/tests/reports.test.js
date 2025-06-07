@@ -20,18 +20,83 @@ afterAll(async () => {
 let testReports = []; 
 beforeAll(async () => {
   testReports = await createTestReports(10);
+  await Report.deleteMany({});
 });
 
-//Report creati nel database (con l'ID generato da MongoDB)
+//Report creati nel database (compreso l'ID generato da MongoDB)
 const createdReports = [];
 
 
 const userId = new mongoose.Types.ObjectId().toHexString();
-var token = jwt.sign(
+var tokenAdmin = jwt.sign(
   { id: userId, role: 'admin' },
   process.env.JWT_SECRET || 'your_jwt_secret',
   { expiresIn: '1h' }
 );
+
+
+//Test for the POST /api/v1/reports endpoint
+describe('POST /api/v1/reports', () => {
+
+  // User story: Create Report
+  test('should return 201 with valid report data', async () => {
+    const report = testReports[0];
+
+    const res = await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenAdmin)
+      .send({ ...report })
+      .expect(201);
+
+    expect(res.body).toHaveProperty('id');
+    expect(res.body.name).toBe(report.name);
+    expect(res.body.description).toBe(report.description);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const report = testReports[1];
+
+    await request(app)
+      .post('/api/v1/reports')
+      .send({ ...report })
+      .expect(401);
+  });
+
+  test('should return 400 for missing required report', async () => {
+    await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenAdmin)
+      .expect(400);
+  });
+
+  test('should return 400 for missing required fields', async () => {
+    await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenAdmin)
+      .send({
+        description: testReports[1].description,
+        location: testReports[1].location,
+        duration: testReports[1].duration,
+      })
+      .expect(400);
+  });
+
+  test('should return 400 for invalid format', async () => {
+    await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenAdmin)
+      .send({
+        name: testReports[1].name,
+        description: testReports[1].description,
+        location: testReports[1].location,
+        duration: {
+          start: 'startDate',
+          end: 'endDate',
+        },
+      })
+      .expect(400);
+  });
+});
 
 // Test for the GET /api/v1/reports endpoint
 describe('GET /api/v1/reports', () => {
@@ -41,7 +106,7 @@ describe('GET /api/v1/reports', () => {
     for (const report of testReports) {
       const res = await request(app)
         .post('/api/v1/reports')
-        .set('X-API-Key', token)
+        .set('X-API-Key', tokenAdmin)
         .send({ ...report });
 
         createdReports.push(res.body);
