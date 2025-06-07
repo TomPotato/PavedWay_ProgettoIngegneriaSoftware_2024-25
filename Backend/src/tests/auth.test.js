@@ -28,7 +28,7 @@ describe('POST /api/v1/auth', () => {
     testUsers = await createTestUsers(2);
   });
 
-  // User strory: Register
+  // User story: Register
   test('should return 201 with valid credentials', async () => {
 
     const res = await request(app)
@@ -129,6 +129,66 @@ describe('POST /api/v1/auth', () => {
         surname: testUsers[1].surname,
         password: testUsers[1].password,
         email: "paved-way"
+      })
+      .expect(400);
+  });
+
+
+  //User story: Login
+  test('should return 200 with valid credentials', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        username: testUsers[0].username,
+        password: testUsers[0].password
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('token');
+    expect(typeof res.body.token).toBe('string');
+    expect(res.body).toHaveProperty('user');
+  });
+
+  test('should return 401 for invalid username', async () => {
+    await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        username: 'wrongUsername',
+        password: testUsers[0].password
+      })
+      .expect(401);
+  });
+
+  test('should return 401 for invalid password', async () => {
+    await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        username: testUsers[0].username,
+        password: 'wrongPassword'
+      })
+      .expect(401);
+  });
+
+  test('should return 400 for missing fields', async () => {
+    await request(app)
+      .post('/api/v1/auth/login')
+      .expect(400);
+  });
+
+  test('should return 400 for missing password', async () => {
+    await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        username: testUsers[0].username
+      })
+      .expect(400);
+  });
+
+  test('should return 400 for missing username', async () => {
+    await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        password: testUsers[0].password
       })
       .expect(400);
   });
