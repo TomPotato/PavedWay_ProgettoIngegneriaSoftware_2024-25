@@ -22,7 +22,7 @@ beforeAll(async () => {
   testReports = await createTestReports(10);
 });
 
-//Report creati nel database
+//Report creati nel database (con l'ID generato da MongoDB)
 const createdReports = [];
 
 
@@ -45,7 +45,6 @@ describe('GET /api/v1/reports', () => {
         .send({ ...report });
 
         createdReports.push(res.body);
-        console.log(`Created report:`, res.body);
     }
   });
 
