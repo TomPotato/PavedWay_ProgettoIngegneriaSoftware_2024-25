@@ -34,12 +34,32 @@
 							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
 								site.realDuration?.end || " 'data da destinarsi' " }}</p>
 							<p>Impresa Edile: {{ site.companyName }}</p>
-							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica', site.id)"
+							<br />
+							<div class="w-full flex gap-5">
+								<div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
+									<input type="radio" name="my-accordion-2" />
+									<div class="collapse-title font-semibold">Commenti:</div>
+									<div class="collapse-content text-sm">
+										<div class="bg-base-100 border border-base-200 w-full p-6"
+											v-for="(comment, index) in site.comments" :key="index">
+											<p>{{ comment.userId }}</p>
+											<p>{{ comment.text }}</p>
+											<p>{{ comment.createdAt }}</p>
+										</div>
+									</div>
+								</div>
+								<div v-if="isCitizen" class="flex items-start">
+									<button @click="openModal('CommentiCrea', site.id)"
+										class="btn btn-square btn-primary p-1">
+										<img src="/comment.svg" />
+									</button>
+								</div>
+							</div>
+							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
+								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
-								<button @click="deleteSite(site.id)" v-if="isAdmin"
-									class="btn btn-primary w-full">Elimina il
+								<button @click="deleteSite(site.id)" class="btn btn-primary w-full">Elimina il
 									cantiere!</button>
 							</div>
 						</div>
@@ -147,7 +167,8 @@
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di inizio.
+								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di
+								inizio.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -216,6 +237,31 @@
 				</div>
 				<button class="modal-backdrop" @click="closeModal('CantieriModifica')">Close</button>
 			</dialog>
+
+			<dialog id="CommentiCrea" class="modal" role="dialog">
+				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[40vh]">
+					<div class="overflow-y-auto p-4 flex-1">
+						<fieldset class="fieldset gap-2 w-xs">
+							<textarea v-model="text" type="text" class="textarea" placeholder="Testo Commento"
+								required></textarea>
+							<p v-if="!validateComment" class="text-error">
+								Hai un massimo di 140 caratteri per scrivere un commento.
+							</p>
+						</fieldset>
+					</div>
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+						<div>
+							<button class="btn btn-neutral w-full" @click="createComment"
+								:disabled="!text">Crea</button>
+						</div>
+						<div>
+							<button @click="closeModal('CommentiCrea')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+						</div>
+					</div>
+				</div>
+				<button class="modal-backdrop" @click="closeModal('CommentiCrea')">Close</button>
+			</dialog>
 		</div>
 
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]" aria-label="Segnalazioni"
@@ -260,7 +306,8 @@
 									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la
+									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta
+									la
 									Segnalazione!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
 									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
@@ -366,7 +413,7 @@
 							</p>
 
 							<label class="label">Inserisci le immagini:</label>
-							<input type="file" class="file-input" @change="photoUpload" multiple/>
+							<input type="file" class="file-input" @change="photoUpload" multiple />
 							<label class="label">Max size 2MB</label>
 						</fieldset>
 					</div>
@@ -381,8 +428,9 @@
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click="">Close</button>
+				<button class="modal-backdrop" @click="closeModal('SegnalazioniCrea')">Close</button>
 			</dialog>
+
 		</div>
 	</div>
 	<div class="toast">
@@ -484,6 +532,11 @@ const validateRadius = computed(() => {
 	const check = ref('');
 	if (meters.value === 'metri' && radius.value <= 1000) { check.value = true } else if (meters.value === 'chilometri' && radius.value <= 5) { check.value = true } else { check.value = false };
 	return radius.value > 0 && check.value;
+});
+
+const text = ref('');
+const validateComment = computed(() => {
+	return text.value.length < 140;
 });
 
 const isAdmin = authStore.isAdmin;
@@ -916,6 +969,22 @@ const statusReport = async (id, status) => {
 		errorMessage.value = reportService.error;
 	}
 };
+
+const createComment = async () => {
+	try {
+		const id = passEvent.value;
+		const commentData = {
+			'text': text.value
+		}
+		await siteService.createComment(authStore.token, commentData, id);
+		ready.value = false;
+		await getSites();
+		ready.value = true;
+		closeModal('CommentiCrea');
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+}
 
 const goToReportInfo = (id) => {
 	router.push({ path: `/reports/${id}` });
