@@ -12,6 +12,17 @@ class NotificationService {
             throw error.data;
         }
     }
+    
+    async createNotification(token, notificationData) {
+        try {
+            const response = await api.post("/notifications", notificationData, {
+                headers: { "x-api-key": token },
+            });
+            return response.data;
+        } catch (error) {
+            throw error.data;
+        }
+    }
 }
 
 export default new NotificationService()

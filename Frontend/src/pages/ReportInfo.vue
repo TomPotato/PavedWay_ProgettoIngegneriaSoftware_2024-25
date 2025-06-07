@@ -133,6 +133,7 @@ const createComment = async () => {
         ready.value = false;
         await getReportById();
         ready.value = true;
+        text.value = '';
         closeModal('CommentiCrea');
     } catch (error) {
         errorMessage.value = reportService.error;

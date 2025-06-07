@@ -58,11 +58,11 @@
                         <ul tabindex="0"
                             class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
                             <li v-for="(notify, index) in notifications" :key="index">
-                                <div class="block px-2 py-1" @click="goToReportInfo(index)">
+                                <button class="block px-2 py-1" @click="notify.report ? goToReportInfo(index) : goToSiteInfo(index)">
                                     <p>{{ notify.message }}</p>
                                     <p v-if="notify.report">{{ notify.report }}</p>
                                     <p v-if="notify.site">{{ notify.site }}</p>
-                                </div>
+                                </button>
                             </li>
                             <li>
                                 <button class="btn btn-primary drawer-button h-auto"

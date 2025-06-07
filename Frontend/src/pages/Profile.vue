@@ -5,7 +5,12 @@
         <div class="tab-content bg-base-200 border-base-400 w-full min-h-[70vh] p-6">
             <div class="card lg:card-side bg-base-300 shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h2>
+                    <h2 class="text-xl font-semibold">Informazioni</h2>
+                    <p>Questa pagina ti permette di visualizzare le tue segnalazioni e modificarle se necessario.</p>
+                    <p>Puoi anche cercare segnalazioni in base alla posizione inserendo via, città e codice postale.</p>
+                    <p>Per ogni segnalazione puoi visualizzare le informazioni, modificarle o eliminarle.</p>
+                    <br />
+                    <h1 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h1>
                     <p>Nome: {{ authStore.user?.name }}, Cognome: {{ authStore.user?.surname }}</p>
                     <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user?.email }}</i></p>
                     <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user?.office }}</i></p>
@@ -150,6 +155,64 @@
                 </dialog>
             </div>
         </div>
+
+        <input v-if="authStore.isAdmin" type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]"
+            aria-label="Notifiche" @click="getNotifications" />
+        <div v-if="authStore.isAdmin" class="tab-content bg-base-200 border-base-400 w-full p-6">
+            <div class="bg-base-200 border-base-400 w-full">
+                <div class="flex w-full h-[66vh] flex-col">
+                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
+                        <button @click="getNotifications" class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/refresh.svg" />
+                        </button>
+                        <button @click="openModal('NotificheCrea')"
+                            class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/add.svg" />
+                        </button>
+                    </div>
+
+                    <div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+                        <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+                    </div>
+
+                    <div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
+                        <div class="space-y-4">
+                            <div class="bg-base-300 border border-base-200 w-full p-6"
+                                v-for="(notify, index) in notifications" :key="index">
+                                <h2 class="text-xl font-semibold">{{ notify.title }}</h2>
+                                <p>{{ notify.message }}</p>
+                                <p>Data di creazione: {{ notify.createdAt }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <dialog id="NotificheCrea" class="modal" role="dialog">
+                <div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[40vh]">
+                    <div class="overflow-y-auto p-4 flex-1">
+                        <fieldset class="fieldset gap-2 w-xs">
+                            <textarea v-model="message" type="text" class="textarea" placeholder="Testo Commento"
+                                required></textarea>
+                            <p v-if="!validateNotify" class="text-error">
+                                Hai un massimo di 60 caratteri per scrivere una notifica.
+                            </p>
+                        </fieldset>
+                    </div>
+                    <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+                        <div>
+                            <button class="btn btn-neutral w-full" @click="createNotification"
+                                :disabled="!text">Crea</button>
+                        </div>
+                        <div>
+                            <button @click="closeModal('NotificheCrea')"
+                                class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-backdrop" @click="closeModal('CommentiCrea')">Close</button>
+            </dialog>
+        </div>
     </div>
     <div class="toast">
         <div v-if="errorMessage" role="alert" class="alert alert-error">
@@ -174,10 +237,17 @@ import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
 import { useRouter } from 'vue-router';
 import imageCompression from 'browser-image-compression';
+import notificationService from '@/services/NotificationService';
 
 const router = useRouter();
 
 const errorMessage = ref(null);
+const notifications = ref([]);
+
+const message = ref('');
+const validateNotify = computed(() => {
+    return message.value.length > 0 && message.value.length <= 60;
+});
 
 const authStore = useAuthStore();
 
@@ -460,6 +530,26 @@ const statusReport = async (id, status) => {
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;
+    }
+};
+
+const getNotifications = async () => {
+    ready.value = false;
+    notifications.value = await notificationService.getNotifications();
+    ready.value = true;
+}
+
+const createNotification = async () => {
+    try {
+        const notificationData = {
+            'message': message.value
+        };
+        await notificationService.createNotification(authStore.token, notificationData);
+        ready.value = false;
+        await getNotifications();
+        ready.value = true;
+    } catch (error) {
+        errorMessage.value = notificationService.error;
     }
 };
 

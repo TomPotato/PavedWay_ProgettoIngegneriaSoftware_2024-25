@@ -252,7 +252,7 @@
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
 						<div>
 							<button class="btn btn-neutral w-full" @click="createComment"
-								:disabled="!text">Crea</button>
+								:disabled="!text">Commenta</button>
 						</div>
 						<div>
 							<button @click="closeModal('CommentiCrea')"
@@ -980,6 +980,7 @@ const createComment = async () => {
 		ready.value = false;
 		await getSites();
 		ready.value = true;
+		text.value = '';
 		closeModal('CommentiCrea');
 	} catch (error) {
 		errorMessage.value = reportService.error;
