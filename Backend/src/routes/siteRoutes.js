@@ -49,6 +49,12 @@ router.get('/', async (req, res) => {
         radius = Number(req.query.radius);
     }
 
+    if ((latitude !== null || longitude !== null || radius !== null) &&
+        !(latitude !== null && longitude !== null && radius !== null)) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Per cercare in una determinata area devi fornire latitudine, longitudine e raggio insieme.'));
+    }
+
     try {
         if (date && !latitude && !longitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
