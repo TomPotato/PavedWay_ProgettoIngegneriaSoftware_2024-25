@@ -57,20 +57,31 @@ async function createTestReports(count = 10) {
  * @param {number} count - Numero di utenti da creare.
  * @return {Promise<Array>} - Array di oggetti utente di test.
  */
-async function createTestUsers(count = 1) {
+async function createTestUsers(count = 1, role) {
   const users = [];
 
   for (let i = 0; i < count; i++) {
-
-    const user = {
-      username: `user${i + 1}`,
-      name: `Nome`,
-      surname: `Cognome`,
-      password: `Password${i + 1}_`,
-      email: `user${i + 1}@example.com`
+    if (role  === 'admin') {
+      const user = {
+      username: `userAdmin${i + 1}`,
+      name: `NomeAdmin`,
+      surname: `CognomeAdmin`,
+      password: `PasswordAdmin${i + 1}_`,
+      office: `Ufficio ${i + 1}`,
     };
-
     users.push(user);
+    console.log(`Admin ${i + 1} creato:`, user);
+  } else if (role === 'citizen') {
+    const user = {
+      username: `userCitizen${i + 1}`,
+      name: `NomeCitizen`,
+      surname: `CognomeCitizen`,
+      password: `PasswordCitizen${i + 1}_`,
+      email: `user${i + 1}@example.com`,
+    };
+    users.push(user);
+    console.log(`Citizen ${i + 1} creato:`, user);
+  }
   }
 
   return users;

@@ -129,7 +129,6 @@ describe('GET /api/v1/sites', () => {
         .send({ ...site });
 
         createdSites.push(res.body);
-        console.log(`Created site: ${res.body.name} with ID: ${res.body.id}`);
     }
   });
 
