@@ -27,14 +27,18 @@ beforeAll(async () => {
 const createdReports = [];
 
 
-const userId = new mongoose.Types.ObjectId().toHexString();
+const adminId = new mongoose.Types.ObjectId().toHexString();
+const citizenId = new mongoose.Types.ObjectId().toHexString();
 var tokenAdmin = jwt.sign(
-  { id: userId, role: 'admin' },
+  { id: adminId, role: 'admin' },
   process.env.JWT_SECRET || 'your_jwt_secret',
   { expiresIn: '1h' }
 );
-
-
+var tokenCitizen = jwt.sign(
+  { id: citizenId, role: 'citizen' },
+  process.env.JWT_SECRET || 'your_jwt_secret',
+  { expiresIn: '1h' }
+);
 
 //Test for the POST /api/v1/reports endpoint
 describe('POST /api/v1/reports', () => {
@@ -299,4 +303,64 @@ describe('PATCH /api/v1/reports/:id', () => {
   //     .send(updatedReport)
   //     .expect(404);
   // });
+});
+
+
+
+// Test for the DELETE /api/v1/reports/:id endpoint
+describe('DELETE /api/v1/reports/:id', () => {
+
+  // User story: Admin Delete Report
+  test('should return 204 with valid report ID', async () => {
+    const reportId = createdReports[0].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(204);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .expect(401);
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    await request(app)
+      .delete(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(404);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const reportId = createdReports[2].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    await request(app)
+      .delete(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(404);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const reportId = createdReports[2].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
 });
