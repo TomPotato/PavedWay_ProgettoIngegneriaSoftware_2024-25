@@ -119,6 +119,10 @@ router.patch('/:id', tokenChecker, async (req, res) => {
     const id = req.params.id;
     const report = await service.getReportById(id);
 
+    if (!report) {
+        return res.status(404).json(createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.'));
+    }
+
     if (!req.body) {
         return res.status(400).json(createError('Richiesta non valida', 400, 'Devi fornire le informazioni nel corpo della richiesta.'));
     }
@@ -139,6 +143,11 @@ router.patch('/:id', tokenChecker, async (req, res) => {
         req.body.duration || req.body.photos)) {
         return res.status(403).json(createError('Accesso negato. ', 403,
             'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
+    }
+
+    if (req.body.status && !validator.validateStatus(req.body.status)) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Lo stato della segnalazione deve essere uno tra: pending, approved, rejected, solved.'));
     }
 
     try {
@@ -188,7 +197,7 @@ router.patch('/:id', tokenChecker, async (req, res) => {
         await service.updateReport(id, data);
         res.status(204).json(null);
     } catch (error) {
-        res.status(error.code).json(error);
+        res.status(error.code || 500).json(error);
     }
 });
 

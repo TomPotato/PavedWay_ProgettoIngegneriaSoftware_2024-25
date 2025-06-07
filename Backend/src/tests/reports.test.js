@@ -232,3 +232,71 @@ describe('GET /api/v1/reports', () => {
       .expect(404);
   });
 });
+
+
+
+
+
+// Test for the PATCH /api/v1/reports/:id endpoint
+describe('PATCH /api/v1/reports/:id', () => {
+
+  // User story: Approve Report
+  test('should return 204 with valid report data', async () => {
+    const reportId = createdReports[0].id;
+    const updatedReport = {
+      status: 'approved',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(204);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      description: 'Descrizione aggiornata',
+    };
+
+    await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .send(updatedReport)
+      .expect(401);
+  });
+
+  test('should return 400 for missing required fields', async () => {
+    const reportId = createdReports[2].id;
+
+    await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .expect(400);
+  });
+
+  test('should return 400 for invalid data format', async () => {
+    const reportId = createdReports[3].id;
+
+    await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send({
+        status: 'invalid_status',
+      })
+      .expect(400);
+  });
+
+  // test('should return 404 for non-existent report ID', async () => {
+  //   const nonExistentId = new mongoose.Types.ObjectId();
+  //   const updatedReport = {
+  //     status: 'approved',
+  //   };
+    
+  //   await request(app)
+  //     .patch(`/api/v1/reports/${nonExistentId}`)
+  //     .set('X-API-Key', tokenAdmin)
+  //     .send(updatedReport)
+  //     .expect(404);
+  // });
+});
