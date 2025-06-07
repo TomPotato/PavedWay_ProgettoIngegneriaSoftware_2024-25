@@ -17,11 +17,14 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
+//Modelli dei sites NON nel database
 let testSites = [];
 beforeAll(async () => {
   testSites = await createTestSites(10);
   await Site.deleteMany({});
 });
+//Sites creati nel database (compreso l'ID generato da MongoDB)
+const createdSites = [];
 
 var tokenAdmin = jwt.sign(
   { userId: 'testUserId', role: 'admin' },
@@ -33,6 +36,8 @@ var tokenCitizen = jwt.sign(
   process.env.JWT_SECRET || 'your_jwt_secret',
   { expiresIn: '1h' }
 );
+
+
 
 
 // Test for the POST /api/v1/sites endpoint
@@ -110,6 +115,8 @@ describe('POST /api/v1/sites', () => {
 
 
 
+
+
 // Test for the GET /api/v1/sites endpoint
 describe('GET /api/v1/sites', () => {
 
@@ -120,6 +127,9 @@ describe('GET /api/v1/sites', () => {
         .post('/api/v1/sites')
         .set('X-API-Key', tokenAdmin)
         .send({ ...site });
+
+        createdSites.push(res.body);
+        console.log(`Created site: ${res.body.name} with ID: ${res.body.id}`);
     }
   });
 
@@ -213,5 +223,93 @@ describe('GET /api/v1/sites', () => {
       .get('/api/v1/sites')
       .query({ now: true, date: '05-21-2025' })
       .expect(400);
+  });
+});
+
+
+
+
+// Test for the PATCH /api/v1/sites/:id endpoint
+describe('PATCH /api/v1/sites/:id', () => {
+
+  
+  // User story: Update Site
+  test('should return 200 with valid site data', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedData)
+      .expect(200);
+
+    expect(res.body).toHaveProperty('id', firstSiteId);
+    expect(res.body.name).toBe(updatedData.name);
+    expect(res.body.info).toBe(updatedData.info);
+  });
+
+  test('should return 400 for wrong data format', async () => {
+    const firstSiteId = createdSites[0].id;
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+      duration: {
+        start: 'invalidDate',
+        end: 'invalidDate',
+      },
+    };
+
+    await request(app)
+      .patch(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedData)
+      .expect(400);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+    };
+
+    await request(app)
+      .patch(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenCitizen)
+      .send(updatedData)
+      .expect(403);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const firstSiteId = testSites[0].id;
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+    };
+
+    await request(app)
+      .patch(`/api/v1/sites/${firstSiteId}`)
+      .send(updatedData)
+      .expect(401);
+  });
+
+  test('should return 404 for non-existent site ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+    };
+
+    await request(app)
+      .patch(`/api/v1/sites/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedData)
+      .expect(404);
   });
 });

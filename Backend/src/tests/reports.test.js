@@ -35,6 +35,7 @@ var tokenAdmin = jwt.sign(
 );
 
 
+
 //Test for the POST /api/v1/reports endpoint
 describe('POST /api/v1/reports', () => {
 
@@ -97,6 +98,11 @@ describe('POST /api/v1/reports', () => {
       .expect(400);
   });
 });
+
+
+
+
+
 
 // Test for the GET /api/v1/reports endpoint
 describe('GET /api/v1/reports', () => {
@@ -220,6 +226,7 @@ describe('GET /api/v1/reports', () => {
 
   test('should return 404 for non-existent report ID', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
+    
     await request(app)
       .get(`/api/v1/reports/${nonExistentId}`)
       .expect(404);

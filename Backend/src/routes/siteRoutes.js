@@ -102,6 +102,22 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             'Non sei autorizzato a modificare questa informazione.'));
     }
 
+    const { duration, realDuration } = req.body;
+
+    if (
+    (realDuration?.start && !validator.validateDate(realDuration.start)) ||
+    (realDuration?.end && !validator.validateDate(realDuration.end)) ||
+    (duration?.start && !validator.validateDate(duration.start)) ||
+    (duration?.end && !validator.validateDate(duration.end))
+    ) {
+    return res.status(400).json(createError(
+        'Richiesta non valida',
+        400,
+        'Devi fornire una data valida in formato ISO 8601 per le durate.'
+    ));
+    }
+
+
     try {
 
         let data = {

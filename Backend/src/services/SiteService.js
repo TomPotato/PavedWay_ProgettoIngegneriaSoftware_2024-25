@@ -119,11 +119,12 @@ class SiteService {
         return updatedSite;
       }
     } catch (error) {
-      throw createError(
-        "Errore interno del server",
-        500,
-        "Errore interno del server avvenuto durante la modifica."
-      );
+      if (error.code) {
+        throw error;
+      } else {
+        const message = "Errore interno del server durante l'eliminazione.";
+        throw createError("Errore interno del server", 500, message);
+      }
     }
   }
 
