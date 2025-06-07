@@ -27,7 +27,11 @@ var token = jwt.sign(
   process.env.JWT_SECRET || 'your_jwt_secret',
   { expiresIn: '1h' }
 );
-
+var token2 = jwt.sign(
+  { userId: 'testUserId2', role: 'citizen' },
+  process.env.JWT_SECRET || 'your_jwt_secret',
+  { expiresIn: '1h' }
+);
 
 // Test for the GET /api/v1/sites endpoint
 describe('GET /api/v1/sites', () => {
@@ -131,6 +135,84 @@ describe('GET /api/v1/sites', () => {
     await request(app)
       .get('/api/v1/sites')
       .query({ now: true, date: '05-21-2025' })
+      .expect(400);
+  });
+});
+
+
+// Test for the POST /api/v1/sites endpoint
+describe('POST /api/v1/sites', () => {
+
+  beforeAll(async () => {
+    await Site.deleteMany({});
+  });
+
+  // User story: Create Site
+  test('should return 201 with valid site data', async () => {
+    const site = testSites[0];
+
+    const res = await request(app)
+      .post('/api/v1/sites')
+      .set('X-API-Key', token)
+      .send({ ...site })
+      .expect(201);
+
+    expect(res.body).toHaveProperty('id');
+    expect(res.body.name).toBe(site.name);
+    expect(res.body.info).toBe(site.info);
+  });
+
+  test('should return 403 for unauthorized user', async () => {
+    const site = testSites[1];
+
+    await request(app)
+      .post('/api/v1/sites')
+      .set('X-API-Key', token2)
+      .send({ ...site })
+      .expect(403);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const site = testSites[1];
+
+    await request(app)
+      .post('/api/v1/sites')
+      .send({ ...site })
+      .expect(401);
+  });
+
+  test('should return 400 for missing required site', async () => {
+    await request(app)
+      .post('/api/v1/sites')
+      .set('X-API-Key', token)
+      .expect(400);
+  });
+
+  test('should return 400 for missing required fields', async () => {
+    await request(app)
+      .post('/api/v1/sites')
+      .set('X-API-Key', token)
+      .send({
+        info: testSites[1].info,
+        location: testSites[1].location,
+        duration: testSites[1].duration,
+      })
+      .expect(400);
+  });
+
+  test('should return 400 for invalid format', async () => {
+    await request(app)
+      .post('/api/v1/sites')
+      .set('X-API-Key', token)
+      .send({
+        name: testSites[1].name,
+        info: testSites[1].info,
+        location: testSites[1].location,
+        duration: {
+          start: 'startDate',
+          end: 'endDate',
+        },
+      })
       .expect(400);
   });
 });
