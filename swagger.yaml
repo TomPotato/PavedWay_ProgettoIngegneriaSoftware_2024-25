@@ -12,8 +12,7 @@ servers:
 tags:
   - name: Autenticazione
     description: >-
-      Operazioni relative all'autenticazione degli utenti, 
-      inclusi la registrazione e il login.
+      Operazioni relative all'autenticazione degli utenti.
   - name: Utenti
     description: >-
       Operazioni relative alla gestione degli utenti, 
@@ -26,59 +25,13 @@ tags:
     description: >-
       Operazioni relative alla gestione dei cantieri, 
       inclusi la creazione, la visualizzazione e l'aggiornamento dei cantieri.
+  - name: Percorsi
+    description: >-
+      Operazioni relative alla gestione dei percorsi, 
+      inclusi la richiesta e la visualizzazione dei percorsi.
 
 paths:
-  /auth/register:
-    post:
-      tags:
-        - Autenticazione
-      summary: Registrazione di un nuovo utente cittadino
-      description: >-
-        Permette la registrazione di un nuovo utente come cittadino. 
-        L'utente deve fornire nome utente, nome, cognome, email e password.
-        Se la registrazione ha successo, l'utente cittadino viene creato e
-        restituito insieme a un token JWT per l'autenticazione.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Citizen"
-      responses:
-        "201":
-          description: Registrazione riuscita.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: Token JWT per l'autenticazione.
-                  user:
-                    allOf:
-                      - $ref: "#/components/schemas/UserInfo"
-                    description: Informazioni sull'utente registrato. Include nome utente, nome, cognome e ruolo.
-        "400":
-          description: Richiesta non valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "409":
-          description: Nome utente o email già in uso.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Errore interno del server.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /auth/login:
+  /authentication:
     post:
       tags:
         - Autenticazione
@@ -191,8 +144,8 @@ paths:
         - Utenti
       summary: Crea un nuovo utente
       description: >-
-        Permette l'aggiunta manuale di un nuovo utente senza la registrazione.
-        Solo un amministratore può creare un nuovo utente tramite questa API. 
+        Permette la registrazione di un nuovo utente.
+        Solo un amministratore può creare un nuovo utente amministratore. 
         L'amministratore deve fornire nome utente, nome, cognome, password, ruolo 
         e email o ufficio in base al tipo di utente (rispettivamente cittadino o amministratore).
       security:
@@ -230,13 +183,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "403":
-          description: Accesso negato. Devi essere un amministratore per creare un utente.
+          description: Accesso negato. Devi essere un amministratore per creare un utente amministratore.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "409":
           description: Nome utente o email già in uso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}:
+    delete:
+      tags:
+        - Utenti
+      summary: Elimina un utente specifico
+      description: >-
+        Permette di eliminare un utente specifico in base all'ID fornito. 
+        Devi essere autenticato come amministratore per eliminare un utente o essere l'utente stesso.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da eliminare.
+      responses:
+        "204":
+          description: Utente eliminato con successo.
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per eliminare un altro utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Utente non trovato.
           content:
             application/json:
               schema:
@@ -261,6 +259,21 @@ paths:
           schema:
             type: string
           description: ID dell'utente di cui restituire le segnalazioni.
+        - in: query
+          name: latitude
+          schema:
+            type: float
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: float
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: offset
           schema:
@@ -320,6 +333,23 @@ paths:
           description: >-
             Se fornito, filtra le segnalazioni in corso nella data fornita.
             Non può essere usato insieme a "now".
+        - in: query
+          name: latitude
+          schema:
+            type: number
+            format: double
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: number
+            format: double
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare delle segnalazioni.
         - in: query
           name: offset
           schema:
@@ -508,6 +538,108 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /reports/{id}/comments:
+    get:
+      tags:
+        - Segnalazioni
+      summary: Restituisce la lista dei commenti di una segnalazione
+      description: >-
+        Restituisce la lista dei commenti di una segnalazione specifica in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione di cui restituire i commenti.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di commenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di commenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Segnalazioni
+      summary: Aggiunge un commento a una segnalazione
+      description: >-
+        Permette di aggiungere un commento a una segnalazione specifica.
+        Devi essere autenticato per aggiungere un commento.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione a cui aggiungere il commento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
+      responses:
+        "201":
+          description: Commento aggiunto con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Segnalazione non trovata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /sites:
     get:
       tags:
@@ -535,6 +667,23 @@ paths:
           description: >-
             Se fornito, filtra i cantieri in corso nella data fornita.
             Non può essere usato insieme a "now".
+        - in: query
+          name: latitude
+          schema:
+            type: number
+            format: double
+          description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: longitude
+          schema:
+            type: number
+            format: double
+          description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
+        - in: query
+          name: radius
+          schema:
+            type: integer
+          description: Raggio del cerchio con centro il punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: offset
           schema:
@@ -732,6 +881,248 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /sites/{id}/comments:
+    post:
+      tags:
+        - Cantieri
+      summary: Aggiunge un commento a un cantiere
+      description: >-
+        Permette di aggiungere un commento a un cantiere specifico.
+        Devi essere autenticato per aggiungere un commento.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere a cui aggiungere il commento.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Testo del commento.
+
+      responses:
+        "201":
+          description: Commento aggiunto con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Cantieri
+      summary: Restituisce la lista dei commenti di un cantiere
+      description: >-
+        Restituisce la lista dei commenti di un cantiere specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del cantiere di cui restituire i commenti.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di commenti da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di commenti da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /locations:
+    get:
+      tags:
+        - Percorsi
+      summary: Restituisce delle coordinate geografiche all'inserimento di un indirizzo
+      description: >-
+        Restituisce le coordinate geografiche dell'indirizzo inserito.
+        È possibile ricercare per via (può essere inserito anche il numero), città e codice postale della città
+        oppure per query libera.
+      parameters:
+        - in: query
+          name: street
+          schema:
+            type: string
+          description: Nome della via che si vuole cercare.
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Nome della città in cui è situata la via che si vuole cercare.
+        - in: query
+          name: code
+          schema:
+            type: string
+          description: Codice postale della città che si vuole cercare.
+        - in: query
+          name: stNumber
+          schema:
+            type: string
+          description: Numero civico.
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Query libera che contiene le informazioni del posto che si vuole cercare.
+      responses:
+        "200":
+          description: Ricerca effettuata con successo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nome del luogo ricercato.
+                    lat:
+                      type: number
+                      format: double
+                      description: Latitudine del luogo ricercato.
+                    lon:
+                      type: number
+                      format: double
+                      description: Longitudine del luogo ricercato.
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /paths:
+    get:
+      tags:
+        - Percorsi
+      summary: Restituisce un percorso diretto tra due punti
+      description: >-
+        Restituisce un percorso diretto tra due punti in formato GeoJSON specificati dalle coordinate geografiche.
+        Le coordinate devono essere fornite come latitudine e longitudine.
+      parameters:
+        - in: query
+          name: model
+          required: true
+          schema:
+            type: string
+            enum:
+              - direct
+              - alternate
+          description: >-
+            Tipo di percorso.
+            Diretto per il percorso più breve.
+            Alternativo per il percorso che evita gli eventi in corso.
+        - in: query
+          name: startLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di partenza.
+        - in: query
+          name: startLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di partenza.
+        - in: query
+          name: endLatitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitudine del punto di arrivo.
+        - in: query
+          name: endLongitude
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitudine del punto di arrivo.
+      responses:
+        "200":
+          description: OK. Percorso trovato.
+          content:
+            application/geo+json:
+              schema:
+                type: object
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -900,7 +1291,6 @@ components:
     Comment:
       type: object
       required:
-        - userId
         - text
       properties:
         id:
@@ -958,7 +1348,7 @@ components:
         - type: object
           properties:
             createdBy:
-              type: integer
+              type: string
               description: ID dell'utente che ha creato la segnalazione.
             photos:
               type: array
@@ -975,6 +1365,7 @@ components:
                 - pending
                 - approved
                 - rejected
+                - solved
               description: Stato della segnalazione.
 
     UpdateReportCitizen:
@@ -996,6 +1387,11 @@ components:
             type: string
             format: uri
           description: Lista degli URL delle foto associate alla segnalazione.
+        status:
+          type: string
+          enum:
+            - solved
+          description: Stato della segnalazione.
 
     UpdateReportAdmin:
       type: object
@@ -1006,6 +1402,7 @@ components:
             - pending
             - approved
             - rejected
+            - solved
           description: Stato della segnalazione.
 
     Site:
@@ -1021,4 +1418,4 @@ components:
             realDuration:
               allOf:
                 - $ref: "#/components/schemas/Duration"
-              description: Durata reale del cantiere, puó divergere da quella inserita alla creazione del cantiere.
+              description: Durata reale del cantiere, può divergere da quella inserita alla creazione del cantiere.
