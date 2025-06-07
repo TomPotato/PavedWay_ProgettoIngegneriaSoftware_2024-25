@@ -416,8 +416,8 @@ class SiteService {
       });
 
       site.comments.push(comment.toObject());
-      const updatedSite = await site.save();
-      return updatedSite;
+      await site.save();
+      return comment;
     } catch (error) {
       if (error.code) {
         throw error;

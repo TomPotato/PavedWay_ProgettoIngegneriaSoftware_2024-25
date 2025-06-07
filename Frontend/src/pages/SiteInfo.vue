@@ -5,24 +5,31 @@
         </div>
         <div v-else class="card lg:card-side bg-base-300 shadow-sm">
             <div class="card-body">
-                <h2 class="text-xl font-semibold col-start-1 row-start-1">{{ site.name }}</h2>
-                <p>{{ site.info }}</p>
-                <p>Posizione: Lat: {{ site.location?.latitude }} - Lon: {{
-                    site.location?.longitude }}</p>
-                <p>Indirizzo: {{ site.location?.street }}, {{
-                    site.location?.number }}
-                    in {{
-                        site.location?.city }} ({{ site.location?.code }})</p>
-                <p>Durata: da {{ site.duration?.start || " 'non inserita' " }} a
-                    {{
-                        site.duration?.end
-                        || " 'data da destinarsi' " }}</p>
-                <i class=" text-yellow-600">Rating: {{ site?.rating || "0" }}</i>
-                <p>Commenti:</p>
-                <div v-for="comment in site.comments" :key="comment.id">
-                    <p>{{ comment.userId }}</p>
-                    <p>{{ comment.text }}</p>
-                    <p>{{ comment.createdAt }}</p>
+                <h2 class="text-xl font-semibold">{{ site.name }}</h2>
+                <i>{{ site.info }}</i>
+                <p>Posizione:</p>
+                <p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
+                <p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
+                    site.location.city }} ({{ site.location.code }})</p>
+                <p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
+                    "/'data da destinarsi'/" }}</p>
+                <p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
+                    site.realDuration?.end || " 'data da destinarsi' " }}</p>
+                <p>Impresa Edile: {{ site.companyName }}</p>
+                <br />
+                <div class="w-full flex gap-5">
+                    <div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
+                        <input type="radio" name="my-accordion-2" />
+                        <div class="collapse-title font-semibold">Commenti:</div>
+                        <div class="collapse-content text-sm">
+                            <div class="bg-base-100 border border-base-200 w-full p-6"
+                                v-for="(comment, index) in site.comments" :key="index">
+                                <p>{{ comment.userId }}</p>
+                                <p>{{ comment.text }}</p>
+                                <p>{{ comment.createdAt }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
