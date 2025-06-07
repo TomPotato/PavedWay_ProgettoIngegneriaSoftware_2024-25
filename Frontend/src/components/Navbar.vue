@@ -43,6 +43,36 @@
                         </ul>
                     </div>
                 </li>
+                <li v-if="store.isCitizen">
+                    <div class="dropdown dropdown-end" ref="notificationDropdown">
+                        <div tabindex="0">
+                            <div class="indicator">
+                                <span v-if="notifications" class="indicator-item badge badge-secondary">{{
+                                    notifications.length
+                                }}</span>
+                                <button class="btn btn-square btn-ghost drawer-button h-8 w-5">
+                                    <img src="/bell.svg" />
+                                </button>
+                            </div>
+                        </div>
+                        <ul tabindex="0"
+                            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
+                            <li v-for="(notify, index) in notifications" :key="index">
+                                <button class="block px-2 py-1"
+                                    @click="notify.report ? goToReportInfo(index) : goToSiteInfo(index)"
+                                    :disabled="!notify.report && !notify.site">
+                                    <p>{{ notify.message }}</p>
+                                    <p v-if="notify.report">{{ notify.report }}</p>
+                                    <p v-if="notify.site">{{ notify.site }}</p>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-primary drawer-button h-auto"
+                                    @click="openDrawer('Notifiche')">Centro Notifiche</button>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>
@@ -62,16 +92,39 @@
             <button @click="closeModal">Annulla</button>
         </form>
     </dialog>
+
+    <div class="drawer drawer-end h-full center-0" style="z-index: 1050">
+        <input id="Notifiche" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-side" style="z-index: 1060">
+            <button @click="closeDrawer('Notifiche')" aria-label="close sidebar" class="drawer-overlay"></button>
+            <div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
+                <div v-for="(notify, index) in notificationsDrawer" :key="index">
+                    <button class="block px-2 py-1 btn btn-ghost h-auto text-black"
+                        @click="goToReportInfo(index) || goToSiteInfo(index)"
+                        :disabled="!notify.report && !notify.site">
+                        <p>{{ notify.message }}</p>
+                        <p v-if="notify.report">{{ notify.report }}</p>
+                        <p v-if="notify.site">{{ notify.site }}</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStores';
-import { nextTick } from 'vue';
+import notificationService from '@/services/NotificationService';
+import { onMounted, ref } from 'vue';
 
 const router = useRouter();
 const route = useRoute();
 const store = useAuthStore();
+
+const notifications = ref([]);
+const notificationsDrawer = ref([]);
+
 
 const openModal = () => {
     document.getElementById('logout').showModal();
@@ -83,12 +136,48 @@ const closeModal = () => {
     document.body.classList.remove('modal-open');
 };
 
+const openDrawer = (id) => {
+    getNotifications();
+    document.getElementById(id).checked = true;
+};
+
+const closeDrawer = (id) => {
+    document.getElementById(id).checked = false;
+};
+
+const getNotifications = async (offset, limit) => {
+    if (offset != undefined && limit != undefined) {
+        notifications.value = await notificationService.getNotifications(offset, limit);
+    } else {
+        notificationsDrawer.value = await notificationService.getNotifications(0, 0);
+    }
+}
+
 const logout = () => {
     store.logout();
     store.setMessage('Logout effettuato con successo!');
     router.replace({ path: '/refresh', query: { redirect: route.fullPath } });
     closeModal();
 };
+
+const goToReportInfo = (index) => {
+    if (notifications.value[index].report) {
+        const id = notifications.value[index].report;
+        router.push({ path: `/reports/${id}` });
+    }
+};
+
+const goToSiteInfo = (index) => {
+    if (notifications.value[index].site) {
+        const id = notifications.value[index].site;
+        router.push({ path: `/sites/${id}` });
+    }
+};
+
+onMounted(async () => {
+    const allNotifications = await notificationService.getNotifications(0, 0);
+    notifications.value = allNotifications.slice(-5).reverse();
+});
 
 defineOptions({ name: 'Navbar' });
 </script>

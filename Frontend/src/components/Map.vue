@@ -261,8 +261,6 @@ onMounted(async () => {
 
     getLocation();
 
-    console.log(sites);
-    console.log(reports);
     sites.forEach(site => {
         map.addEventMarker(site.location.latitude, site.location.longitude, site.id, site.name, siteIcon, null, (id) => {
             router.push(`/sites/${id}`);

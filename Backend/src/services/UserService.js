@@ -149,6 +149,27 @@ class UserService {
         }
     }
 
+    async getUserByUsername(id) {
+        let UserName;
+        try {
+            const user = await User.exists({ _id: id });
+            if (user === null) {
+                UserName = 'Utente Eliminato';
+            } else {
+                const user = await User.findById(id);
+                UserName = user.username;
+            }
+            return UserName;
+        } catch (error) {
+            if (error.code) {
+                throw error;
+            } else {
+                const message = 'Errore interno del server durante la ricerca tramite ID.';
+                throw createError('Errore interno del server', 500, message);
+            }
+        }
+    }
+
     /**
      * Elimina un utente dal database in base all'ID fornito.
      * 

@@ -38,6 +38,11 @@ class Validator {
     validateLocation(latitude, longitude) {
         return (latitude !== undefined && longitude !== undefined && typeof (latitude) === 'number' && typeof (longitude) === 'number');
     }
+
+    validateNotification(notification) {
+        const notificationRegex = /^[a-zA-ZÀ-ÿ0-9.,:;!?()'"“”‘’\- ]{1,100}$/;
+        return notificationRegex.test(notification);
+    }
 }
 
 module.exports = new Validator();

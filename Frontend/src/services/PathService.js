@@ -10,8 +10,8 @@ class PathService {
                 stNumber: stNumber
             });
 
-            const lat = Number(response.data[0].lat);
-            const lon = Number(response.data[0].lon);
+            const lat = Number(response.data[0].latitude);
+            const lon = Number(response.data[0].longitude);
 
             return { lat, lon };
         } catch (error) {
