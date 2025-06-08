@@ -1,16 +1,13 @@
 const request = require('supertest');
-const app = require('../app');
-const mongoose = require('mongoose');
+const app = require('../src/app');
+const db = require('../src/database/DatabaseClient');
 
 beforeAll(async () => {
-	const uri = process.env.DB_URI;
-	await mongoose.connect(uri, {
-		dbName: process.env.DB_TEST,
-	});
+	await db.connect(process.env.DB_TEST);
 });
 
 afterAll(async () => {
-	await mongoose.connection.close();
+	await db.disconnect();
 });
 
 // User story 27: Find Direct Path

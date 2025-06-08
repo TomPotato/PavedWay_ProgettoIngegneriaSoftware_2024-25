@@ -1,19 +1,17 @@
 const request = require('supertest');
-const app = require('../app');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const { User } = require('../models/User'); 
-const { createTestUsers } = require('../utils/createTest');
-
+const jwt = require('jsonwebtoken');
+const db = require('../src/database/DatabaseClient');
+const app = require('../src/app');
+const { User } = require('../src/models/User');
+const { createTestUsers } = require('../src/utils/createTest');
 
 beforeAll(async () => {
-  const uri = process.env.DB_URI || 'mongodb://localhost:27017/test';
-  await mongoose.connect(uri, {
-    dbName: process.env.DB_TEST || 'test',
-  });
+  await db.connect(process.env.DB_TEST);
 });
+
 afterAll(async () => {
-  await mongoose.connection.close();
+  await db.disconnect();
 });
 
 //Modelli di admin e citizens NON nel database
@@ -22,7 +20,6 @@ let testCitizens = [];
 beforeAll(async () => {
   testAdmins = await createTestUsers(5, 'admin');
   testCitizens = await createTestUsers(10, 'citizen');
-  await User.deleteMany({});
 });
 //Users creati nel database (compreso l'ID generato da MongoDB)
 const createdAdmins = [];
@@ -46,32 +43,32 @@ var tokenCitizen = jwt.sign(
 // Test for the POST /api/v1/authentication endpoint
 describe('POST /api/v1/authentication', () => {
 
-//   beforeAll(async () => {
-//     await User.deleteMany({});
-//     for (const admin of testAdmins) {
-//       const res = await request(app)
-//         .post('/api/v1/users')
-//         .set('X-API-Key', tokenAdmin)
-//         .send({ ...admin });
+  //   beforeAll(async () => {
+  //     await User.deleteMany({});
+  //     for (const admin of testAdmins) {
+  //       const res = await request(app)
+  //         .post('/api/v1/users')
+  //         .set('X-API-Key', tokenAdmin)
+  //         .send({ ...admin });
 
-//         createdAdmins.push(res.body);
-//     }
-//     for (const citizen of testCitizens) {
-//       const res = await request(app)
-//         .post('/api/v1/users')
-//         .set('X-API-Key', tokenCitizen)
-//         .send({ ...citizen });
+  //         createdAdmins.push(res.body);
+  //     }
+  //     for (const citizen of testCitizens) {
+  //       const res = await request(app)
+  //         .post('/api/v1/users')
+  //         .set('X-API-Key', tokenCitizen)
+  //         .send({ ...citizen });
 
-//         createdCitizens.push(res.body);
-//     }
-//   });
+  //         createdCitizens.push(res.body);
+  //     }
+  //   });
 
   //User story: Log In
   test('should return 200 with valid credentials', async () => {
     await request(app)
-        .post('/api/v1/users')
-        .set('X-API-Key', tokenAdmin)
-        .send({ ...testAdmins[1], role: 'admin' });
+      .post('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .send({ ...testAdmins[1], role: 'admin' });
 
     const res = await request(app)
       .post('/api/v1/authentication')
@@ -80,7 +77,7 @@ describe('POST /api/v1/authentication', () => {
         password: testAdmins[1].password
       })
       .expect(200);
-    
+
     expect(res.body).toHaveProperty('token');
     expect(typeof res.body.token).toBe('string');
   });

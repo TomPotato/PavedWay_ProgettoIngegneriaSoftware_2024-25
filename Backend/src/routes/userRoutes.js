@@ -108,7 +108,12 @@ router.get('/:id/reports', async (req, res) => {
     const offset = toValidInt(req.query.offset);
     const limit = toValidInt(req.query.limit);
 
-    await userService.getUserById(userId);
+    try {
+        await userService.getUserById(userId);
+    } catch (error) {
+        return res.status(error.code).json(error);
+    }
+
     let date;
 
     if (req.query.now === 'true' && req.query.date) {
@@ -127,9 +132,9 @@ router.get('/:id/reports', async (req, res) => {
     }
 
     const user = await userService.getUserById(userId);
-    console.log(user)
-    if(!user) {return res.status(404).json(createError('Utente non trovato', 400,
-                'Devi fornire un ID valido per l utente.'));
+    if (!user) {
+        return res.status(404).json(createError('Utente non trovato', 400,
+            'Devi fornire un ID valido per l utente.'));
     }
 
     let latitude;

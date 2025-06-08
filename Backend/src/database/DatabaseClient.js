@@ -6,7 +6,7 @@ class DatabaseClient {
         this._status = false;
     }
 
-    async connect() {
+    async connect(dbName = process.env.DB_NAME) {
         if (this._status) {
             return this._connection;
         }
@@ -18,7 +18,7 @@ class DatabaseClient {
 
         try {
             await mongoose.connect(process.env.DB_URI, {
-                dbName: process.env.DB_TEST,
+                dbName: dbName,
             });
             this._status = true;
         } catch (error) {
@@ -28,7 +28,6 @@ class DatabaseClient {
 
         mongoose.connection.on('connected', () => { console.log('[MongoDB] Connesso'); });
         mongoose.connection.on('error', (err) => { console.error('[MongoDB] Errore durante la connessione: ', err); });
-        mongoose.connection.on('disconnected', () => { console.log('[MongoDB] Disconnesso'); });
     }
 
     get status() {
