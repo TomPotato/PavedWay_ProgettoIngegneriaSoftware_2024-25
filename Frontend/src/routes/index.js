@@ -23,7 +23,7 @@ const routes = [
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true}},
     { path: '/reports/:id', name: 'reportInfo', component: ReportInfo },
     { path: '/sites/:id', name: 'siteInfo', component: SiteInfo },
-    { path: '/users/:id', name: 'userInfo', component: UserInfo, meta: { requiresAuth: true } },
+    { path: '/users/:id', name: 'userInfo', component: UserInfo },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
