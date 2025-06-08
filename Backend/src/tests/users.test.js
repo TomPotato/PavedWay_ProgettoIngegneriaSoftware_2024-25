@@ -118,7 +118,7 @@ describe('POST /api/v1/users', () => {
       .expect(400);
   });
 
-  // User story: Create Citizen
+  // User story: Register
   test('should return 201 with valid citizen data', async () => {
     const citizen = testCitizens[0];
 
@@ -131,6 +131,66 @@ describe('POST /api/v1/users', () => {
     expect(res.body).toHaveProperty('id');
     expect(res.body.username).toBe(citizen.username);
     expect(res.body.role).toBe('citizen');
+  });
+
+  test('should return 409 for mail already exists', async () => {
+    const citizen = testCitizens[0];
+
+    await request(app)
+      .post('/api/v1/users')
+      .set('X-API-Key', tokenCitizen)
+      .send({ ...citizen, role: 'citizen' })
+      .expect(409);
+  });
+
+  test('should return 400 for missing required fields', async () => {
+    const citizen = testCitizens[1];
+
+    await request(app)
+      .post('/api/v1/users')
+      .set('X-API-Key', tokenCitizen)
+      .send({ ...citizen, role: 'citizen', username: undefined })
+      .expect(400);
+  });
+
+  test('should return 400 for invalid username', async () => {
+    const citizen = testCitizens[1];
+    await request(app)
+      .post('/api/v1/users')
+      .send({...citizen, role: 'citizen', username: 'paved_way1!'})
+      .expect(400);
+  });
+
+  test('should return 400 for invalid name', async () => {
+    const citizen = testCitizens[1];
+    await request(app)
+      .post('/api/v1/users')
+      .send({...citizen, role: 'citizen', name: 'Paved!'})
+      .expect(400);
+  });
+
+  test('should return 400 for invalid surname', async () => {
+    const citizen = testCitizens[1];
+    await request(app)
+      .post('/api/v1/users')
+      .send({...citizen, role: 'citizen', surname: 'Way!'})
+      .expect(400);
+  });
+
+  test('should return 400 for invalid password', async () => {
+    const citizen = testCitizens[1];
+    await request(app)
+      .post('/api/v1/users')
+      .send({...citizen, role: 'citizen', password: 'password'})
+      .expect(400);
+  });
+
+  test('should return 400 for invalid email', async () => {
+    const citizen = testCitizens[1];
+    await request(app)
+      .post('/api/v1/users')
+      .send({...citizen, role: 'citizen', email: 'paved-way'})
+      .expect(400);
   });
 
 });
