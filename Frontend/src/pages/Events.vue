@@ -32,6 +32,7 @@
 								"/'data da destinarsi'/" }}</p>
 							<br />
 							<button class="btn btn-primary w-[10vh]" @click="goToSiteInfo(site.id)">Info</button>
+							<div class="my-1"></div>
 							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
 								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
@@ -793,7 +794,7 @@ const createSite = async () => {
 			if (notify.value) {
 				const notificationData = {
 					'message': `Nuovo cantiere: ${title.value}`,
-					'site': site.id,
+					'siteId': site.id,
 				};
 				await notifyService.createNotification(authStore.token, notificationData);
 			}
@@ -960,7 +961,7 @@ const statusReport = async (id, status) => {
 		if (status === 'approved') {
 			const notificationData = {
 				'message': `È stata approvata una segnalazione degli utenti`,
-				'report': id
+				'reportId': id
 			};
 			await notifyService.createNotification(authStore.token, notificationData);
 		}
