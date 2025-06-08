@@ -225,7 +225,7 @@ async function deleteUser() {
 
 const goToUserInfo = (id) => {
     console.log(`Navigating to user info for ID: ${id}`);
-	router.push({ path: `/user/${id}` });
+	router.push({ path: `/users/${id}` });
 };
 
 onMounted(async () => {
