@@ -5,7 +5,7 @@ const service = require('../services/NotificationService');
 
 const createError = require('../utils/createError');
 const tokenChecker = require('../utils/tokenChecker');
-const toValidInt = require('../utils/tovalidInt');
+const toValidInt = require('../utils/toValidInt');
 const validator = require('../utils/Validator');
 
 router.post('/', tokenChecker, async (req, res) => {
@@ -38,7 +38,6 @@ router.post('/', tokenChecker, async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 

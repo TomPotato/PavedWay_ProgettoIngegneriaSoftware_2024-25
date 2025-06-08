@@ -1,5 +1,6 @@
 const { Notification } = require('../models/Notification');
-
+const siteService = require('./SiteService');
+const reportService = require('./ReportService');
 const createError = require('../utils/createError');
 
 class NotificationService {
@@ -12,6 +13,14 @@ class NotificationService {
             if (validationError) {
                 const message = 'Errore di validazione: alcuni campi non sono corretti.';
                 throw createError('Richiesta non valida', 400, message);
+            }
+
+            if (notification.siteId) {
+                await siteService.getSiteById(notification.siteId);
+            }
+
+            if (notification.reportId) {
+                await reportService.getReportById(notification.reportId);
             }
 
             const savedNotification = await notification.save();

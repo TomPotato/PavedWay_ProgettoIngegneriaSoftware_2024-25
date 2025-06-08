@@ -4,10 +4,9 @@ const bcrypt = require('bcrypt');
 /**
  * Crea dei report di test senza salvarli nel database.
  * @param {number} count - Numero di report da creare.
- * @returns {Promise<Array>} - Array di report creati.
+ * @returns {Array} - Array di report creati.
  */
-async function createTestReports(count = 10) {
-
+function createTestReports(count = 10) {
   const testReports = Array.from({ length: count }).map((_, i) => {
     const userId = new mongoose.Types.ObjectId();
     const createdBy = new mongoose.Types.ObjectId();
@@ -36,10 +35,6 @@ async function createTestReports(count = 10) {
         },
       ],
       createdBy: createdBy,
-      photos: [
-        `http://example.com/photo${i + 1}-1.jpg`,
-        `http://example.com/photo${i + 1}-2.jpg`,
-      ],
       rating: 0,
       status: ['pending', 'approved', 'rejected'][i % 3],
     };
@@ -51,9 +46,9 @@ async function createTestReports(count = 10) {
 /**
  * Crea degli user di test senza salvarli nel database.
  * @param {number} count - Numero di utenti da creare.
- * @return {Promise<Array>} - Array di oggetti utente di test.
+ * @return {Array} - Array di oggetti utente di test.
  */
-async function createTestUsers(count = 1, role) {
+function createTestUsers(count = 1, role) {
   const users = [];
 
   for (let i = 0; i < count; i++) {
@@ -84,9 +79,9 @@ async function createTestUsers(count = 1, role) {
 /**
  * Crea dei cantieri di test senza salvarli nel database.
  * @param {number} count - Numero di cantieri da creare.
- * @return {Promise<Array>} - Array di oggetti cantiere di test.
+ * @return {Array} - Array di oggetti cantiere di test.
  */
-async function createTestSites(count = 1) {
+function createTestSites(count = 1) {
   const sites = [];
 
   for (let i = 0; i < count; i++) {
@@ -127,9 +122,8 @@ async function createTestSites(count = 1) {
   return sites;
 }
 
-
 module.exports = {
   createTestReports,
   createTestSites,
-  createTestUsers
+  createTestUsers,
 };

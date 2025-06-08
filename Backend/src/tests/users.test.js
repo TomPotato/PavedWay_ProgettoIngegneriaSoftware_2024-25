@@ -194,17 +194,19 @@ describe('POST /api/v1/users', () => {
 			.send({ ...citizen, role: 'citizen', email: 'paved-way' })
 			.expect(400);
 	});
+});
 
+// User story 25: Delete User
+describe('User story 25: Delete User', () => {
 	test('96: Eliminazione del proprio profilo', async () => {
 		const citizen = testCitizens[2];
 		await request(app)
 			.post('/api/v1/users')
-			.set('X-API-Key')
 			.send({ ...citizen, role: 'citizen' })
 			.expect(201);
 
 		const res = await request(app)
-			.post('api/v1/authentication')
+			.post('/api/v1/authentication')
 			.send({ username: citizen.username, password: citizen.password })
 			.expect(200);
 
@@ -221,9 +223,13 @@ describe('POST /api/v1/users', () => {
 		const citizen = testCitizens[3];
 		await request(app)
 			.post('/api/v1/users')
-			.set('X-API-Key')
 			.send({ ...citizen, role: 'citizen' })
 			.expect(201);
+
+		const res = await request(app)
+			.post('/api/v1/authentication')
+			.send({ username: citizen.username, password: citizen.password })
+			.expect(200);
 
 		const id = res.body.user.id;
 
@@ -237,19 +243,18 @@ describe('POST /api/v1/users', () => {
 		const otherCitizen = testCitizens[4];
 		await request(app)
 			.post('/api/v1/users')
-			.set('X-API-Key')
 			.send({ ...otherCitizen, role: 'citizen' })
 			.expect(201);
 
 		let res = await request(app)
-			.post('api/v1/authentication')
+			.post('/api/v1/authentication')
 			.send({ username: citizen.username, password: citizen.password })
 			.expect(200);
 
 		const token = res.body.token;
 
 		res = await request(app)
-			.post('api/v1/authentication')
+			.post('/api/v1/authentication')
 			.send({ username: otherCitizen.username, password: otherCitizen.password })
 			.expect(200);
 
@@ -265,16 +270,92 @@ describe('POST /api/v1/users', () => {
 		const admin = testAdmins[0];
 
 		const res = await request(app)
-			.post('api/v1/authentication')
+			.post('/api/v1/authentication')
 			.send({ username: admin.username, password: admin.password })
 			.expect(200);
 
 		const token = res.body.token;
 		const id = res.body.user.id;
 
+		// Ottieni tutti gli admin
+		const usersRes = await request(app)
+			.get('/api/v1/users')
+			.set('X-API-Key', token)
+			.expect(200);
+
+		const admins = usersRes.body.filter(u => u.role === 'admin');
+		// Se ci sono più admin, elimina tutti gli altri admin tranne se stesso
+		for (const adminUser of admins) {
+			if (adminUser.id !== id) {
+				await request(app)
+					.delete(`/api/v1/users/${adminUser.id}`)
+					.set('X-API-Key', token)
+					.expect(204);
+			}
+		}
+
+		// Ora prova a eliminare se stesso (ultimo admin)
 		await request(app)
 			.delete(`/api/v1/users/${id}`)
 			.set('X-API-Key', token)
-			.expect(403);
+			.expect(409);
+	});
+});
+
+// User story 26: Admin Delete User
+describe('User story 26: Admin Delete User', () => {
+	test('100: Eliminazione di un utente esistente', async () => {
+		const admin = testAdmins[0];
+		const citizen = testCitizens[3];
+
+		let res = await request(app)
+			.post('/api/v1/authentication')
+			.send({ username: admin.username, password: admin.password })
+			.expect(200);
+
+		const token = res.body.token;
+
+		res = await request(app)
+			.post('/api/v1/authentication')
+			.send({ username: citizen.username, password: citizen.password })
+			.expect(200);
+
+		const id = res.body.user.id;
+
+		await request(app)
+			.delete(`/api/v1/users/${id}`)
+			.set('X-API-Key', token)
+			.expect(204);
+	});
+
+	test('101: Eliminazione di un utente esistente ma senza autenticazione', async () => {
+		const citizen = testCitizens[4];
+
+		let res = await request(app)
+			.post('/api/v1/authentication')
+			.send({ username: citizen.username, password: citizen.password })
+			.expect(200);
+
+		const id = res.body.user.id;
+
+		await request(app)
+			.delete(`/api/v1/users/${id}`)
+			.expect(401);
+	});
+
+	test('102: Eliminazione di un utente non esistente', async () => {
+		const admin = testAdmins[0];
+
+		let res = await request(app)
+			.post('/api/v1/authentication')
+			.send({ username: admin.username, password: admin.password })
+			.expect(200);
+
+		const token = res.body.token;
+
+		await request(app)
+			.delete(`/api/v1/users/${new mongoose.Types.ObjectId().toHexString()}`)
+			.set('X-API-Key', token)
+			.expect(404);
 	});
 });

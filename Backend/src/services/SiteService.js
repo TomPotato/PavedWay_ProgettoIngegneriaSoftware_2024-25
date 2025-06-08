@@ -103,9 +103,9 @@ class SiteService {
       const site = await Site.exists({ _id: id });
       if (!site) {
         throw createError(
-          "Segnalazione non trovata",
+          "Cantiere non trovato",
           404,
-          "Nessuna segnalazione trovata con questo ID."
+          "Nessun cantiere trovato con questo ID."
         );
       }
       return await Site.findById(id);

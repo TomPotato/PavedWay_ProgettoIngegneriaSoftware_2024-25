@@ -11,11 +11,11 @@ const notificationSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    report: {
-        type: String,
+    reportId: {
+        type: Schema.Types.ObjectId,
     },
-    site: {
-        type: String,
+    siteId: {
+        type: Schema.Types.ObjectId,
     },
 });
 

@@ -168,7 +168,11 @@ router.get('/:id/reports', async (req, res) => {
 router.delete('/:id', tokenChecker, async (req, res) => {
     const userId = req.params.id;
 
-    await userService.getUserById(userId);
+    try {
+        await userService.getUserById(userId);
+    } catch (error) {
+        return res.status(error.code).json(error);
+    }
 
     if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json(createError('Accesso negato', 403,
