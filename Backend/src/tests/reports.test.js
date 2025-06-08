@@ -235,6 +235,49 @@ describe('GET /api/v1/reports', () => {
       .get(`/api/v1/reports/${nonExistentId}`)
       .expect(404);
   });
+
+  //User Story: Search Event By Location
+  test('should return 200 with valid coordinate and radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 500})
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 400 with invalid coordinate', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 90.1, longitude: 180.1, radius: 500})
+      .expect(400);
+  });
+
+  test('should return 400 with invalid radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 5001})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined coordinates', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ radius: 500 })
+      .expect(400);
+  });
 });
 
 

@@ -71,14 +71,14 @@ describe('POST /api/v1/users', () => {
       .expect(403);
   });
 
-//   test('should return 401 for missing API key', async () => {
-//     const admin = testAdmins[1];
+  test('should return 403 for missing API key', async () => {
+    const admin = testAdmins[1];
 
-//     await request(app)
-//       .post('/api/v1/users')
-//       .send({ ...admin, role: 'admin' })
-//       .expect(401);
-//   });
+    await request(app)
+      .post('/api/v1/users')
+      .send({ ...admin, role: 'admin' })
+      .expect(403);
+  });
 
   test('should return 400 for missing required fields', async () => {
     const admin = testAdmins[1];
@@ -193,4 +193,20 @@ describe('POST /api/v1/users', () => {
       .expect(400);
   });
 
+});
+
+
+
+//Test for the GET /api/v1/users endpoint
+describe('GET /api/v1/users', () => {
+
+  // User story: Read Sent Reports
+  test('should return 200 with valid user ID', async () => {
+    const reportId = testAdmins[1].id
+
+    await request(app)
+      .get(`/api/v1/users/${reportId}/reports`)
+      .expect(200);
+
+  });
 });
