@@ -135,8 +135,11 @@
                                     Le informazioni devono essere lunghe tra 1 e 200 caratteri.
                                 </p>
 
+                                <label class="label">Sono caricate {{ totImg }}
+                                    immagini</label>
+
                                 <label class="label">Inserisci le immagini:</label>
-                                <input type="file" class="file-input" @change="photoUpload" multiple />
+                                <input type="file" class="file-input" @change="photoUpload" multiple/>
                                 <label class="label">Max size 2MB</label>
                             </fieldset>
                         </div>
@@ -249,6 +252,9 @@ const validateNotify = computed(() => {
     return message.value.length > 0 && message.value.length <= 60;
 });
 
+const index = ref(0);
+const totImg = ref(0);
+
 const authStore = useAuthStore();
 
 const reports = ref([]);
@@ -314,6 +320,8 @@ const openModal = (id, eventId = '') => {
     passEvent.value = eventId;
     if (id === 'SegnalazioniModifica') {
         const report = reports.value.find(r => r.id === eventId);
+        index.value = reports.value.findIndex(r => r.id === eventId);
+        totImg.value = report.photos.length;
         title.value = report.name;
         info.value = report.info;
     } else if (id === 'SegnalazioniInfo') {
@@ -490,7 +498,7 @@ const updateReport = async () => {
         if (!valMod.value) {
             errorMessage.value = "Compila tutti i campi correttamente!";
         } else {
-            if (index !== -1 && reports.value[index].photos && Array.isArray(reports.value[index].photos) && reports.value[index].photos.length < 4) {
+            if (index !== -1 && reports.value[index].photos && Array.isArray(reports.value[index].photos) && totImg < 4) {
                 const existingPhotos = reports.value[index].photos.filter(photo => !base64Photos.value.includes(photo));
                 base64Photos.value = [...existingPhotos, ...base64Photos.value];
             };
