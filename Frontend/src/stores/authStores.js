@@ -42,9 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
     const register = async (userData) => {
         try {
             await userService.createUser(userData, token.value);
-            console.log('Registrazione completata con successo');
             const response = await authService.login(userData.username, userData.password);
-            console.log('Login dopo registrazione:', response);
             token.value = response.token;
             user.value = response.user;
             error.value = null;

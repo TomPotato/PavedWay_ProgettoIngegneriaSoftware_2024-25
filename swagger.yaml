@@ -29,6 +29,10 @@ tags:
     description: >-
       Operazioni relative alla gestione dei percorsi, 
       inclusi la richiesta e la visualizzazione dei percorsi.
+  - name: Notifiche
+    description: >-
+      Operazioni relative alla gestione delle notifiche, 
+      inclusa la creazione e la visualizzazione delle notifiche.
 
 paths:
   /authentication:
@@ -202,6 +206,40 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /users/{id}:
+    get:
+      tags:
+        - Utenti
+      summary: Restituisce l'utente con l'ID specificato
+      description: >-
+        Restituisce le informazioni di un utente specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserInfo"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     delete:
       tags:
         - Utenti
@@ -1123,6 +1161,110 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /notifications:
+    get:
+      tags:
+        - Notifiche
+      summary: Restituisce la lista delle notifiche
+      description: Restituisce la lista delle notifiche.
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Numero di notifiche da saltare prima di restituire i risultati.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Numero massimo di notifiche da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Notifiche
+      summary: Crea una nuova notifica
+      description: >-
+        Crea una nuova notifica. 
+        Solo un amministratore può creare una notifica.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: Testo della notifica.
+                  oneOf:
+                  reportId:
+                    type: string
+                    description: ID del report che si vuole mostrare nella notifica.
+                  siteId:
+                    type: string
+                    description: ID del cantiere che si vuole mostrare nella notifica.
+      responses:
+        "201":
+          description: Notifica creata con successo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "400":
+          description: Richiesta non valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Accesso negato. Devi essere un amministratore per creare una notifica.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Evento non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -1296,6 +1438,7 @@ components:
         id:
           type: integer
           description: ID del commento (generato automaticamente dal server).
+          required: true
         userId:
           type: integer
           description: ID dell'utente che ha scritto il commento.
@@ -1306,6 +1449,28 @@ components:
           type: string
           format: date-time
           description: Data e ora di creazione del commento.
+
+    Notification:
+      type: object
+      required:
+        - message
+      properties:
+        id:
+          type: integer
+          description: ID della notifica (generato automaticamente dal server).
+        message:
+          type: string
+          description: Testo della notifica.
+        createdAt:
+          type: string
+          format: date-time
+          description: Data e ora di creazione della notifica.
+        reportId:
+          type: string
+          description: Id del report che si vuole mostrare nella notifica.
+        siteId:
+          type: string
+          description: Id del cantiere che si vuole mostrare nella notifica.
 
     Event:
       type: object

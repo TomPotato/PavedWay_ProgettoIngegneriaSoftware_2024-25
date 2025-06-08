@@ -141,8 +141,7 @@ router.patch('/:id', tokenChecker, async (req, res) => {
             'Puoi modificare solo le segnalazioni che hai creato.'));
     }
 
-    if (req.user.role === 'admin' && (req.body.name || req.body.info ||
-        req.body.duration || req.body.photos)) {
+    if (req.user.role === 'admin' && (req.body.name || req.body.info || req.body.photos)) {
         return res.status(403).json(createError('Accesso negato. ', 403,
             'Non puoi modificare una segnalazione, solo approvarla o rifiutarla.'));
     }
@@ -213,8 +212,8 @@ router.post('/:id/comments', tokenChecker, async (req, res) => {
     }
 
     try {
-        const report = await service.createComment(id, userId, req.body.text);
-        res.status(201).json(report);
+        const comment = await service.createComment(id, userId, req.body.text);
+        res.status(201).json(comment);
     } catch (error) {
         res.status(error.code).json(error);
     }
