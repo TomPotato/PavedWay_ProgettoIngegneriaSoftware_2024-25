@@ -62,6 +62,22 @@ class UserService {
             throw error.data || error;
         }
     }
+  
+    async findUserById(id) {
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            if(error.response && error.response.status === 404) {
+                const response = {
+                    username: 'Utente non trovato.',
+                };
+                return response;
+            } else {
+                throw error.data;
+            }
+        }
+    }
 }
 
 export default new UserService();

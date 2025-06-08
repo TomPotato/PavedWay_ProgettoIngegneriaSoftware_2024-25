@@ -21,25 +21,22 @@
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
 				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
-					<div class="space-y-4">
+					<div class="space-y-4 grid grid-cols-2 gap-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="site in sites" :key="site.id">
 							<h2 class="text-xl font-semibold">{{ site.name }}</h2>
 							<i>{{ site.info }}</i>
 							<p>Posizione:</p>
-							<p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
 							<p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
 								site.location.city }} ({{ site.location.code }})</p>
 							<p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
 								"/'data da destinarsi'/" }}</p>
-							<p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
-								site.realDuration?.end || " 'data da destinarsi' " }}</p>
-							<p>Impresa Edile: {{ site.companyName }}</p>
-							<div class="grid grid-cols-2 gap-5 w-auto">
-								<button v-if="isAdmin" @click="openModal('CantieriModifica', site.id)"
+							<br />
+							<button class="btn btn-primary w-[10vh]" @click="goToSiteInfo(site.id)">Info</button>
+							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
+								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
 									cantiere!</button>
-								<button @click="deleteSite(site.id)" v-if="isAdmin"
-									class="btn btn-primary w-full">Elimina il
+								<button @click="deleteSite(site.id)" class="btn btn-primary w-full">Elimina il
 									cantiere!</button>
 							</div>
 						</div>
@@ -147,7 +144,8 @@
 							<input v-model="end" type="text" class="input"
 								placeholder="Data di Fine (non necessaria)" />
 							<p v-if="!validateEnd" class="text-error">
-								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di inizio.
+								La data di fine deve essere nel formato ISO 8601 e posteriore alla data di
+								inizio.
 							</p>
 
 							<label class="label">Impresa Edile</label>
@@ -156,6 +154,11 @@
 							<p v-if="!validateCompanyName" class="text-error">
 								Il nome dell'impresa deve essere lungo tra 1 e 20 caratteri.
 							</p>
+							<label class="label w-full">
+								<p>Notifica gli utenti:</p>
+								<input @click="notifyChange" type="checkbox"
+									class="checkbox border-indigo-600 bg-indigo-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800" />
+							</label>
 						</fieldset>
 					</div>
 					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
@@ -216,6 +219,31 @@
 				</div>
 				<button class="modal-backdrop" @click="closeModal('CantieriModifica')">Close</button>
 			</dialog>
+
+			<dialog id="CommentiCrea" class="modal" role="dialog">
+				<div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[40vh]">
+					<div class="overflow-y-auto p-4 flex-1">
+						<fieldset class="fieldset gap-2 w-xs">
+							<textarea v-model="text" type="text" class="textarea" placeholder="Testo Commento"
+								required></textarea>
+							<p v-if="!validateComment" class="text-error">
+								Hai un massimo di 140 caratteri per scrivere un commento.
+							</p>
+						</fieldset>
+					</div>
+					<div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+						<div>
+							<button class="btn btn-neutral w-full" @click="createComment"
+								:disabled="!text">Commenta</button>
+						</div>
+						<div>
+							<button @click="closeModal('CommentiCrea')"
+								class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+						</div>
+					</div>
+				</div>
+				<button class="modal-backdrop" @click="closeModal('CommentiCrea')">Close</button>
+			</dialog>
 		</div>
 
 		<input type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:black]" aria-label="Segnalazioni"
@@ -241,7 +269,7 @@
 					<span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
 				</div>
 				<div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
-					<div class="space-y-4">
+					<div class="space-y-4 grid grid-cols-2 gap-4">
 						<div class="bg-base-300 border border-base-200 w-full p-6" v-for="report in reports"
 							:key="report.id">
 							<h2 class="text-xl font-semibold">{{
@@ -254,17 +282,16 @@
 								<button class="btn btn-primary w-[10vh]"
 									@click="goToReportInfo(report.id)">Info</button>
 								<button @click="deleteReport(report.id)" v-if="isAdmin"
-									class="btn btn-primary w-full">Elimina la
-									Segnalazione!</button>
+									class="btn btn-primary w-full">Elimina!</button>
 								<button @click="statusReport(report.id, 'approved')" v-if="isAdmin"
-									class="btn btn-success w-full" :disabled="report.status === 'solved'">Approva la
-									Segnalazione!</button>
+									class="btn btn-success w-full"
+									:disabled="report.status === 'solved' || report.status === 'approved'">Approva!</button>
 								<button @click="statusReport(report.id, 'rejected')" v-if="isAdmin"
-									class="btn btn-error w-full" :disabled="report.status === 'solved'">Rifiuta la
-									Segnalazione!</button>
+									class="btn btn-error w-full"
+									:disabled="report.status === 'solved' || report.status === 'approved'">Rifiuta!</button>
 								<button @click="statusReport(report.id, 'solved')" v-if="isAdmin"
-									class="btn btn-neutral w-full" :disabled="report.status === 'solved'">Contrassegna
-									come Risolta!</button>
+									class="btn btn-neutral w-full"
+									:disabled="report.status === 'solved'">Risolta!</button>
 							</div>
 						</div>
 					</div>
@@ -366,7 +393,7 @@
 							</p>
 
 							<label class="label">Inserisci le immagini:</label>
-							<input type="file" class="file-input" @change="photoUpload" multiple/>
+							<input type="file" class="file-input" @change="photoUpload" multiple />
 							<label class="label">Max size 2MB</label>
 						</fieldset>
 					</div>
@@ -381,8 +408,9 @@
 						</div>
 					</div>
 				</div>
-				<button class="modal-backdrop" @click="">Close</button>
+				<button class="modal-backdrop" @click="closeModal('SegnalazioniCrea')">Close</button>
 			</dialog>
+
 		</div>
 	</div>
 	<div class="toast">
@@ -408,6 +436,7 @@ import siteService from '@/services/SiteService';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
+import notifyService from '@/services/NotificationService';
 import { onMounted } from 'vue';
 import imageCompression from 'browser-image-compression';
 
@@ -426,6 +455,7 @@ const ready = ref(true);
 
 const now = ref('tutti');
 const meters = ref('metri');
+const notify = ref(false);
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -486,6 +516,11 @@ const validateRadius = computed(() => {
 	return radius.value > 0 && check.value;
 });
 
+const text = ref('');
+const validateComment = computed(() => {
+	return text.value.length < 140;
+});
+
 const isAdmin = authStore.isAdmin;
 const isCitizen = authStore.isCitizen;
 
@@ -533,6 +568,10 @@ const nowChange = () => {
 		now.value = 'tutti';
 	}
 }
+
+const notifyChange = () => {
+	notify.value = !notify.value;
+};
 
 const valCreaSite = computed(() => {
 	return (title.value &&
@@ -750,7 +789,14 @@ const createSite = async () => {
 				},
 				'companyName': companyName.value
 			};
-			await siteService.createSite(authStore.token, siteData);
+			const site = await siteService.createSite(authStore.token, siteData);
+			if (notify.value) {
+				const notificationData = {
+					'message': `Nuovo cantiere: ${title.value}`,
+					'site': site.id,
+				};
+				await notifyService.createNotification(authStore.token, notificationData);
+			}
 			resCreaSites();
 			ready.value = false;
 			await getSites();
@@ -908,13 +954,43 @@ const deleteReport = async (id) => {
 
 const statusReport = async (id, status) => {
 	try {
-		await reportService.statusReport(authStore.token, id, status);
+		const date = Date.now();
+		end.value = new Date(date).toISOString();
+		await reportService.statusReport(authStore.token, id, status, end.value);
+		if (status === 'approved') {
+			const notificationData = {
+				'message': `È stata approvata una segnalazione degli utenti`,
+				'report': id
+			};
+			await notifyService.createNotification(authStore.token, notificationData);
+		}
 		ready.value = false;
 		await getReports();
 		ready.value = true;
 	} catch (error) {
 		errorMessage.value = reportService.error;
 	}
+};
+
+const createComment = async () => {
+	try {
+		const id = passEvent.value;
+		const commentData = {
+			'text': text.value
+		}
+		await siteService.createComment(authStore.token, commentData, id);
+		ready.value = false;
+		await getSites();
+		ready.value = true;
+		text.value = '';
+		closeModal('CommentiCrea');
+	} catch (error) {
+		errorMessage.value = reportService.error;
+	}
+}
+
+const goToSiteInfo = (id) => {
+	router.push({ path: `/sites/${id}` });
 };
 
 const goToReportInfo = (id) => {

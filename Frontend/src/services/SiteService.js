@@ -13,6 +13,15 @@ class SiteService {
     }
   }
 
+  async getSiteById(id){
+    try {
+      const response = await api.get(`/sites/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async getActiveSites(offset, limit) {
     try {
       const response = await api.get("/sites", {
@@ -69,6 +78,17 @@ class SiteService {
   async deleteSite(token, id) {
     try {
       const response = await api.delete(`/sites/${id}`, {
+        headers: { "x-api-key": token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
+  async createComment(token, commentData, id){
+    try {
+      const response = await api.post(`/sites/${id}/comments`, commentData, {
         headers: { "x-api-key": token },
       });
       return response.data;
