@@ -212,9 +212,6 @@ paths:
       summary: Restituisce l'utente con l'ID specificato
       description: >-
         Restituisce le informazioni di un utente specifico in base all'ID fornito.
-        Devi essere autenticato per vedere le informazioni di un utente.
-      security:
-        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -231,12 +228,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UserInfo"
-        "401":
-          description: Non autorizzato. Devi fornire una chiave API valida.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
           description: Utente non trovato.
           content:

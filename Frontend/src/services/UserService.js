@@ -58,7 +58,7 @@ class UserService {
                 const response = {
                     username: 'Utente non trovato.',
                 };
-                return response.data;
+                return response;
             } else {
                 throw error.data;
             }
