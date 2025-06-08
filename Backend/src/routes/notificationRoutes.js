@@ -5,7 +5,7 @@ const service = require('../services/NotificationService');
 
 const createError = require('../utils/createError');
 const tokenChecker = require('../utils/tokenChecker');
-const toValidInt = require('../utils/tovalidInt');
+const toValidInt = require('../utils/toValidInt');
 const validator = require('../utils/Validator');
 
 router.post('/', tokenChecker, async (req, res) => {
@@ -30,6 +30,11 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 
     try {
+        if(req.body.reportId) {
+            await reportService.getReportById(req.body.reportId);
+        } else if (req.body.siteId) {
+            await siteService.getSiteById(req.body.siteId);
+        }
         const notification = await service.createNotification(req.body);
         res.status(201).json(notification);
     } catch (error) {

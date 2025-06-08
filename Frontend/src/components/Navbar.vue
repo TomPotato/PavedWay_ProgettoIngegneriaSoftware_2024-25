@@ -59,11 +59,11 @@
                             class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
                             <li v-for="(notify, index) in notifications" :key="index">
                                 <button class="block px-2 py-1"
-                                    @click="notify.report ? goToReportInfo(index) : goToSiteInfo(index)"
-                                    :disabled="!notify.report && !notify.site">
+                                    @click="notify.reportId ? goToReportInfo(index) : goToSiteInfo(index)"
+                                    :disabled="!notify.reportId && !notify.siteId">
                                     <p>{{ notify.message }}</p>
-                                    <p v-if="notify.report">{{ notify.report }}</p>
-                                    <p v-if="notify.site">{{ notify.site }}</p>
+                                    <p v-if="notify.reportId">{{ notify.reportId }}</p>
+                                    <p v-if="notify.siteId">{{ notify.siteId }}</p>
                                 </button>
                             </li>
                             <li>
@@ -101,10 +101,10 @@
                 <div v-for="(notify, index) in notificationsDrawer" :key="index">
                     <button class="block px-2 py-1 btn btn-ghost h-auto text-black"
                         @click="goToReportInfo(index) || goToSiteInfo(index)"
-                        :disabled="!notify.report && !notify.site">
+                        :disabled="!notify.reportId && !notify.siteId">
                         <p>{{ notify.message }}</p>
-                        <p v-if="notify.report">{{ notify.report }}</p>
-                        <p v-if="notify.site">{{ notify.site }}</p>
+                        <p v-if="notify.reportId">{{ notify.reportId }}</p>
+                        <p v-if="notify.siteId">{{ notify.siteId }}</p>
                     </button>
                 </div>
             </div>
@@ -161,8 +161,8 @@ const logout = () => {
 };
 
 const goToReportInfo = (index) => {
-    if (notifications.value[index].report) {
-        const id = notifications.value[index].report;
+    if (notifications.value[index].reportId) {
+        const id = notifications.value[index].reportId;
         router.push({ path: `/reports/${id}` });
     }
 };

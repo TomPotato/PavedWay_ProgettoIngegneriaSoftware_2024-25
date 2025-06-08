@@ -794,7 +794,7 @@ const createSite = async () => {
 			if (notify.value) {
 				const notificationData = {
 					'message': `Nuovo cantiere: ${title.value}`,
-					'site': site.id,
+					'siteId': site.id,
 				};
 				await notifyService.createNotification(authStore.token, notificationData);
 			}
@@ -961,7 +961,7 @@ const statusReport = async (id, status) => {
 		if (status === 'approved') {
 			const notificationData = {
 				'message': `È stata approvata una segnalazione degli utenti`,
-				'report': id
+				'reportId': id
 			};
 			await notifyService.createNotification(authStore.token, notificationData);
 		}
