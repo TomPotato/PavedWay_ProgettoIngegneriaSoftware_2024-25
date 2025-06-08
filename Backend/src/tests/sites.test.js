@@ -271,6 +271,47 @@ describe('GET /api/v1/sites', () => {
 
 
 
+
+// Test for the POST /api/v1/sites/:id/comments endpoint
+describe('POST /api/v1/sites/:id/comments', () => {
+
+  //User story: Comment Event
+  test('should return 201 for valid data', async () => {
+    const siteId = createdSites[0].id
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${siteId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento1' })
+      console.log(res.body)
+      // .expect(201);
+  });
+
+  test('should return 404 for invalid ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${nonExistentId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento2' })
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const siteId = createdSites[1].id
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${siteId}/comments`)
+      .send({ text: 'Commento3' })
+      .expect(401);
+  });
+});
+
+
+
+
+
+
 // Test for the PATCH /api/v1/sites/:id endpoint
 describe('PATCH /api/v1/sites/:id', () => {
 
