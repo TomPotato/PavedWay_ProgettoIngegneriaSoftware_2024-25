@@ -483,12 +483,17 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
 const updateReport = async () => {
     try {
         const id = passEvent.value;
+        const index = reports.value.findIndex(r => r.id === id);
 
         start.value = new Date().toISOString();
 
         if (!valMod.value) {
             errorMessage.value = "Compila tutti i campi correttamente!";
         } else {
+            if (index !== -1 && reports.value[index].photos && Array.isArray(reports.value[index].photos) && reports.value[index].photos.length < 4) {
+                const existingPhotos = reports.value[index].photos.filter(photo => !base64Photos.value.includes(photo));
+                base64Photos.value = [...existingPhotos, ...base64Photos.value];
+            };
             const reportData = {
                 'name': title.value,
                 'info': info.value,

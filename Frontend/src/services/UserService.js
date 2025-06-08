@@ -1,6 +1,5 @@
 import api from './Api';
 import { useAuthStore } from '../stores/authStores';
-import { response } from 'express';
 
 class UserService {
     async getUsers(token, offset, limit) {
@@ -55,12 +54,7 @@ class UserService {
             const response = await api.get(`/users/${id}`);
             return response.data;
         } catch (error) {
-            if(error.response.status === 404) {
-                const response = "Utente Eliminato";
-                return response.data;
-            } else {
-                throw error.data || error;
-            }
+            throw error.data;
         }
     }
 }
