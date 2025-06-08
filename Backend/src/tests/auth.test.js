@@ -1,5 +1,6 @@
 // const request = require('supertest');
 // const app = require('../app');
+// const jwt = require('jsonwebtoken');
 // const mongoose = require('mongoose');
 // const { User } = require('../models/User'); 
 // const { createTestUsers } = require('../utils/createTest');
@@ -16,180 +17,117 @@
 //   await mongoose.connection.close();
 // });
 
-// // Test for the POST /api/v1/auth endpoint
-// describe('POST /api/v1/auth', () => {
+// //Modelli di admin e citizens NON nel database
+// let testAdmins = [];
+// let testCitizens = [];
+// beforeAll(async () => {
+//   testAdmins = await createTestUsers(5, 'admin');
+//   testCitizens = await createTestUsers(10, 'citizen');
+// //   await User.deleteMany({});
+// });
+// //Users creati nel database (compreso l'ID generato da MongoDB)
+// const createdAdmins = [];
+// const createdCitizens = [];
 
-//   beforeAll(async () => {
-//     await User.deleteMany({});
-//   });
-
-//   let testUsers = [];
-//   beforeAll(async () => {
-//     testUsers = await createTestUsers(2);
-//   });
-
-//   // User story: Register
-//   test('should return 201 with valid credentials', async () => {
-
-//     const res = await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({ ...testUsers[0] })
-//       .expect(201);
-
-//     expect(res.body).toHaveProperty('token');
-//     expect(typeof res.body.token).toBe('string');
-//     expect(res.body).toHaveProperty('user');
-
-//     createdUserId = res.body.user._id;
-//   });
-
-//   test('should return 409 for duplicate email', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: testUsers[1].username,
-//         name: testUsers[1].name,
-//         surname: testUsers[1].surname,
-//         password: testUsers[1].password,
-//         email: testUsers[0].email
-//       })
-//       .expect(409);
-//   });
-
-//   test('should return 400 for missing fields', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         name: testUsers[1].name,
-//         surname: testUsers[1].surname,
-//         password: testUsers[1].password,
-//         email: testUsers[1].email
-//       })
-//       .expect(400);
-//   });
-
-//   test('should return 400 for invalid username', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: "paved_way1!",
-//         name: testUsers[1].name,
-//         surname: testUsers[1].surname,
-//         password: testUsers[1].password,
-//         email: testUsers[1].email
-//       })
-//       .expect(400);
-//   });
-
-//   test('should return 400 for invalid name', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: testUsers[1].username,
-//         name: "Paved!",
-//         surname: testUsers[1].surname,
-//         password: testUsers[1].password,
-//         email: testUsers[1].email
-//       })
-//       .expect(400);
-//   });
-
-//   test('should return 400 for invalid surname', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: testUsers[1].username,
-//         name: testUsers[1].name,
-//         surname: "Way!",
-//         password: testUsers[1].password,
-//         email: testUsers[1].email
-//       })
-//       .expect(400);
-//   });
-
-//   test('should return 400 for invalid password', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: testUsers[1].username,
-//         name: testUsers[1].name,
-//         surname: testUsers[1].surname,
-//         password: "password",
-//         email: testUsers[1].email
-//       })
-//       .expect(400);
-//   });
-  
-//   test('should return 400 for invalid email', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/register')
-//       .send({
-//         username: testUsers[1].username,
-//         name: testUsers[1].name,
-//         surname: testUsers[1].surname,
-//         password: testUsers[1].password,
-//         email: "paved-way"
-//       })
-//       .expect(400);
-//   });
+// const adminId = new mongoose.Types.ObjectId().toHexString();
+// const citizenId = new mongoose.Types.ObjectId().toHexString();
+// var tokenAdmin = jwt.sign(
+//   { id: adminId, role: 'admin' },
+//   process.env.JWT_SECRET || 'your_jwt_secret',
+//   { expiresIn: '1h' }
+// );
+// var tokenCitizen = jwt.sign(
+//   { id: citizenId, role: 'citizen' },
+//   process.env.JWT_SECRET || 'your_jwt_secret',
+//   { expiresIn: '1h' }
+// );
 
 
-//   //User story: Login
+
+// // Test for the POST /api/v1/authentication endpoint
+// describe('POST /api/v1/authentication', () => {
+
+// //   beforeAll(async () => {
+// //     await User.deleteMany({});
+// //     for (const admin of testAdmins) {
+// //       const res = await request(app)
+// //         .post('/api/v1/users')
+// //         .set('X-API-Key', tokenAdmin)
+// //         .send({ ...admin });
+
+// //         createdAdmins.push(res.body);
+// //     }
+// //     for (const citizen of testCitizens) {
+// //       const res = await request(app)
+// //         .post('/api/v1/users')
+// //         .set('X-API-Key', tokenCitizen)
+// //         .send({ ...citizen });
+
+// //         createdCitizens.push(res.body);
+// //     }
+// //   });
+
+//   //User story: Log In
 //   test('should return 200 with valid credentials', async () => {
+//     await request(app)
+//         .post('/api/v1/users')
+//         .set('X-API-Key', tokenAdmin)
+//         .send({ ...testAdmins[0] });
+//     console.log(testAdmins[0])
+//     console.log(testAdmins[0].username, testAdmins[0].password)
 //     const res = await request(app)
-//       .post('/api/v1/auth/login')
+//       .post('/api/v1/authentication')
 //       .send({
-//         username: testUsers[0].username,
-//         password: testUsers[0].password
+//         username: testAdmins[0].username,
+//         password: testAdmins[0].password
 //       })
 //       .expect(200);
 
 //     expect(res.body).toHaveProperty('token');
 //     expect(typeof res.body.token).toBe('string');
-//     expect(res.body).toHaveProperty('user');
 //   });
 
-//   test('should return 401 for invalid username', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/login')
-//       .send({
-//         username: 'wrongUsername',
-//         password: testUsers[0].password
-//       })
-//       .expect(401);
-//   });
+// //   test('should return 401 for invalid username', async () => {
+// //     await request(app)
+// //       .post('/api/v1/auth/login')
+// //       .send({
+// //         username: 'wrongUsername',
+// //         password: testUsers[0].password
+// //       })
+// //       .expect(401);
+// //   });
 
-//   test('should return 401 for invalid password', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/login')
-//       .send({
-//         username: testUsers[0].username,
-//         password: 'wrongPassword'
-//       })
-//       .expect(401);
-//   });
+// //   test('should return 401 for invalid password', async () => {
+// //     await request(app)
+// //       .post('/api/v1/auth/login')
+// //       .send({
+// //         username: testUsers[0].username,
+// //         password: 'wrongPassword'
+// //       })
+// //       .expect(401);
+// //   });
 
-//   test('should return 400 for missing fields', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/login')
-//       .expect(400);
-//   });
+// //   test('should return 400 for missing fields', async () => {
+// //     await request(app)
+// //       .post('/api/v1/auth/login')
+// //       .expect(400);
+// //   });
 
-//   test('should return 400 for missing password', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/login')
-//       .send({
-//         username: testUsers[0].username
-//       })
-//       .expect(400);
-//   });
+// //   test('should return 400 for missing password', async () => {
+// //     await request(app)
+// //       .post('/api/v1/auth/login')
+// //       .send({
+// //         username: testUsers[0].username
+// //       })
+// //       .expect(400);
+// //   });
 
-//   test('should return 400 for missing username', async () => {
-//     await request(app)
-//       .post('/api/v1/auth/login')
-//       .send({
-//         password: testUsers[0].password
-//       })
-//       .expect(400);
-//   });
+// //   test('should return 400 for missing username', async () => {
+// //     await request(app)
+// //       .post('/api/v1/auth/login')
+// //       .send({
+// //         password: testUsers[0].password
+// //       })
+// //       .expect(400);
+// //   });
 // });

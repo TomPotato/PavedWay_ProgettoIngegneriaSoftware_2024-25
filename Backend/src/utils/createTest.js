@@ -70,7 +70,6 @@ async function createTestUsers(count = 1, role) {
       office: `Ufficio ${i + 1}`,
     };
     users.push(user);
-    console.log(`Admin ${i + 1} creato:`, user);
   } else if (role === 'citizen') {
     const user = {
       username: `userCitizen${i + 1}`,
@@ -80,7 +79,6 @@ async function createTestUsers(count = 1, role) {
       email: `user${i + 1}@example.com`,
     };
     users.push(user);
-    console.log(`Citizen ${i + 1} creato:`, user);
   }
   }
 

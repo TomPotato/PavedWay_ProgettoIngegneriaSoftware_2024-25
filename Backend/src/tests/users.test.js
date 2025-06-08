@@ -16,12 +16,12 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-//Modelli di admin NON nel database
+//Modelli di admin e citizens NON nel database
 let testAdmins = [];
 let testCitizens = [];
 beforeAll(async () => {
-  testAdmins = await createTestUsers(2, 'admin');
-  testCitizens = await createTestUsers(5, 'citizen');
+  testAdmins = await createTestUsers(5, 'admin');
+  testCitizens = await createTestUsers(10, 'citizen');
   await User.deleteMany({});
 });
 //Users creati nel database (compreso l'ID generato da MongoDB)
