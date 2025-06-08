@@ -259,7 +259,6 @@ import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
 import userService from '@/services/UserService';
-import imageCompression from 'browser-image-compression';
 import notificationService from '@/services/NotificationService';
 
 const router = useRouter();
