@@ -126,6 +126,12 @@ router.get('/:id/reports', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    const user = await userService.getUserById(userId);
+    console.log(user)
+    if(!user) {return res.status(404).json(createError('Utente non trovato', 400,
+                'Devi fornire un ID valido per l utente.'));
+    }
+
     let latitude;
     let longitude;
     let radius;
