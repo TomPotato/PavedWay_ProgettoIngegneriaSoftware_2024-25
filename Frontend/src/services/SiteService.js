@@ -13,6 +13,15 @@ class SiteService {
     }
   }
 
+  async getSiteById(id){
+    try {
+      const response = await api.get(`/sites/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.data;
+    }
+  }
+
   async getActiveSites(offset, limit) {
     try {
       const response = await api.get("/sites", {

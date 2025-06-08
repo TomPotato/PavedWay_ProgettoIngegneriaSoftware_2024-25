@@ -82,6 +82,43 @@ class SiteService {
       }
     }
   }
+  
+  /**
+   * Recupera un cantiere dal database in base all'ID fornito.
+   * 
+   * @async
+   * @param {string} id - L'ID del cantiere da recuperare.
+   * @returns {Promise<Site>} Il cantiere recuperato.
+   * @throws {Error} Se si verifica un errore durante la ricerca del cantiere, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+   * 
+   * @description
+   * Questa funzione esegue i seguenti passaggi:
+   * 1. Controlla se il cantiere esiste nel database in base all'ID fornito.
+   * 2. Se il cantiere non esiste, solleva un errore 404 (Not Found).
+   * 3. Se il cantiere esiste, lo recupera dal database.
+   * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error).
+   */
+  async getSiteById(id) {
+    try {
+      const site = await Site.exists({ _id: id });
+      if (!site) {
+        throw createError(
+          "Segnalazione non trovata",
+          404,
+          "Nessuna segnalazione trovata con questo ID."
+        );
+      }
+      return await Site.findById(id);
+    } catch (error) {
+      if (error.code) {
+        throw error;
+      } else {
+        const message =
+          "Errore interno del server durante la ricerca tramite ID.";
+        throw createError("Errore interno del server", 500, message);
+      }
+    }
+  }
 
   /**
    * Modifica un cantiere esistente nel database.
@@ -352,7 +389,7 @@ class SiteService {
    * Crea un commento associato a un cantiere.
    * 
    * @async
-   * @param {string} reportId - L'ID del cantiere a cui aggiungere il commento.
+   * @param {string} siteId - L'ID del cantiere a cui aggiungere il commento.
    * @param {string} userId - L'ID dell'utente che sta creando il commento.
    * @param {string} text - Il testo del commento da aggiungere.
    * @returns {Promise<Site>} Il cantiere aggiornato con il nuovo commento.
@@ -380,8 +417,8 @@ class SiteService {
       });
 
       site.comments.push(comment.toObject());
-      const updatedSite = await site.save();
-      return updatedSite;
+      await site.save();
+      return comment;
     } catch (error) {
       if (error.code) {
         throw error;

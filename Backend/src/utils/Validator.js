@@ -39,6 +39,11 @@ class Validator {
         return (latitude !== undefined && longitude !== undefined && typeof (latitude) === 'number' && typeof (longitude) === 'number');
     }
 
+    validateNotification(notification) {
+        const notificationRegex = /^[a-zA-ZÀ-ÿ0-9.,:;!?()'"“”‘’\- ]{1,100}$/;
+        return notificationRegex.test(notification);
+    }
+
     validateStatus(status) {
         const validStatuses = ['pending', 'approved', 'rejected', 'solved'];
         return validStatuses.includes(status);

@@ -49,6 +49,12 @@ router.get('/', async (req, res) => {
         radius = Number(req.query.radius);
     }
 
+    if ((latitude !== null || longitude !== null || radius !== null) &&
+        !(latitude !== null && longitude !== null && radius !== null)) {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Per cercare in una determinata area devi fornire latitudine, longitudine e raggio insieme.'));
+    }
+
     try {
         if (date && !latitude && !longitude && !radius) {
             const sites = await service.getActiveSites(date, offset, limit);
@@ -82,6 +88,17 @@ router.post('/', tokenChecker, async (req, res) => {
     try {
         const site = await service.createSite(req.body);
         res.status(201).json(site);
+    } catch (error) {
+        res.status(error.code).json(error);
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const site = await service.getSiteById(id);
+        res.status(200).json(site);
     } catch (error) {
         res.status(error.code).json(error);
     }
@@ -174,8 +191,8 @@ router.post('/:id/comments', tokenChecker, async (req, res) => {
     }
 
     try {
-        const site = await service.createComment(id, userId, req.body.text);
-        res.status(201).json(site);
+        const comment = await service.createComment(id, userId, req.body.text);
+        res.status(201).json(comment);
     } catch (error) {
         res.status(error.code).json(error);
     }

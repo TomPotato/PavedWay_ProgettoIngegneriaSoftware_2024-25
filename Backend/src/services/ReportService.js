@@ -630,8 +630,8 @@ class ReportService {
       });
 
       report.comments.push(comment.toObject());
-      const updatedReport = await report.save();
-      return updatedReport;
+      await report.save();
+      return comment;
     } catch (error) {
       if (error.code) {
         throw error;

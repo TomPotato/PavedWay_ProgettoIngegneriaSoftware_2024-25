@@ -4,38 +4,26 @@
             <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
         </div>
         <div v-else class="card lg:card-side bg-base-300 shadow-sm">
-            <figure class="w-auto flex justify-center">
-                <div class="flex flex-wrap gap-4 justify-center items-center">
-                    <div v-for="(photo, index) in photoDisplay" :key="index" class="h-auto w-auto">
-                        <img :src="'data:image/jpg;base64,' + photo" alt="Immagine codificata"
-                            class="h-[40vh] object-contain" />
-                    </div>
-                </div>
-            </figure>
             <div class="card-body">
-                <h2 class="text-xl font-semibold col-start-1 row-start-1">{{ report.name }}</h2>
-                <i v-if="report.status === 'solved'" class="text-3xl text-red-600">Segnalazione
-                    Risolta!</i>
-                <p>{{ report.info }}</p>
-                <p>Posizione: Lat: {{ report.location?.latitude }} - Lon: {{
-                    report.location?.longitude }}</p>
-                <p>Indirizzo: {{ report.location?.street }}, {{
-                    report.location?.number }}
-                    in {{
-                        report.location?.city }} ({{ report.location?.code }})</p>
-                <p>Durata: da {{ report.duration?.start || " 'non inserita' " }} a
-                    {{
-                        report.duration?.end
-                        || " 'data da destinarsi' " }}</p>
-                <p>Creato da: {{ userId }}</p>
-                <i class=" text-yellow-600">Rating: {{ report?.rating || "0" }}</i>
+                <h2 class="text-xl font-semibold">{{ site.name }}</h2>
+                <i>{{ site.info }}</i>
+                <p>Posizione:</p>
+                <p>Lat: {{ site.location.latitude }} - Lon: {{ site.location.longitude }}</p>
+                <p>Indirizzo: {{ site.location.street }} {{ site.location.number }}, in {{
+                    site.location.city }} ({{ site.location.code }})</p>
+                <p>Durata: da {{ site.duration?.start || "non inserita" }} a {{ site.duration?.end ||
+                    "/'data da destinarsi'/" }}</p>
+                <p>Durata reale: da {{ site.realDuration?.start || " 'data da destinarsi' " }} a {{
+                    site.realDuration?.end || " 'data da destinarsi' " }}</p>
+                <p>Impresa Edile: {{ site.companyName }}</p>
+                <br />
                 <div class="w-full flex gap-5">
                     <div class="flex-1 collapse collapse-arrow bg-base-200 border border-base-100">
                         <input type="radio" name="my-accordion-2" />
                         <div class="collapse-title font-semibold">Commenti:</div>
                         <div class="collapse-content text-sm">
                             <div class="bg-base-100 border border-base-200 w-full p-6"
-                                v-for="(comment, index) in report.comments" :key="index">
+                                v-for="(comment, index) in site.comments" :key="index">
                                 <p>{{ commentDisplay[index] }}</p>
                                 <p>{{ comment.text }}</p>
                                 <p>{{ comment.createdAt }}</p>
@@ -43,7 +31,7 @@
                         </div>
                     </div>
                     <div v-if="isCitizen" class="flex items-start">
-                        <button @click="openModal('CommentiCrea', report.id)" class="btn btn-square btn-primary p-1">
+                        <button @click="openModal('CommentiCrea', site.id)" class="btn btn-square btn-primary p-1">
                             <img src="/comment.svg" />
                         </button>
                     </div>
@@ -78,28 +66,25 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import reportService from '@/services/ReportService';
+import siteService from '@/services/SiteService';
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStores';
 import userService from '@/services/UserService';
 
+const errorMessage = ref(null);
 const authStore = useAuthStore();
-
 const isCitizen = authStore.isCitizen;
 
-const errorMessage = ref(null);
 
 const ready = ref(false);
-const photoDisplay = ref([]);
-const commentDisplay = ref([]);
 
 const route = useRoute();
 const id = route.params.id;
 
-const userId = ref('');
+const commentDisplay = ref([]);
 
-const report = ref({});
+const site = ref({});
 
 const text = ref('');
 const validateComment = computed(() => {
@@ -117,13 +102,12 @@ const closeModal = (id) => {
     document.getElementById(id).close();
 };
 
-const getReportById = async () => {
+const getSiteById = async () => {
     try {
         ready.value = false;
-        report.value = await reportService.getReportById(id);
-        photoDisplay.value = report.value.photos;
-        if (report.value.comments.length !== 0) {
-            for (const element of report.value.comments) {
+        site.value = await siteService.getSiteById(id);
+        if (site.value.comments.length !== 0) {
+            for (const element of site.value.comments) {
                 let commentUser;
                 if (element.userId.length !== 24) {
                     commentUser = 'Utente Eliminato';
@@ -131,13 +115,11 @@ const getReportById = async () => {
                     commentUser = await userService.findUserById(element.userId);
                 }
                 commentDisplay.value.push(commentUser.username);
-            }
+            };
         };
-        const user = await userService.findUserById(report.value.createdBy);
-        userId.value = user.username;
         ready.value = true;
     } catch (error) {
-        errorMessage.value = reportService.error;
+        errorMessage.value = siteService.error;
     }
 };
 
@@ -149,16 +131,16 @@ const createComment = async () => {
         }
         ready.value = false;
         closeModal('CommentiCrea');
-        await reportService.createComment(authStore.token, commentData, id);
+        await siteService.createComment(authStore.token, commentData, id);
         text.value = '';
-        await getReportById();
+        await getSiteById();
         ready.value = true;
     } catch (error) {
-        errorMessage.value = reportService.error;
+        errorMessage.value = siteService.error;
     }
 }
 
 onMounted(() => {
-    getReportById();
+    getSiteById();
 });
 </script>

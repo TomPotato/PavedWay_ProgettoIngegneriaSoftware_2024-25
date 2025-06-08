@@ -5,10 +5,17 @@
         <div class="tab-content bg-base-200 border-base-400 w-full min-h-[70vh] p-6">
             <div class="card lg:card-side bg-base-300 shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h2>
+                    <h2 class="text-xl font-semibold">Informazioni</h2>
+                    <p>Questa pagina ti permette di visualizzare le tue segnalazioni e modificarle se necessario.</p>
+                    <p>Puoi anche cercare segnalazioni in base alla posizione inserendo via, città e codice postale.</p>
+                    <p>Per ogni segnalazione puoi visualizzare le informazioni, modificarle o eliminarle.</p>
+                    <br />
+                    <h1 class="text-xl font-semibold">Username: {{ authStore.user?.username }}</h1>
                     <p>Nome: {{ authStore.user?.name }}, Cognome: {{ authStore.user?.surname }}</p>
                     <p v-if="authStore.isCitizen">Email inserita: <i>{{ authStore.user?.email }}</i></p>
-                    <p v-if="authStore.isAdmin">Ufficio di appartenenza: <i>{{ authStore.user?.office }}</i></p>
+                    <p v-if="authStore.isAdmin">Ufficio di competenza: <i>{{ authStore.user?.office }}</i></p>
+                    <button @click="openModal('UtentiElimina')" class="btn btn-primary w-full">Elimina il
+                        profilo!</button>
                 </div>
             </div>
         </div>
@@ -130,8 +137,11 @@
                                     Le informazioni devono essere lunghe tra 1 e 200 caratteri.
                                 </p>
 
+                                <label class="label">Sono caricate {{ totImg }}
+                                    immagini</label>
+
                                 <label class="label">Inserisci le immagini:</label>
-                                <input type="file" class="file-input" @change="photoUpload" multiple />
+                                <input type="file" class="file-input" @change="photoUpload" multiple/>
                                 <label class="label">Max size 2MB</label>
                             </fieldset>
                         </div>
@@ -150,6 +160,64 @@
                 </dialog>
             </div>
         </div>
+
+        <input v-if="authStore.isAdmin" type="radio" name="my_tabs_3" class="tab text-black [--tab-border-color:Black]"
+            aria-label="Notifiche" @click="getNotifications" />
+        <div v-if="authStore.isAdmin" class="tab-content bg-base-200 border-base-400 w-full p-6">
+            <div class="bg-base-200 border-base-400 w-full">
+                <div class="flex w-full h-[66vh] flex-col">
+                    <div class="w-full space-y-2 bg-base-200 border-base-400 p-2 flex gap-2">
+                        <button @click="getNotifications" class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/refresh.svg" />
+                        </button>
+                        <button @click="openModal('NotificheCrea')"
+                            class="btn btn-square btn-primary drawer-button p-1">
+                            <img src="/add.svg" />
+                        </button>
+                    </div>
+
+                    <div v-if="!ready" class="flex items-center justify-center w-full min-h-[64vh]">
+                        <span class="loading loading-infinity loading-s text-primary flex-[0.2]"></span>
+                    </div>
+
+                    <div v-else class="flex-1 p-6 overflow-y-auto min-h-[60vh] flex flex-col">
+                        <div class="space-y-4 grid grid-cols-3 gap-4">
+                            <div class="bg-base-300 border border-base-200 w-full p-6"
+                                v-for="(notify, index) in notifications" :key="index">
+                                <h2 class="text-xl font-semibold">{{ notify.title }}</h2>
+                                <p>{{ notify.message }}</p>
+                                <p>Data di creazione: {{ notify.createdAt }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <dialog id="NotificheCrea" class="modal" role="dialog">
+                <div class="modal-box bg-base-200 border-base-300 w-auto p-4 flex flex-col max-h-[40vh]">
+                    <div class="overflow-y-auto p-4 flex-1">
+                        <fieldset class="fieldset gap-2 w-xs">
+                            <textarea v-model="message" type="text" class="textarea" placeholder="Testo Commento"
+                                required></textarea>
+                            <p v-if="!validateNotify" class="text-error">
+                                Hai un massimo di 60 caratteri per scrivere una notifica.
+                            </p>
+                        </fieldset>
+                    </div>
+                    <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
+                        <div>
+                            <button class="btn btn-neutral w-full" @click="createNotification"
+                                :disabled="!message">Crea</button>
+                        </div>
+                        <div>
+                            <button @click="closeModal('NotificheCrea')"
+                                class="modal-backdrop btn btn-neutral text-white w-full">Annulla</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-backdrop" @click="closeModal('NotificheCrea')">Close</button>
+            </dialog>
+        </div>
     </div>
     <div class="toast">
         <div v-if="errorMessage" role="alert" class="alert alert-error">
@@ -162,22 +230,50 @@
         </div>
     </div>
     <RedirectMessage />
+
+    <dialog id="UtentiElimina" class="modal">
+        <div class="modal-box max-w-md w-full">
+            <h3 class="text-lg font-bold">Disconnessione</h3>
+            <p class="py-2">Sei sicuro di volerti disconnettere?</p>
+            <div class="modal-action">
+                <form method="dialog" class="flex flex-row gap-2">
+                    <button class="btn btn-neutral" @click="deleteUser(authStore.user.id)">Disconnettiti</button>
+                    <button class="btn btn-neutral" @click="closeModal">Annulla</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button @click="closeModal('UtentiElimina')">Annulla</button>
+        </form>
+    </dialog>
 </template>
 
 <script setup>
 
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import imageCompression from 'browser-image-compression';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import { useAuthStore } from '@/stores/authStores';
 import reportService from '@/services/ReportService';
 import validateService from '@/utils/Validator';
 import pathService from '@/services/PathService';
-import { useRouter } from 'vue-router';
+import userService from '@/services/UserService';
 import imageCompression from 'browser-image-compression';
+import notificationService from '@/services/NotificationService';
 
 const router = useRouter();
 
 const errorMessage = ref(null);
+const notifications = ref([]);
+
+const message = ref('');
+const validateNotify = computed(() => {
+    return message.value.length > 0 && message.value.length <= 60;
+});
+
+const index = ref(0);
+const totImg = ref(0);
 
 const authStore = useAuthStore();
 
@@ -242,13 +338,22 @@ const passEvent = ref('');
 
 const openModal = (id, eventId = '') => {
     passEvent.value = eventId;
-    if (id === 'SegnalazioniModifica') {
-        const report = reports.value.find(r => r.id === eventId);
-        title.value = report.name;
-        info.value = report.info;
-    } else if (id === 'SegnalazioniInfo') {
-        rInfo.value = reports.value.find(r => r.id === eventId);
+
+    switch (id) {
+        case 'SegnalazioniModifica':
+            const report = reports.value.find(r => r.id === eventId);
+            index.value = reports.value.findIndex(r => r.id === eventId);
+            totImg.value = report.photos.length;
+            title.value = report.name;
+            info.value = report.info;
+            break;
+        case 'SegnalazioniInfo':
+            rInfo.value = reports.value.find(r => r.id === eventId);
+            break;
+        default:
+            break;
     }
+
     document.getElementById(id).showModal();
 };
 
@@ -339,7 +444,7 @@ async function photoUpload(event) {
     }
 }
 
-const getReportsByUserId = async () => {
+async function getReportsByUserId() {
     try {
         const reportData = {
             'offset': 0,
@@ -351,9 +456,9 @@ const getReportsByUserId = async () => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const getActiveReportsByUserId = async () => {
+async function getActiveReportsByUserId() {
     try {
         const reportData = {
             'now': true,
@@ -366,9 +471,9 @@ const getActiveReportsByUserId = async () => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
+async function getReportsByUserIdByLoc(mtrs) {
     if (mtrs === 'chilometri') {
         radius.value = radius.value * 1000;
     }
@@ -408,17 +513,22 @@ const getReportsByUserIdByLoc = async (mtrs) => {//#endregion
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const updateReport = async () => {
+async function updateReport() {
     try {
         const id = passEvent.value;
+        const index = reports.value.findIndex(r => r.id === id);
 
         start.value = new Date().toISOString();
 
         if (!valMod.value) {
             errorMessage.value = "Compila tutti i campi correttamente!";
         } else {
+            if (index !== -1 && reports.value[index].photos && Array.isArray(reports.value[index].photos) && totImg < 4) {
+                const existingPhotos = reports.value[index].photos.filter(photo => !base64Photos.value.includes(photo));
+                base64Photos.value = [...existingPhotos, ...base64Photos.value];
+            };
             const reportData = {
                 'name': title.value,
                 'info': info.value,
@@ -439,7 +549,7 @@ const updateReport = async () => {
     }
 }
 
-const deleteReport = async (id) => {
+async function deleteReport(id) {
     try {
         await reportService.deleteReport(authStore.token, id);
         ready.value = false;
@@ -448,9 +558,9 @@ const deleteReport = async (id) => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const statusReport = async (id, status) => {
+async function statusReport(id, status) {
     try {
         const date = Date.now();
         end.value = new Date(date).toISOString();
@@ -461,9 +571,41 @@ const statusReport = async (id, status) => {
     } catch (error) {
         errorMessage.value = reportService.error;
     }
-};
+}
 
-const goToReportInfo = (id) => {
+async function getNotifications() {
+    ready.value = false;
+    notifications.value = await notificationService.getNotifications();
+    ready.value = true;
+}
+
+async function createNotification() {
+    try {
+        const notificationData = {
+            'message': message.value
+        };
+        await notificationService.createNotification(authStore.token, notificationData);
+        ready.value = false;
+        await getNotifications();
+        ready.value = true;
+        closeModal('NotificheCrea');
+    } catch (error) {
+        errorMessage.value = notificationService.error;
+    }
+}
+
+async function goToReportInfo(id) {
     router.push({ path: `/reports/${id}` });
-};
+}
+
+async function deleteUser(id) {
+    try {
+        await userService.deleteUser(id, authStore.token);
+        authStore.logout();
+        authStore.setMessage('Profilo eliminato con successo!');
+        router.push({ path: '/' });
+    } catch (error) {
+        errorMessage.value = error.message || 'Errore durante l\'eliminazione del profilo.';
+    }
+}
 </script>

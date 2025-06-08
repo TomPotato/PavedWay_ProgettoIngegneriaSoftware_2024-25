@@ -25,7 +25,10 @@ class UserService {
         try {
             let config = {};
             if (token) {
-                headers['x-api-key'] = token;
+                const headers = {
+                    'x-api-key': token,
+                };
+                config = { headers: headers };
             }
 
             let body = {
@@ -46,6 +49,33 @@ class UserService {
             return response.data;
         } catch (error) {
             throw error.data;
+        }
+    }
+
+    async deleteUser(userId, token) {
+        try {
+            const response = await api.delete(`/users/${userId}`, {
+                headers: { 'x-api-key': token }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.data || error;
+        }
+    }
+  
+    async findUserById(id) {
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            if(error.response && error.response.status === 404) {
+                const response = {
+                    username: 'Utente non trovato.',
+                };
+                return response;
+            } else {
+                throw error.data;
+            }
         }
     }
 }
