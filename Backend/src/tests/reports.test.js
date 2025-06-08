@@ -346,6 +346,58 @@ describe('PATCH /api/v1/reports/:id', () => {
       .send(updatedReport)
       .expect(404);
   });
+
+  //User story: Solve Report
+  test('should return 204 with valid report data', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(204);
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    await request(app)
+      .patch(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .send(updatedReport)
+      .expect(401);
+  });
+
+  test('should return 403 for non authorized modifications', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      name: 'Nuovo',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(403);
+  });
 });
 
 

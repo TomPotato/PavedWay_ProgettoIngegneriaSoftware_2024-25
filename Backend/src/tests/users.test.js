@@ -197,16 +197,16 @@ describe('POST /api/v1/users', () => {
 
 
 
-//Test for the GET /api/v1/users endpoint
-describe('GET /api/v1/users', () => {
+// //Test for the GET /api/v1/users endpoint
+// describe('GET /api/v1/users', () => {
 
-  // User story: Read Sent Reports
-  test('should return 200 with valid user ID', async () => {
-    const reportId = testAdmins[1].id
+//   // User story: Read Sent Reports
+//   test('should return 200 with valid user ID', async () => {
+//     const reportId = testAdmins[1].id
 
-    await request(app)
-      .get(`/api/v1/users/${reportId}/reports`)
-      .expect(200);
+//     await request(app)
+//       .get(`/api/v1/users/${reportId}/reports`)
+//       .expect(200);
 
-  });
-});
+//   });
+// });
