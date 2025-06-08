@@ -50,15 +50,14 @@ router.post('/', tokenDecoder, async (req, res) => {
             'Devi fornire nome utente, nome, cognome, password, ruolo e email o ufficio.'));
     }
 
-    if (req.user && req.user.role !== 'admin' && req.body.role === 'admin') {
-        return res.status(403).json(createError('Accesso negato', 403,
-            'Devi essere un amministratore per creare un nuovo utente amministratore.'));
-
-    }
-
     if (req.body.role !== 'citizen' && req.body.role !== 'admin') {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Il ruolo deve essere "citizen" o "admin".'));
+    }
+
+    if (req.body.role === 'admin' && (!req.user || req.user.role !== 'admin')) {
+        return res.status(403).json(createError('Accesso negato', 403,
+            'Devi essere un amministratore per creare un nuovo utente amministratore.'));
     }
 
     if (req.body.role === 'citizen' && !req.body.email) {
