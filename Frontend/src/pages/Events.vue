@@ -32,6 +32,7 @@
 								"/'data da destinarsi'/" }}</p>
 							<br />
 							<button class="btn btn-primary w-[10vh]" @click="goToSiteInfo(site.id)">Info</button>
+							<div class="my-1"></div>
 							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
 								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il

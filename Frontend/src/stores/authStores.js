@@ -53,10 +53,21 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    const registerAdmin = async (userData) => {
+        try {
+            await userService.createUser(userData, token.value);
+            error.value = null;
+        } catch (e) {
+            error.value = e.message;
+            token.value = null;
+            user.value = null;
+        }
+    };
+
     const logout = () => {
         token.value = null;
         user.value = null;
-    }
+    };
 
     const setRedirect = (path) => {
         originalPath.value = path;
@@ -92,6 +103,7 @@ export const useAuthStore = defineStore('auth', () => {
         message,
         login,
         register,
+        registerAdmin,
         logout,
         setRedirect,
         clearRedirect,

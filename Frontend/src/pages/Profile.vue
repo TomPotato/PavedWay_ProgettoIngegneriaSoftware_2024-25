@@ -346,9 +346,6 @@ const openModal = (id, eventId = '') => {
             title.value = report.name;
             info.value = report.info;
             break;
-        case 'SegnalazioniInfo':
-            rInfo.value = reports.value.find(r => r.id === eventId);
-            break;
         default:
             break;
     }

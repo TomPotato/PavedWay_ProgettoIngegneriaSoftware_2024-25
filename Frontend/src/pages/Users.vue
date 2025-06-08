@@ -15,7 +15,7 @@
                 </h2>
                 <p>{{ user.email || user.office }}</p>
                 <div class="card-actions justify-end">
-                    <button class="btn btn-primary">Info</button>
+                    <button class="btn btn-primary" @click="goToUserInfo(user.id)">Info</button>
                     <button class="btn btn-secondary" @click="openModal('UtentiElimina', user.id)">Elimina</button>
                 </div>
             </div>
@@ -99,7 +99,7 @@
             </div>
             <div class="modal-action">
                 <form method="dialog" class="flex flex-row gap-2">
-                    <button class="btn btn-neutral " @click="addAdmin">Aggiungi</button>
+                    <button class="btn btn-neutral " @click="addAdmin" :disabled="validateForm">Aggiungi</button>
                     <button class="btn btn-neutral" @click="closeModal('AmministratoreCrea')">Annulla</button>
                 </form>
             </div>
@@ -112,18 +112,82 @@
 
 <script setup>
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/authStores';
 import RedirectMessage from '@/components/RedirectMessage.vue';
 import service from '@/services/UserService';
+import validator from '@/utils/Validator';
+import { useRouter } from 'vue-router';
 
 const store = useAuthStore();
-
 const ready = ref(false);
-const errorMessage = ref(null);
-
 const users = ref([]);
 const userId = ref(null);
+const username = ref('');
+const email = ref('');
+const name = ref('');
+const surname = ref('');
+const password = ref('');
+const passwordVerify = ref('');
+const office = ref('');
+const errorMessage = ref(null);
+const router = useRouter();
+
+const validateUsername = computed(() => {
+    return !username.value ? true : validator.validateUsername(username.value);
+});
+
+const validateName = computed(() => {
+    return !name.value ? true : validator.validateName(name.value);
+});
+
+const validateSurname = computed(() => {
+    return !surname.value ? true : validator.validateName(surname.value);
+});
+
+const validatePassword = computed(() => {
+    return !password.value ? true : validator.validatePassword(password.value);
+});
+
+const validatePasswordVerify = computed(() => {
+    return password.value === passwordVerify.value;
+});
+
+const validateForm = computed(() => {
+    return (
+        username.value &&
+        email.value &&
+        name.value &&
+        surname.value &&
+        password.value &&
+        passwordVerify.value &&
+        validateUsername.value &&
+        validateEmail.value &&
+        validateName.value &&
+        validateSurname.value &&
+        validatePassword.value &&
+        validatePasswordVerify.value
+    );
+});
+
+async function addAdmin() {
+    try {
+        errorMessage.value = null;
+        const formData = {
+            username: username.value,
+            office: office.value,
+            name: name.value,
+            surname: surname.value,
+            password: password.value,
+            role: 'admin'
+        };
+        await store.registerAdmin(formData);
+        closeModal('AmministratoreCrea');
+        await getUsers();
+    } catch (error) {
+        errorMessage.value = store.error;
+    }
+};
 
 async function getUsers() {
     users.value = [];
@@ -159,14 +223,10 @@ async function deleteUser() {
     }
 }
 
-async function addAdmin() {
-    try {
-        closeModal('AmministratoreCrea');
-        await getUsers();
-    } catch (error) {
-        errorMessage.value = error.message || 'Errore durante l\'aggiunta dell\'utente.';
-    }
-}
+const goToUserInfo = (id) => {
+    console.log(`Navigating to user info for ID: ${id}`);
+	router.push({ path: `/user/${id}` });
+};
 
 onMounted(async () => {
     await getUsers();
