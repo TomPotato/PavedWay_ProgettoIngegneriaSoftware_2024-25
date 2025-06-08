@@ -197,16 +197,82 @@ describe('POST /api/v1/users', () => {
 
 
 
-// //Test for the GET /api/v1/users endpoint
-// describe('GET /api/v1/users', () => {
+//Test for the GET /api/v1/users endpoint
+describe('GET /api/v1/users', () => {
 
-//   // User story: Read Sent Reports
-//   test('should return 200 with valid user ID', async () => {
-//     const reportId = testAdmins[1].id
+  // // User story: Read Sent Reports
+  // test('should return 200 with valid user ID', async () => {
+  //   const reportId = testAdmins[1].id
 
-//     await request(app)
-//       .get(`/api/v1/users/${reportId}/reports`)
-//       .expect(200);
+  //   await request(app)
+  //     .get(`/api/v1/users/${reportId}/reports`)
+  //     .expect(200);
 
-//   });
-// });
+  // });
+
+
+  //User story: Read Users
+  test('should return 200 with no query params', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 401 with no authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .expect(401);
+  });
+
+  test('should return 403 with citizen authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 200 with offset and limit', async () => {
+    const offset = 2
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset, limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with limit only', async () => {
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with offset only', async () => {
+    const offset = 2
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+});
