@@ -234,7 +234,91 @@ describe('GET /api/v1/reports', () => {
       .get(`/api/v1/reports/${nonExistentId}`)
       .expect(404);
   });
+
+  //User Story: Search Event By Location
+  test('should return 200 with valid coordinate and radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 500})
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 400 with invalid coordinate', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 90.1, longitude: 180.1, radius: 500})
+      .expect(400);
+  });
+
+  test('should return 400 with invalid radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 5001})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ latitude: 45.1, longitude: 9.1})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined coordinates', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ radius: 500 })
+      .expect(400);
+  });
 });
+
+
+
+
+
+
+// Test for the POST /api/v1/reports/:id/comments endpoint
+describe('POST /api/v1/reports/:id/comments', () => {
+
+  //User story: Comment Event
+  test('should return 201 for valid data', async () => {
+    const reportId = createdReports[0].id
+
+    const res = await request(app)
+      .post(`/api/v1/reports/${reportId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento1' })
+      .expect(201);
+  });
+
+  test('should return 404 for invalid ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/v1/reports/${nonExistentId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento2' })
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id
+
+    const res = await request(app)
+      .post(`/api/v1/reports/${reportId}/comments`)
+      .send({ text: 'Commento3' })
+      .expect(401);
+  });
+});
+
+
 
 
 
@@ -301,6 +385,58 @@ describe('PATCH /api/v1/reports/:id', () => {
       .set('X-API-Key', tokenAdmin)
       .send(updatedReport)
       .expect(404);
+  });
+
+  //User story: Solve Report
+  test('should return 204 with valid report data', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(204);
+  });
+
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    await request(app)
+      .patch(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      status: 'solved',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .send(updatedReport)
+      .expect(401);
+  });
+
+  test('should return 403 for non authorized modifications', async () => {
+    const reportId = createdReports[1].id;
+    const updatedReport = {
+      name: 'Nuovo',
+    };
+
+    const res = await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(403);
   });
 });
 

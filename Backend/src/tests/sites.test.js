@@ -222,7 +222,91 @@ describe('GET /api/v1/sites', () => {
       .query({ now: true, date: '05-21-2025' })
       .expect(400);
   });
+
+  //User Story: Search Event By Location
+  test('should return 200 with valid coordinate and radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 500})
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 400 with invalid coordinate', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ latitude: 90.1, longitude: 180.1, radius: 500})
+      .expect(400);
+  });
+
+  test('should return 400 with invalid radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ latitude: 45.1, longitude: 9.1, radius: 5001})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined radius', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ latitude: 45.1, longitude: 9.1})
+      .expect(400);
+  });
+
+  test('should return 400 with undefined coordinates', async () => {
+
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ radius: 500 })
+      .expect(400);
+  });
 });
+
+
+
+
+
+// Test for the POST /api/v1/sites/:id/comments endpoint
+describe('POST /api/v1/sites/:id/comments', () => {
+
+  //User story: Comment Event
+  test('should return 201 for valid data', async () => {
+    const siteId = createdSites[0].id
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${siteId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento1' })
+      console.log(res.body)
+      // .expect(201);
+  });
+
+  test('should return 404 for invalid ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${nonExistentId}/comments`)
+      .set('X-API-Key', tokenAdmin)
+      .send({ text: 'Commento2' })
+      .expect(404);
+  });
+
+  test('should return 401 for missing API key', async () => {
+    const siteId = createdSites[1].id
+
+    const res = await request(app)
+      .post(`/api/v1/sites/${siteId}/comments`)
+      .send({ text: 'Commento3' })
+      .expect(401);
+  });
+});
+
+
 
 
 

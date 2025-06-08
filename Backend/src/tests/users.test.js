@@ -73,14 +73,14 @@ describe('POST /api/v1/users', () => {
 			.expect(403);
 	});
 
-	//   test('should return 401 for missing API key', async () => {
-	//     const admin = testAdmins[1];
+  test('should return 401 for missing API key', async () => {
+    const admin = testAdmins[1];
 
-	//     await request(app)
-	//       .post('/api/v1/users')
-	//       .send({ ...admin, role: 'admin' })
-	//       .expect(401);
-	//   });
+    await request(app)
+      .post('/api/v1/users')
+      .send({ ...admin, role: 'admin' })
+      .expect(401);
+  });
 
 	test('should return 400 for missing required fields', async () => {
 		const admin = testAdmins[1];
@@ -358,4 +358,326 @@ describe('User story 26: Admin Delete User', () => {
 			.set('X-API-Key', token)
 			.expect(404);
 	});
+});
+
+
+
+//Test for the GET /api/v1/users endpoint
+describe('GET /api/v1/users', () => {
+
+  beforeAll(async () => {
+      await User.deleteMany({});
+      for (const admin of testAdmins) {
+        const res = await request(app)
+          .post('/api/v1/users')
+          .set('X-API-Key', tokenAdmin)
+          .send({ ...admin, role: "admin" });
+  
+          createdAdmins.push(res.body);
+      }
+      for (const citizen of testCitizens) {
+        const res = await request(app)
+          .post('/api/v1/users')
+          .set('X-API-Key', tokenAdmin)
+          .send({ ...citizen, role: "citizen" });
+  
+          createdCitizens.push(res.body);
+      }
+    });
+
+  // User story: Read Sent Reports
+  test('should return 200 with valid user ID', async () => {
+
+    const userId = createdAdmins[1].id
+    console.log(createdAdmins[1].id)
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID and offset', async () => {
+
+    const userId = createdAdmins[1].id
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ offset: 1 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID and limit', async () => {
+
+    const userId = createdAdmins[1].id
+    const limit = 5;
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ limit: 5 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID, limit and offset', async () => {
+
+    const userId = createdAdmins[1].id
+    const limit = 5;
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ limit: 5 , offset: 1})
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 404 for invalid user ID', async () => {
+
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .get(`/api/v1/users/${nonExistentId}/reports`)
+      .send({ limit: 5 , offset: 1})
+      .expect(404);
+  });
+  
+  
+
+
+  //User story: Read Users
+  test('should return 200 with no query params', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 401 with no authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .expect(401);
+  });
+
+  test('should return 403 with citizen authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 200 with offset and limit', async () => {
+    const offset = 2
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset, limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with limit only', async () => {
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with offset only', async () => {
+    const offset = 2
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+});
+
+
+
+//Test for the GET /api/v1/users endpoint
+describe('GET /api/v1/users', () => {
+
+  beforeAll(async () => {
+      await User.deleteMany({});
+      for (const admin of testAdmins) {
+        const res = await request(app)
+          .post('/api/v1/users')
+          .set('X-API-Key', tokenAdmin)
+          .send({ ...admin, role: "admin" });
+  
+          createdAdmins.push(res.body);
+      }
+      for (const citizen of testCitizens) {
+        const res = await request(app)
+          .post('/api/v1/users')
+          .set('X-API-Key', tokenAdmin)
+          .send({ ...citizen, role: "citizen" });
+  
+          createdCitizens.push(res.body);
+      }
+    });
+
+  // User story: Read Sent Reports
+  test('should return 200 with valid user ID', async () => {
+
+    const userId = createdAdmins[1].id
+    console.log(createdAdmins[1].id)
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID and offset', async () => {
+
+    const userId = createdAdmins[1].id
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ offset: 1 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID and limit', async () => {
+
+    const userId = createdAdmins[1].id
+    const limit = 5;
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ limit: 5 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with valid user ID, limit and offset', async () => {
+
+    const userId = createdAdmins[1].id
+    const limit = 5;
+
+    const res = await request(app)
+      .get(`/api/v1/users/${userId}/reports`)
+      .send({ limit: 5 , offset: 1})
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 404 for invalid user ID', async () => {
+
+    const nonExistentId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .get(`/api/v1/users/${nonExistentId}/reports`)
+      .send({ limit: 5 , offset: 1})
+      .expect(404);
+  });
+  
+  
+
+
+  //User story: Read Users
+  test('should return 200 with no query params', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('should return 401 with no authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .expect(401);
+  });
+
+  test('should return 403 with citizen authentication', async () => {
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('should return 200 with offset and limit', async () => {
+    const offset = 2
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset, limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with limit only', async () => {
+    const limit = 4
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ limit })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeLessThanOrEqual(limit);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should return 200 with offset only', async () => {
+    const offset = 2
+
+    const res = await request(app)
+      .get('/api/v1/users')
+      .set('X-API-Key', tokenAdmin)
+      .query({ offset })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  });
 });

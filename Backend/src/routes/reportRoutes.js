@@ -29,6 +29,13 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    if((req.query.latitude !== undefined || req.query.longitude !== undefined || req.query.radius !== undefined) &&
+    (req.query.latitude === undefined || req.query.longitude === undefined || req.query.radius === undefined))
+    {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire longitudine, latitudine e raggio.'));
+    }
+
     let latitude = null;
     let longitude = null;
     let radius = null;
