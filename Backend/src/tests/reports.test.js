@@ -291,18 +291,18 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(400);
   });
 
-  // test('should return 404 for non-existent report ID', async () => {
-  //   const nonExistentId = new mongoose.Types.ObjectId();
-  //   const updatedReport = {
-  //     status: 'approved',
-  //   };
+  test('should return 404 for non-existent report ID', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const updatedReport = {
+      status: 'approved',
+    };
     
-  //   await request(app)
-  //     .patch(`/api/v1/reports/${nonExistentId}`)
-  //     .set('X-API-Key', tokenAdmin)
-  //     .send(updatedReport)
-  //     .expect(404);
-  // });
+    await request(app)
+      .patch(`/api/v1/reports/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedReport)
+      .expect(404);
+  });
 });
 
 
