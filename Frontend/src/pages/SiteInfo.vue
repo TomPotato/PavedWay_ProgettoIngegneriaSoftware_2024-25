@@ -114,7 +114,7 @@ const getSiteById = async () => {
                 } else {
                     commentUser = await userService.findUserById(element.userId);
                 }
-                commentDisplay.value.push(commentUser);
+                commentDisplay.value.push(commentUser.username);
             };
         };
         ready.value = true;

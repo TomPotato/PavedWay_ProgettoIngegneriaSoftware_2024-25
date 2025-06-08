@@ -206,6 +206,49 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /users/{id}:
+    get:
+      tags:
+        - Utenti
+      summary: Restituisce l'utente con l'ID specificato
+      description: >-
+        Restituisce le informazioni di un utente specifico in base all'ID fornito.
+        Devi essere autenticato per vedere le informazioni di un utente.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'utente da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserInfo"
+        "401":
+          description: Non autorizzato. Devi fornire una chiave API valida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Utente non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     delete:
       tags:
         - Utenti
@@ -1431,7 +1474,7 @@ components:
           type: string
           format: date-time
           description: Data e ora di creazione della notifica.
-        reportId: 
+        reportId:
           type: string
           description: Id del report che si vuole mostrare nella notifica.
         siteId:

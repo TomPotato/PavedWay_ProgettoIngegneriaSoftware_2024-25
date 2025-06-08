@@ -130,11 +130,11 @@ const getReportById = async () => {
                 } else {
                     commentUser = await userService.findUserById(element.userId);
                 }
-                commentDisplay.value.push(commentUser);
+                commentDisplay.value.push(commentUser.username);
             }
         };
         const user = await userService.findUserById(report.value.createdBy);
-        userId.value = user;
+        userId.value = user.username;
         ready.value = true;
     } catch (error) {
         errorMessage.value = reportService.error;

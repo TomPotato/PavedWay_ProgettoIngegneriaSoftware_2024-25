@@ -55,7 +55,10 @@ class UserService {
             return response.data;
         } catch (error) {
             if(error.response && error.response.status === 404) {
-                return 'Utente Eliminato';
+                const response = {
+                    username: 'Utente non trovato.',
+                };
+                return response.data;
             } else {
                 throw error.data;
             }
