@@ -9,7 +9,6 @@ beforeAll(async () => {
   const uri = process.env.DB_URI || 'mongodb://localhost:27017/test';
   await mongoose.connect(uri, {
     dbName: process.env.DB_TEST || 'test',
-    useNewUrlParser: true,
   });
 });
 afterAll(async () => {

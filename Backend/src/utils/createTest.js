@@ -1,8 +1,4 @@
 const mongoose = require('mongoose');
-const { Report } = require('../models/Report');
-const { Site } = require('../models/Site'); 
-const { User } = require('../models/User');
-const { Citizen } = require('../models/Citizen');
 const bcrypt = require('bcrypt');
 
 /**
@@ -61,25 +57,25 @@ async function createTestUsers(count = 1, role) {
   const users = [];
 
   for (let i = 0; i < count; i++) {
-    if (role  === 'admin') {
+    if (role === 'admin') {
       const user = {
-      username: `userAdmin${i + 1}`,
-      name: `NomeAdmin`,
-      surname: `CognomeAdmin`,
-      password: `PasswordAdmin${i + 1}_`,
-      office: `Ufficio ${i + 1}`,
-    };
-    users.push(user);
-  } else if (role === 'citizen') {
-    const user = {
-      username: `userCitizen${i + 1}`,
-      name: `NomeCitizen`,
-      surname: `CognomeCitizen`,
-      password: `PasswordCitizen${i + 1}_`,
-      email: `user${i + 1}@example.com`,
-    };
-    users.push(user);
-  }
+        username: `userAdmin${i + 1}`,
+        name: `NomeAdmin`,
+        surname: `CognomeAdmin`,
+        password: `PasswordAdmin${i + 1}_`,
+        office: `Ufficio ${i + 1}`,
+      };
+      users.push(user);
+    } else if (role === 'citizen') {
+      const user = {
+        username: `userCitizen${i + 1}`,
+        name: `NomeCitizen`,
+        surname: `CognomeCitizen`,
+        password: `PasswordCitizen${i + 1}_`,
+        email: `user${i + 1}@example.com`,
+      };
+      users.push(user);
+    }
   }
 
   return users;
