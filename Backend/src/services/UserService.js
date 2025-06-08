@@ -177,7 +177,8 @@ class UserService {
             if (user.__t === 'admin') {
                 const adminsNumber = await Admin.countDocuments();
                 if (adminsNumber <= 1) {
-                    throw createError('Eliminazione fallita', 403, 'Non puoi eliminare l\'ultimo amministratore.');
+                    throw createError('Eliminazione fallita', 409, 'Non puoi eliminare l\'ultimo amministratore.');
+
                 }
             }
 
