@@ -115,9 +115,13 @@ router.delete('/:id', tokenChecker, async (req, res) => {
 });
 
 router.patch('/:id', tokenChecker, async (req, res) => {
-
     const id = req.params.id;
-    const report = await service.getReportById(id);
+    let report;
+    try {
+        report = await service.getReportById(id);
+    } catch (error) {
+        return res.status(error.code || 500).json(error);
+    }
 
     if (!report) {
         return res.status(404).json(createError('Segnalazione non trovata', 404, 'Nessuna segnalazione trovata con questo ID.'));
