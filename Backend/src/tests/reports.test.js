@@ -296,7 +296,7 @@ describe('PATCH /api/v1/reports/:id', () => {
     const updatedReport = {
       status: 'approved',
     };
-    
+
     await request(app)
       .patch(`/api/v1/reports/${nonExistentId}`)
       .set('X-API-Key', tokenAdmin)
