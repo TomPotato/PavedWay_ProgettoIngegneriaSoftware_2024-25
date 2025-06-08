@@ -149,17 +149,32 @@ class UserService {
         }
     }
 
-    async getUserByUsername(id) {
-        let UserName;
+    /**
+     * Recupera il nome utente di un utente dal database in base all'ID fornito.
+     * 
+     * @async
+     * @param {string} id - L'ID dell'utente di cui recuperare il nome utente.
+     * @returns {Promise<string>} Il nome utente dell'utente.
+     * @throws {Error} Se si verifica un errore durante la ricerca dell'utente, viene sollevato un errore con un messaggio e un codice di stato appropriati.
+     * 
+     * @description
+     * Questa funzione esegue i seguenti passaggi:
+     * 1. Controlla se l'utente esiste nel database in base all'ID fornito.
+     * 2. Se l'utente non esiste, restituisce 'Utente Eliminato'.
+     * 3. Se l'utente esiste, recupera il nome utente dell'utente dal database.
+     * 4. Se si verifica un errore durante la ricerca, solleva un errore 500 (Internal Server Error). 
+     */
+    async getUsernameById(id) {
+        let userName;
         try {
             const user = await User.exists({ _id: id });
             if (user === null) {
-                UserName = 'Utente Eliminato';
+                throw createError('Utente non trovato', 404, "Nessun utente trovato con questo ID.");
             } else {
                 const user = await User.findById(id);
-                UserName = user.username;
+                userName = user.username;
             }
-            return UserName;
+            return userName;
         } catch (error) {
             if (error.code) {
                 throw error;

@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
     limit = toValidInt(req.query.limit);
 
     try {
-        const notifications = await service.getNotifications();
+        const notifications = await service.getNotifications(offset, limit);
         res.status(200).json(notifications);
     } catch (error) {
         res.status(error.code).json(error);

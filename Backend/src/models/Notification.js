@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const { reportSchema } = require('./Report');
-const { siteSchema } = require('./Site');
-
 const notificationSchema = new Schema({
     message: {
         type: String,

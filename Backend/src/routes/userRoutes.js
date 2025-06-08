@@ -31,7 +31,7 @@ router.get('/', tokenChecker, async (req, res) => {
 router.get('/:id', async (req, res) => {
     let id = req.params.id;
     try {
-        const users = await userService.getUserByUsername(id);
+        const users = await userService.getUsernameById(id);
         res.status(200).json(users);
     }
     catch (error) {

@@ -1179,7 +1179,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Notification"
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: Testo della notifica.
+                  oneOf:
+                  reportId:
+                    type: string
+                    description: ID del report che si vuole mostrare nella notifica.
+                  siteId:
+                    type: string
+                    description: ID del cantiere che si vuole mostrare nella notifica.
       responses:
         "201":
           description: Notifica creata con successo.
@@ -1391,6 +1404,7 @@ components:
         id:
           type: integer
           description: ID del commento (generato automaticamente dal server).
+          required: true
         userId:
           type: integer
           description: ID dell'utente che ha scritto il commento.
