@@ -37,11 +37,10 @@ var tokenCitizen = jwt.sign(
   { expiresIn: '1h' }
 );
 
-//Test for the POST /api/v1/reports endpoint
-describe('POST /api/v1/reports', () => {
+// User story 11: Create Report
+describe('User story 11: Create Report', () => {
 
-  // User story: Create Report
-  test('should return 201 with valid report data', async () => {
+  test('44: Creazione di una segnalazione avendo effettuato il log in e fornendo una segnalazione valida come parametro', async () => {
     const report = testReports[0];
 
     const res = await request(app)
@@ -55,35 +54,14 @@ describe('POST /api/v1/reports', () => {
     expect(res.body.description).toBe(report.description);
   });
 
-  test('should return 401 for missing API key', async () => {
-    const report = testReports[1];
-
-    await request(app)
-      .post('/api/v1/reports')
-      .send({ ...report })
-      .expect(401);
-  });
-
-  test('should return 400 for missing required report', async () => {
+  test('45: Creazione di una segnalazione avendo effettuato il log in ma senza fornire una segnalazione come parametro', async () => {
     await request(app)
       .post('/api/v1/reports')
       .set('X-API-Key', tokenAdmin)
       .expect(400);
   });
 
-  test('should return 400 for missing required fields', async () => {
-    await request(app)
-      .post('/api/v1/reports')
-      .set('X-API-Key', tokenAdmin)
-      .send({
-        description: testReports[1].description,
-        location: testReports[1].location,
-        duration: testReports[1].duration,
-      })
-      .expect(400);
-  });
-
-  test('should return 400 for invalid format', async () => {
+  test('46: Creazione di una segnalazione avendo effettuato il log in ma fornendo parametri non validi', async () => {
     await request(app)
       .post('/api/v1/reports')
       .set('X-API-Key', tokenAdmin)
@@ -98,6 +76,28 @@ describe('POST /api/v1/reports', () => {
       })
       .expect(400);
   });
+
+  test('47: Creazione di una segnaalzione avendo effettuato il log in ma senza fornire parametri ', async () => {
+    await request(app)
+      .post('/api/v1/reports')
+      .set('X-API-Key', tokenAdmin)
+      .send({
+        description: testReports[1].description,
+        location: testReports[1].location,
+        duration: testReports[1].duration,
+      })
+      .expect(400);
+  });
+
+  test('48: Creazione di una segnalazione senza aver effettuato il log in', async () => {
+    const report = testReports[1];
+
+    await request(app)
+      .post('/api/v1/reports')
+      .send({ ...report })
+      .expect(401);
+  });
+
 });
 
 
@@ -105,8 +105,8 @@ describe('POST /api/v1/reports', () => {
 
 
 
-// Test for the GET /api/v1/reports endpoint
-describe('GET /api/v1/reports', () => {
+// User story 2: Read Reports
+describe('User story 2: Read Reports', () => {
 
   beforeAll(async () => {
     for (const report of testReports) {
@@ -120,8 +120,7 @@ describe('GET /api/v1/reports', () => {
   });
 
 
-  // User strory: Read Reports
-  test('should return 200 with no query params', async () => {
+  test('1: Lettura delle segnalazioni senza offset e limit', async () => {
     const res = await request(app)
       .get('/api/v1/reports')
       .expect(200);
@@ -129,7 +128,7 @@ describe('GET /api/v1/reports', () => {
     expect(Array.isArray(res.body)).toBe(true);
   }, 20000);
 
-  test('should return 200 with offset and limit', async () => {
+  test('2: Lettura delle regnalazioni con offset e limit', async () => {
     const offset = 2;
     const limit = 4;
 
@@ -143,7 +142,17 @@ describe('GET /api/v1/reports', () => {
     expect(res.body.length).toBeGreaterThanOrEqual(0);
   }, 20000);
 
-  test('should return 200 with limit only', async () => {
+    test('3: Lettura delle regnalazioni con solo offset', async () => {
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .query({ offset: 2 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  }, 20000);
+
+  test('4: Lettura delle segnalazioni con solo limit', async () => {
     const limit = 4;
 
     const res = await request(app)
@@ -154,20 +163,13 @@ describe('GET /api/v1/reports', () => {
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeLessThanOrEqual(limit);
   }, 20000);
-
-  test('should return 200 with offset only', async () => {
-    const res = await request(app)
-      .get('/api/v1/reports')
-      .query({ offset: 2 })
-      .expect(200);
-
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThanOrEqual(0);
-  }, 20000);
+});
 
 
-  // User story: Read Current Events
-  test('should return 200 with current reports', async () => {
+// User story 6: Read Current Events
+describe('User story 6: Read Current Events', () => {
+
+  test('21: Lettura di una segnalazione nel momento in cui si esegue il comando', async () => {
     const res = await request(app)
       .get('/api/v1/reports')
       .query({ now: true })
@@ -182,22 +184,26 @@ describe('GET /api/v1/reports', () => {
     }
   });
 
-  test('should return 400 for inserting both <now> and <date>', async () => {
+  test('23: Lettura di una segnalazione nel momento in cui si esegue il comando e gli si passa una data', async () => {
     await request(app)
       .get('/api/v1/reports')
       .query({ now: true, date: '2025-05-31T12:56:46.180+00:00' })
       .expect(400);
   });
 
-  test('should return 400 for invalid date format', async () => {
+  test('25: Lettura di una segnalazione nel momento in cui si esegue il comando e gli si passa una data in formato non corretto', async () => {
     await request(app)
       .get('/api/v1/reports')
       .query({ now: true, date: '13/09/2025' })
       .expect(400);
   });
+});
 
-  // User story: Read Report Info
-  test('should return 200 with a specific report by ID', async () => {
+
+// User story 7: Read Report Info
+describe('User story 7: Read Report Info', () => {
+
+  test('27: Lettura della segnalazione fornendo un id corretto', async () => {
     const firstReportId = createdReports[0].id;
     const res = await request(app)
       .get(`/api/v1/reports/${firstReportId}`)
@@ -206,16 +212,20 @@ describe('GET /api/v1/reports', () => {
     expect(res.body).toBeDefined();
   });
 
-  test('should return 404 for non-existent report ID', async () => {
+  test('28: Lettura della segnalazione fornendo un id non valido', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     await request(app)
       .get(`/api/v1/reports/${nonExistentId}`)
       .expect(404);
   });
+});
 
-  //User Story: Search Event By Location
-  test('should return 200 with valid coordinate and radius', async () => {
+
+// User story 16: Search Event by Location
+describe('User story 16: Search Event by Location', () => {
+
+  test('71: Ricerca di una segnalazione con coordinate e raggio validi', async () => {
 
     const res = await request(app)
       .get('/api/v1/reports')
@@ -225,7 +235,7 @@ describe('GET /api/v1/reports', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test('should return 400 with invalid coordinate', async () => {
+  test('73: Ricerca di una segnalazione con coordinate non valide e raggio valido', async () => {
 
     const res = await request(app)
       .get('/api/v1/reports')
@@ -233,7 +243,7 @@ describe('GET /api/v1/reports', () => {
       .expect(400);
   });
 
-  test('should return 400 with invalid radius', async () => {
+  test('75: Ricerca di una segnalazione con coordinate valide e raggio non valido', async () => {
 
     const res = await request(app)
       .get('/api/v1/reports')
@@ -241,7 +251,7 @@ describe('GET /api/v1/reports', () => {
       .expect(400);
   });
 
-  test('should return 400 with undefined radius', async () => {
+  test('77: Ricerca di una segnalazione con coordinate valide ma senza raggio', async () => {
 
     const res = await request(app)
       .get('/api/v1/reports')
@@ -249,7 +259,7 @@ describe('GET /api/v1/reports', () => {
       .expect(400);
   });
 
-  test('should return 400 with undefined coordinates', async () => {
+  test('79: Ricerca di una segnalazione con raggio valido ma senza coordinate', async () => {
 
     const res = await request(app)
       .get('/api/v1/reports')
@@ -263,11 +273,10 @@ describe('GET /api/v1/reports', () => {
 
 
 
-// Test for the POST /api/v1/reports/:id/comments endpoint
-describe('POST /api/v1/reports/:id/comments', () => {
+// User story 21: Comment Event
+describe('User story 21: Comment Event', () => {
 
-  //User story: Comment Event
-  test('should return 201 for valid data', async () => {
+  test('91: Creazione di un commento su una segnalazione esistente', async () => {
     const reportId = createdReports[0].id
 
     const res = await request(app)
@@ -277,7 +286,7 @@ describe('POST /api/v1/reports/:id/comments', () => {
       .expect(201);
   });
 
-  test('should return 404 for invalid ID', async () => {
+  test('93: Creazione di un commento su una segnalazione non esistente', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     const res = await request(app)
@@ -287,7 +296,7 @@ describe('POST /api/v1/reports/:id/comments', () => {
       .expect(404);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('95: Creazione di un commento su una segnalazione esistente ma senza autenticazione', async () => {
     const reportId = createdReports[1].id
 
     const res = await request(app)
@@ -303,11 +312,10 @@ describe('POST /api/v1/reports/:id/comments', () => {
 
 
 
-// Test for the PATCH /api/v1/reports/:id endpoint
-describe('PATCH /api/v1/reports/:id', () => {
+// User story 12: Approve Report
+describe('User story 12: Approve Report', () => {
 
-  // User story: Approve Report
-  test('should return 204 with valid report data', async () => {
+  test('49: Approvazione di una segnalazione esistente', async () => {
     const reportId = createdReports[0].id;
     const updatedReport = {
       status: 'approved',
@@ -320,7 +328,7 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(204);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('', async () => {
     const reportId = createdReports[1].id;
     const updatedReport = {
       description: 'Descrizione aggiornata',
@@ -341,19 +349,7 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(400);
   });
 
-  test('should return 400 for invalid data format', async () => {
-    const reportId = createdReports[3].id;
-
-    await request(app)
-      .patch(`/api/v1/reports/${reportId}`)
-      .set('X-API-Key', tokenAdmin)
-      .send({
-        status: 'invalid_status',
-      })
-      .expect(400);
-  });
-
-  test('should return 404 for non-existent report ID', async () => {
+  test('50: Approvazione di una segnalazione fornendo id non esistente', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
     const updatedReport = {
       status: 'approved',
@@ -366,8 +362,23 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(404);
   });
 
-  //User story: Solve Report
-  test('should return 204 with valid report data', async () => {
+  test('51: Approvazione di una segnalazione fornendo id esistente ma dati sbagliati', async () => {
+    const reportId = createdReports[3].id;
+
+    await request(app)
+      .patch(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send({
+        status: 'invalid_status',
+      })
+      .expect(400);
+  });
+});
+
+// User story 17: Solve Report
+describe('User story 17: Solve Report', () => {
+
+  test('80: Modifica dello stato di una segnalazione esistente a "risolta"', async () => {
     const reportId = createdReports[1].id;
     const updatedReport = {
       status: 'solved',
@@ -380,7 +391,7 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(204);
   });
 
-  test('should return 404 for non-existent report ID', async () => {
+  test('81: Modifica dello stato di una segnalazione non esistente a "risolta"', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
     const updatedReport = {
       status: 'solved',
@@ -393,7 +404,7 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(404);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('82: Modifica dello stato di una segnalazione esistente a "risolta" ma senza autenticazione', async () => {
     const reportId = createdReports[1].id;
     const updatedReport = {
       status: 'solved',
@@ -405,7 +416,7 @@ describe('PATCH /api/v1/reports/:id', () => {
       .expect(401);
   });
 
-  test('should return 403 for non authorized modifications', async () => {
+  test('83: Modifica di altri campi di una segnalazione esistente', async () => {
     const reportId = createdReports[1].id;
     const updatedReport = {
       name: 'Nuovo',
@@ -421,11 +432,10 @@ describe('PATCH /api/v1/reports/:id', () => {
 
 
 
-// Test for the DELETE /api/v1/reports/:id endpoint
-describe('DELETE /api/v1/reports/:id', () => {
+// User story 13: Admin Delete Report
+describe('User story 13: Admin Delete Report', () => {
 
-  // User story: Admin Delete Report
-  test('should return 204 with valid report ID', async () => {
+  test('52: Eliminazione di una segnalazione fornendo un id esistente', async () => {
     const reportId = createdReports[0].id;
 
     await request(app)
@@ -442,7 +452,7 @@ describe('DELETE /api/v1/reports/:id', () => {
       .expect(401);
   });
 
-  test('should return 404 for non-existent report ID', async () => {
+  test('53: Eliminazione di una segnalazione fornendo un id non esistente nel database', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     await request(app)
@@ -451,7 +461,7 @@ describe('DELETE /api/v1/reports/:id', () => {
       .expect(404);
   });
 
-  test('should return 403 for unauthorized user', async () => {
+  test('54: Eliminazione di una segnalazione fornendo un id esistente ma non essendo autenticato', async () => {
     const reportId = createdReports[2].id;
 
     await request(app)
@@ -459,27 +469,13 @@ describe('DELETE /api/v1/reports/:id', () => {
       .set('X-API-Key', tokenCitizen)
       .expect(403);
   });
+});
 
-  test('should return 404 for non-existent report ID', async () => {
-    const nonExistentId = new mongoose.Types.ObjectId();
 
-    await request(app)
-      .delete(`/api/v1/reports/${nonExistentId}`)
-      .set('X-API-Key', tokenAdmin)
-      .expect(404);
-  });
+// User story 19: Delete Report
+describe('User story 19: Delete Report', () => {
 
-  test('should return 403 for unauthorized user', async () => {
-    const reportId = createdReports[2].id;
-
-    await request(app)
-      .delete(`/api/v1/reports/${reportId}`)
-      .set('X-API-Key', tokenCitizen)
-      .expect(403);
-  });
-
-  //User story: Delete Report
-  test('should return 204 for successful deletion', async () => {
+  test('66: Eliminazione di una segnalazione che é stata creata dall\'utente ed esiste', async () => {
 
     const report = testReports[0];
     const res = await request(app)
@@ -494,16 +490,7 @@ describe('DELETE /api/v1/reports/:id', () => {
       .expect(204);
   });
 
-  test('should return 403 for unauthorized user', async () => {
-    const reportId = createdReports[1].id;
-
-    await request(app)
-      .delete(`/api/v1/reports/${reportId}`)
-      .set('X-API-Key', tokenCitizen)
-      .expect(403);
-  });
-
-  test('should return 404 for non-existent report ID', async () => {
+  test('67: Eliminazione di una segnalazione con id non esistente', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     await request(app)
@@ -512,7 +499,16 @@ describe('DELETE /api/v1/reports/:id', () => {
       .expect(404);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('68: Eliminazione di una segnalazione con id esistente ma che non é stata creata dall\'utente che la sta eliminando', async () => {
+    const reportId = createdReports[1].id;
+
+    await request(app)
+      .delete(`/api/v1/reports/${reportId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
+  });
+
+  test('69: Eliminazione di una segnalazione con id esistente senza essere autenticato', async () => {
     const reportId = createdReports[1].id;
 
     await request(app)
