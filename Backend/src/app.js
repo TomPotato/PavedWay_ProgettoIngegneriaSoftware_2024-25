@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const routes = require('./routes');
 
 const app = express();
@@ -7,15 +8,9 @@ const app = express();
 app.use(express.json({ limit: '2mb' }))
 app.use('/api/v1', routes);
 
-app.use(cors(
-    {
-        origin: 'http://localhost:5173',
-        methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-        credentials: true,
-    }
-));
+app.use(cors());
 
-const FRONTEND = process.env.FRONTEND || Path.join(__dirname, '..', '..', 'Frontend');
+const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend');
 app.use('/', express.static(FRONTEND));
 
 /* Default 404 handler */
