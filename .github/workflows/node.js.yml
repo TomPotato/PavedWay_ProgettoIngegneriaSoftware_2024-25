@@ -51,6 +51,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      - name: Sleep to allow Render to start deployment
+        run: sleep 60
+        
       - name: Wait for Render Deployment
         uses: bounceapp/render-action@0.6.0
         # https://github.com/marketplace/actions/render-github-action
