@@ -45,7 +45,6 @@ jobs:
         # https://github.com/marketplace/actions/render-github-action
         with:
           render-token: ${{ secrets.RENDER_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           service-id: ${{ secrets.RENDER_ID }}
           # srv-xxxxxxxxxxxxxxxxxxxx
           retries: 20
