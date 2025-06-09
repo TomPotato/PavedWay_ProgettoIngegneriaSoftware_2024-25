@@ -48,7 +48,7 @@ router.get("/", async (req, res) => {
           createError(
             "Richiesta non valida",
             400,
-            "Stai inserendo una codice postale errato, deve essere un numero e non può essere non più lunga di 5 caratteri (es. Viale Giovanni Pierluigi da Palestrina)."
+            "Stai inserendo una codice postale errato, deve essere un numero e non può essere non più lunga di 5 caratteri."
           )
         );
     }
@@ -90,6 +90,7 @@ router.get("/", async (req, res) => {
 
   try {
     let response = null;
+    console.log("Query:", { street, city, code, country});
     if (street && code && city && !q) {
       response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
@@ -115,11 +116,13 @@ router.get("/", async (req, res) => {
         },
       });
     }
+    console.log(response.data);
     const data = response.data.map(item => ({
       name: item.display_name,
       latitude: item.lat,
       longitude: item.lon,
     }));
+    console.log(data);
 
     res.status(200).json(data);
   } catch (error) {
