@@ -51,7 +51,7 @@ class Api {
     }
 }
 
-const baseURL = import.meta.env.VITE_API_URL || process.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 const apiInstance = new Api(baseURL);
 
 export default apiInstance;
