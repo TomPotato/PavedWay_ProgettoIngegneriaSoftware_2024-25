@@ -398,12 +398,11 @@ describe(' User story 14: Read Sent Reports', () => {
 	});
 
 	test('56: Lettura delle segnalazioni di un utente specifico fornendo id e offset ma senza limit', async () => {
-
 		const userId = createdAdmins[1].id
 
 		const res = await request(app)
 			.get(`/api/v1/users/${userId}/reports`)
-			.send({ offset: 1 })
+			.query({ offset: 1 })
 			.expect(200);
 
 		expect(Array.isArray(res.body)).toBe(true);
@@ -417,7 +416,7 @@ describe(' User story 14: Read Sent Reports', () => {
 
 		const res = await request(app)
 			.get(`/api/v1/users/${userId}/reports`)
-			.send({ limit: 5 })
+			.query({ limit: 5 })
 			.expect(200);
 
 		expect(Array.isArray(res.body)).toBe(true);
@@ -432,7 +431,7 @@ describe(' User story 14: Read Sent Reports', () => {
 
 		const res = await request(app)
 			.get(`/api/v1/users/${userId}/reports`)
-			.send({ limit: 5, offset: 1 })
+			.query({ limit: 5, offset: 1 })
 			.expect(200);
 
 		expect(Array.isArray(res.body)).toBe(true);
@@ -441,12 +440,10 @@ describe(' User story 14: Read Sent Reports', () => {
 	});
 
 	test('59: Lettura delle segnalazioni di un utente non esistente fornendo id limit e offset', async () => {
-
 		const nonExistentId = new mongoose.Types.ObjectId();
-
-		const res = await request(app)
+		await request(app)
 			.get(`/api/v1/users/${nonExistentId}/reports`)
-			.send({ limit: 5, offset: 1 })
+			.query({ limit: 5, offset: 1 })
 			.expect(404);
 	});
 });
