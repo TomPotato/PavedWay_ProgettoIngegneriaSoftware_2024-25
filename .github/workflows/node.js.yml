@@ -27,23 +27,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: frontend/node_modules
-          key: ${{ runner.os }}-frontend-node-${{ hashFiles('frontend/package-lock.json') }}
+          key: ${{ runner.os }}-frontend-node-${{ hashFiles('Frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-frontend-node-
       - name: Install frontend dependencies
         run: |
-          cd frontend
+          cd Frontend
           npm ci
       - name: Cache backend dependencies
         uses: actions/cache@v4
         with:
           path: backend/node_modules
-          key: ${{ runner.os }}-backend-node-${{ hashFiles('backend/package-lock.json') }}
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('Backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-backend-node-
       - name: Install backend dependencies
         run: |
-          cd backend
+          cd Backend
           npm ci
       - run: npm run build --if-present
       - run: npm test
