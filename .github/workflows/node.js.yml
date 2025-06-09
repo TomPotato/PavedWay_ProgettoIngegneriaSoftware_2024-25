@@ -55,15 +55,11 @@ jobs:
           curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_ID }}/deploys \
           -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
           -H "Content-Type: application/json"
-
-      - name: Sleep to allow Render to start deployment
-        run: sleep 60
-
       - name: Wait for Render Deployment
         uses: bounceapp/render-action@0.6.0
         with:
          render-token: ${{ secrets.RENDER_TOKEN }}
-         github-token: ${{ secrets.GITHUB_TOKEN }}
+         github-token: ${{ secrets.PERSONAL_GH_TOKEN }}
          service-id: ${{ secrets.RENDER_ID }}
          retries: 20
          wait: 16000
