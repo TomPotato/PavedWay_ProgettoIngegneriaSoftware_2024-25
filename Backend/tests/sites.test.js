@@ -34,11 +34,10 @@ var tokenCitizen = jwt.sign(
   { expiresIn: '1h' }
 );
 
-// Test for the POST /api/v1/sites endpoint
-describe('POST /api/v1/sites', () => {
+// User story 4: Create Site
+describe('User story 4: Create Site', () => {
 
-  // User story: Create Site
-  test('should return 201 with valid site data', async () => {
+  test('9: Creazione di un cantiere essendo autenticati come amministratore e fornendo un cantiere come parametro', async () => {
     const site = testSites[0];
 
     const res = await request(app)
@@ -52,7 +51,7 @@ describe('POST /api/v1/sites', () => {
     expect(res.body.info).toBe(site.info);
   });
 
-  test('should return 403 for unauthorized user', async () => {
+  test('10: Creazione di un cantiere senza essere autenticati come amministratore', async () => {
     const site = testSites[1];
 
     await request(app)
@@ -62,7 +61,7 @@ describe('POST /api/v1/sites', () => {
       .expect(403);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('11: Creazione di un cantiere senza aver effettuato il log in', async () => {
     const site = testSites[1];
 
     await request(app)
@@ -71,14 +70,14 @@ describe('POST /api/v1/sites', () => {
       .expect(401);
   });
 
-  test('should return 400 for missing required site', async () => {
+  test('12: Creazione di un cantiere senza fornire un cantiere come parametro', async () => {
     await request(app)
       .post('/api/v1/sites')
       .set('X-API-Key', tokenAdmin)
       .expect(400);
   });
 
-  test('should return 400 for missing required fields', async () => {
+  test('13: Creazione di un cantiere senza fornire alcuni parametri obbligatori', async () => {
     await request(app)
       .post('/api/v1/sites')
       .set('X-API-Key', tokenAdmin)
@@ -90,7 +89,7 @@ describe('POST /api/v1/sites', () => {
       .expect(400);
   });
 
-  test('should return 400 for invalid format', async () => {
+  test('14: Creazione di un cantiere fornendo valori errati', async () => {
     await request(app)
       .post('/api/v1/sites')
       .set('X-API-Key', tokenAdmin)
@@ -111,8 +110,8 @@ describe('POST /api/v1/sites', () => {
 
 
 
-// Test for the GET /api/v1/sites endpoint
-describe('GET /api/v1/sites', () => {
+// User story 3: Read Sites
+describe('User story 3: Read Sites', () => {
 
   beforeAll(async () => {
     for (const site of testSites) {
@@ -125,8 +124,8 @@ describe('GET /api/v1/sites', () => {
     }
   });
 
-  // User story: Read Sites
-  test('should return 200 with no query params', async () => {
+
+  test('5: Lettura dei cantieri senza inserire offset e limit', async () => {
     const res = await request(app)
       .get('/api/v1/sites')
       .expect(200);
@@ -134,7 +133,7 @@ describe('GET /api/v1/sites', () => {
     expect(Array.isArray(res.body)).toBe(true);
   }, 20000);
 
-  test('should return 200 with offset and limit', async () => {
+  test('6: Lettura dei cantieri inserendo offset e limit', async () => {
     const offset = 3;
     const limit = 5;
 
@@ -148,7 +147,17 @@ describe('GET /api/v1/sites', () => {
     expect(res.body.length).toBeGreaterThanOrEqual(0);
   }, 20000);
 
-  test('should return 200 with limit only', async () => {
+  test('7: Lettura dei cantieri inserendo offset', async () => {
+    const res = await request(app)
+      .get('/api/v1/sites')
+      .query({ offset: 2 })
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(0);
+  }, 20000);
+
+  test('8: Lettura dei cantieri inserendo limit', async () => {
     const limit = 5;
 
     const res = await request(app)
@@ -159,19 +168,13 @@ describe('GET /api/v1/sites', () => {
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeLessThanOrEqual(5);
   }, 20000);
+});
 
-  test('should return 200 with offset only', async () => {
-    const res = await request(app)
-      .get('/api/v1/sites')
-      .query({ offset: 2 })
-      .expect(200);
 
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThanOrEqual(0);
-  }, 20000);
+// User story 6: Read Current Events
+describe('User story 6: Read Current Events', () => {
 
-  // User story: Read Current Events
-  test('should return 200 with current sites', async () => {
+  test('22: Lettura di un cantiere nel momento in cui si esegue il comando', async () => {
     const res = await request(app)
       .get('/api/v1/sites')
       .query({ now: true })
@@ -186,22 +189,26 @@ describe('GET /api/v1/sites', () => {
     }
   });
 
-  test('should return 400 for inserting both <now> and <date>', async () => {
+  test('24: Lettura di un cantiere nel momento in cui si esegue il comando e gli si passa una data', async () => {
     await request(app)
       .get('/api/v1/sites')
       .query({ now: true, date: '2025-07-17T00:00:00.000+00:00' })
       .expect(400);
   });
 
-  test('should return 400 for invalid date format', async () => {
+  test('26: Lettura di un cantiere nel momento in cui si esegue il comando e gli si passa una data in formato non corretto', async () => {
     await request(app)
       .get('/api/v1/sites')
       .query({ now: true, date: '05-21-2025' })
       .expect(400);
   });
+});
 
-  //User Story: Search Event By Location
-  test('should return 200 with valid coordinate and radius', async () => {
+
+// User story 16: Search Event By Location
+describe('User story 16: Search Event By Location', () => {
+
+  test('70: Ricerca di un cantiere con coordinate e raggio validi', async () => {
 
     const res = await request(app)
       .get('/api/v1/sites')
@@ -211,7 +218,7 @@ describe('GET /api/v1/sites', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test('should return 400 with invalid coordinate', async () => {
+  test('72: Ricerca di un cantiere con coordinate non valide e raggio valido', async () => {
 
     const res = await request(app)
       .get('/api/v1/sites')
@@ -219,7 +226,7 @@ describe('GET /api/v1/sites', () => {
       .expect(400);
   });
 
-  test('should return 400 with invalid radius', async () => {
+  test('74: Ricerca di un cantiere con coordinate valide e raggio non valido', async () => {
 
     const res = await request(app)
       .get('/api/v1/sites')
@@ -227,7 +234,7 @@ describe('GET /api/v1/sites', () => {
       .expect(400);
   });
 
-  test('should return 400 with undefined radius', async () => {
+  test('76: Ricerca di un cantiere con coordinate valide ma senza raggio', async () => {
 
     const res = await request(app)
       .get('/api/v1/sites')
@@ -235,7 +242,7 @@ describe('GET /api/v1/sites', () => {
       .expect(400);
   });
 
-  test('should return 400 with undefined coordinates', async () => {
+  test('78: Ricerca di un cantiere con raggio valido ma senza coordinate', async () => {
 
     const res = await request(app)
       .get('/api/v1/sites')
@@ -248,11 +255,10 @@ describe('GET /api/v1/sites', () => {
 
 
 
-// Test for the POST /api/v1/sites/:id/comments endpoint
-describe('POST /api/v1/sites/:id/comments', () => {
+// User story 21: Comment Event
+describe('User story 21: Comment Event', () => {
 
-  //User story: Comment Event
-  test('should return 201 for valid data', async () => {
+  test('90: Creazione di un commento su un cantiere esistente', async () => {
     const resGet = await request(app)
       .get(`/api/v1/sites`)
       .expect(200);
@@ -265,7 +271,7 @@ describe('POST /api/v1/sites/:id/comments', () => {
       .expect(201);
   });
 
-  test('should return 404 for invalid ID', async () => {
+  test('92: Creazione di un commento su un cantiere non esistente', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     const res = await request(app)
@@ -275,7 +281,7 @@ describe('POST /api/v1/sites/:id/comments', () => {
       .expect(404);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('94: Creazione di un commento su un cantiere esistente ma senza autenticazione', async () => {
     const siteId = createdSites[1].id
 
     const res = await request(app)
@@ -285,12 +291,12 @@ describe('POST /api/v1/sites/:id/comments', () => {
   });
 });
 
-// Test for the PATCH /api/v1/sites/:id endpoint
-describe('PATCH /api/v1/sites/:id', () => {
 
 
-  // User story: Update Site
-  test('should return 200 with valid site data', async () => {
+// User story 8: Update Site
+describe('User story 8: Update Site', () => {
+
+  test('29: Modifica di un cantiere fornendo id e dati corretti ed essendo autenticati come amministratore', async () => {
     const firstSiteId = createdSites[0].id;
 
     const updatedData = {
@@ -309,7 +315,7 @@ describe('PATCH /api/v1/sites/:id', () => {
     expect(res.body.info).toBe(updatedData.info);
   });
 
-  test('should return 400 for wrong data format', async () => {
+  test('30: Modifica di un cantiere fornendo id corretto ma dati non validi', async () => {
     const firstSiteId = createdSites[0].id;
     const updatedData = {
       name: 'Updated Cantiere',
@@ -326,8 +332,22 @@ describe('PATCH /api/v1/sites/:id', () => {
       .send(updatedData)
       .expect(400);
   });
+  
+  test('31: Modifica di un cantiere fornendo id non esistente ma dati corretti', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const updatedData = {
+      name: 'Updated Cantiere',
+      info: 'Updated Info',
+    };
 
-  test('should return 403 for unauthorized user', async () => {
+    await request(app)
+      .patch(`/api/v1/sites/${nonExistentId}`)
+      .set('X-API-Key', tokenAdmin)
+      .send(updatedData)
+      .expect(404);
+  });
+
+  test('32: Modifica di un cantiere fornendo id e dati corretti ma senza essere autenticati come amministratore', async () => {
     const firstSiteId = createdSites[0].id;
 
     const updatedData = {
@@ -354,29 +374,15 @@ describe('PATCH /api/v1/sites/:id', () => {
       .send(updatedData)
       .expect(401);
   });
-
-  test('should return 404 for non-existent site ID', async () => {
-    const nonExistentId = new mongoose.Types.ObjectId();
-    const updatedData = {
-      name: 'Updated Cantiere',
-      info: 'Updated Info',
-    };
-
-    await request(app)
-      .patch(`/api/v1/sites/${nonExistentId}`)
-      .set('X-API-Key', tokenAdmin)
-      .send(updatedData)
-      .expect(404);
-  });
 });
 
 
 
-// Test for the DELETE /api/v1/sites/:id endpoint 
-describe('DELETE /api/v1/sites/:id', () => {
 
-  // User story: Delete Site
-  test('should return 204 for successful deletion', async () => {
+// User story 9: Delete Site
+describe('User story 9: Delete Site', () => {
+
+  test('33: Eliminazione di un cantiere fornendo un id corretto ed essendo autenticati come amministratore', async () => {
     const firstSiteId = createdSites[0].id;
 
     await request(app)
@@ -389,15 +395,6 @@ describe('DELETE /api/v1/sites/:id', () => {
       .expect(404);
   });
 
-  test('should return 403 for unauthorized user', async () => {
-    const firstSiteId = createdSites[0].id;
-
-    await request(app)
-      .delete(`/api/v1/sites/${firstSiteId}`)
-      .set('X-API-Key', tokenCitizen)
-      .expect(403);
-  });
-
   test('should return 401 for missing API key', async () => {
     const firstSiteId = createdSites[0].id;
 
@@ -406,12 +403,21 @@ describe('DELETE /api/v1/sites/:id', () => {
       .expect(401);
   });
 
-  test('should return 404 for non-existent site ID', async () => {
+  test('34: Eliminazione di un cantiere fornendo un id non valido', async () => {
     const nonExistentId = new mongoose.Types.ObjectId();
 
     await request(app)
       .delete(`/api/v1/sites/${nonExistentId}`)
       .set('X-API-Key', tokenAdmin)
       .expect(404);
+  });
+
+  test('35: Eliminazione di un cantiere fornendo un id corretto ma senza essere autenticati come amministratore', async () => {
+    const firstSiteId = createdSites[0].id;
+
+    await request(app)
+      .delete(`/api/v1/sites/${firstSiteId}`)
+      .set('X-API-Key', tokenCitizen)
+      .expect(403);
   });
 });
