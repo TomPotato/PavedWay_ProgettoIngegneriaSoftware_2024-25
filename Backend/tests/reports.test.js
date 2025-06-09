@@ -328,7 +328,7 @@ describe('User story 12: Approve Report', () => {
       .expect(204);
   });
 
-  test('', async () => {
+  test('Approvazione di una segnalazione esistente senza aver effettuato il log in', async () => {
     const reportId = createdReports[1].id;
     const updatedReport = {
       description: 'Descrizione aggiornata',
@@ -340,7 +340,7 @@ describe('User story 12: Approve Report', () => {
       .expect(401);
   });
 
-  test('should return 400 for missing required fields', async () => {
+  test('Approvazione di una segnalazione esistente ma senza fornire i parametri richiesti', async () => {
     const reportId = createdReports[2].id;
 
     await request(app)
@@ -444,7 +444,7 @@ describe('User story 13: Admin Delete Report', () => {
       .expect(204);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('Eliminazione di una segnalazione fornendo un id esistente ma senza aver effettuato il log in', async () => {
     const reportId = createdReports[1].id;
 
     await request(app)

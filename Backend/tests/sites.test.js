@@ -362,7 +362,7 @@ describe('User story 8: Update Site', () => {
       .expect(403);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('Modifica di un cantiere fornendo id e dati corretti ma senza aver effettuato il log in', async () => {
     const firstSiteId = testSites[0].id;
     const updatedData = {
       name: 'Updated Cantiere',
@@ -395,7 +395,7 @@ describe('User story 9: Delete Site', () => {
       .expect(404);
   });
 
-  test('should return 401 for missing API key', async () => {
+  test('Eliminazione di un cantiere fornendo un id corretto ma senza aver effettuato il log in', async () => {
     const firstSiteId = createdSites[0].id;
 
     await request(app)
