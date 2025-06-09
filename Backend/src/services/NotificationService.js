@@ -1,3 +1,4 @@
+const e = require('cors');
 const { Notification } = require('../models/Notification');
 
 const createError = require('../utils/createError');
