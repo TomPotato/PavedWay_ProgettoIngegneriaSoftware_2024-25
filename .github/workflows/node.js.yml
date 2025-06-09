@@ -26,14 +26,25 @@ jobs:
         
     steps:
     - uses: actions/checkout@v3
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci #similar to npm install , except it's meant to be used in automated environments
-    - run: npm run build --if-present
-    - run: npm test
+        cache-dependency-path: Backend/package-lock.json
+        
+    - name: Install dependencies
+      run: npm ci
+      working-directory: Backend
+
+    - name: Build
+      run: npm run build --if-present
+      working-directory: Backend
+
+    - name: Test
+      run: npm test
+      working-directory: Backend
 
   deploy:
     name: Wait for Deploy
