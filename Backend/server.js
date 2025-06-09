@@ -5,11 +5,10 @@ const app = require('./src/app');
 const db = require('./src/database/DatabaseClient');
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
 
 db.connect().then(() => {
-    app.listen(PORT, HOST, () => {
-        console.log(`[Paved Way] Server in esecuzione su http://${HOST}:${PORT}/`);
+    app.listen(PORT, () => {
+        console.log(`[Paved Way] Server in esecuzione sulla porta ${PORT}`);
     });
 });
 
