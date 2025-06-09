@@ -5,10 +5,10 @@ const routes = require('./routes');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json({ limit: '2mb' }))
 app.use('/api/v1', routes);
 
-app.use(cors());
 
 const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend', 'dist');
 app.use('/', express.static(FRONTEND));
