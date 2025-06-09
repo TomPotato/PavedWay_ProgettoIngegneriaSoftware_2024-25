@@ -1,3 +1,4 @@
+const e = require('cors');
 const { Notification } = require('../models/Notification');
 const siteService = require('./SiteService');
 const reportService = require('./ReportService');

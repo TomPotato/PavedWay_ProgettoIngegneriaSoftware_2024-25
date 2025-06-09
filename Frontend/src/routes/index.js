@@ -9,6 +9,7 @@ import Events from '../pages/Events.vue';
 import Profile from '../pages/Profile.vue';
 import ReportInfo from '../pages/ReportInfo.vue';
 import SiteInfo from '../pages/SiteInfo.vue';
+import UserInfo from '@/pages/UserInfo.vue';
 import Users from '../pages/Users.vue';
 import Refresh from '../pages/Refresh.vue';
 
@@ -21,7 +22,8 @@ const routes = [
     { path: '/users', name: 'users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true}},
     { path: '/reports/:id', name: 'reportInfo', component: ReportInfo },
-    { path: '/sites/:id', name: 'siteInfo', component: SiteInfo }, 
+    { path: '/sites/:id', name: 'siteInfo', component: SiteInfo },
+    { path: '/users/:id', name: 'userInfo', component: UserInfo },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 

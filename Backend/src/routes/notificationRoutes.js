@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const service = require('../services/NotificationService');
+const reportService = require('../services/ReportService');
+const siteService = require('../services/SiteService');
 
 const createError = require('../utils/createError');
 const tokenChecker = require('../utils/tokenChecker');
@@ -30,6 +32,11 @@ router.post('/', tokenChecker, async (req, res) => {
     }
 
     try {
+        if(req.body.reportId) {
+            await reportService.getReportById(req.body.reportId);
+        } else if (req.body.siteId) {
+            await siteService.getSiteById(req.body.siteId);
+        }
         const notification = await service.createNotification(req.body);
         res.status(201).json(notification);
     } catch (error) {

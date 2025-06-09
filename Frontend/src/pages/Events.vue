@@ -32,6 +32,7 @@
 								"/'data da destinarsi'/" }}</p>
 							<br />
 							<button class="btn btn-primary w-[10vh]" @click="goToSiteInfo(site.id)">Info</button>
+							<div class="my-1"></div>
 							<div v-if="isAdmin" class="grid grid-cols-2 gap-5 w-auto">
 								<button @click="openModal('CantieriModifica', site.id)"
 									class="btn btn-primary w-full">Modifica il
@@ -156,7 +157,7 @@
 							</p>
 							<label class="label w-full">
 								<p>Notifica gli utenti:</p>
-								<input @click="notifyChange" type="checkbox"
+								<input @click="notifyChange" type="checkbox" checked="checked"
 									class="checkbox border-indigo-600 bg-indigo-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800" />
 							</label>
 						</fieldset>
@@ -455,7 +456,7 @@ const ready = ref(true);
 
 const now = ref('tutti');
 const meters = ref('metri');
-const notify = ref(false);
+const notify = ref(true);
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -543,6 +544,22 @@ const openModal = (id, eventId = '') => {
 
 const closeModal = (id) => {
 	document.getElementById(id).close();
+	switch (id){
+		case 'CantieriCrea':
+			resCreaSites();
+			break;
+		case 'CantieriModifica':
+			resMod();
+			break;
+		case 'SegnalazioniCrea':
+			resCreaReports();
+			break;
+		case 'SegnalazioniCerca':
+			resCerca();
+			break;
+		default:
+			break;
+	};
 };
 
 const openDrawer = (id) => {
@@ -644,6 +661,7 @@ const resCreaSites = () => {
 	start.value = '';
 	end.value = '';
 	companyName.value = '';
+	notify.value = true;
 };
 
 const resCreaReports = () => {
@@ -793,7 +811,7 @@ const createSite = async () => {
 			if (notify.value) {
 				const notificationData = {
 					'message': `Nuovo cantiere: ${title.value}`,
-					'site': site.id,
+					'siteId': site.id,
 				};
 				await notifyService.createNotification(authStore.token, notificationData);
 			}
@@ -960,7 +978,7 @@ const statusReport = async (id, status) => {
 		if (status === 'approved') {
 			const notificationData = {
 				'message': `È stata approvata una segnalazione degli utenti`,
-				'report': id
+				'reportId': id
 			};
 			await notifyService.createNotification(authStore.token, notificationData);
 		}
