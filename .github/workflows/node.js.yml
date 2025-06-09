@@ -45,26 +45,26 @@ jobs:
     - name: Test
       run: npm test
       working-directory: Backend
-deploy:
-  name: Deploy to Render
-  runs-on: ubuntu-latest
-  needs: test
-  steps:
-    - name: Trigger Render deploy
-      run: |
-        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_ID }}/deploys \
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_ID }}/deploys \
           -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
           -H "Content-Type: application/json"
 
-    - name: Sleep to allow Render to start deployment
-      run: sleep 60
+      - name: Sleep to allow Render to start deployment
+        run: sleep 60
 
-    - name: Wait for Render Deployment
-      uses: bounceapp/render-action@0.6.0
-      with:
-        render-token: ${{ secrets.RENDER_TOKEN }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        service-id: ${{ secrets.RENDER_ID }}
-        retries: 20
-        wait: 16000
-        sleep: 30000
+      - name: Wait for Render Deployment
+        uses: bounceapp/render-action@0.6.0
+        with:
+         render-token: ${{ secrets.RENDER_TOKEN }}
+         github-token: ${{ secrets.GITHUB_TOKEN }}
+         service-id: ${{ secrets.RENDER_ID }}
+         retries: 20
+         wait: 16000
+         sleep: 30000
