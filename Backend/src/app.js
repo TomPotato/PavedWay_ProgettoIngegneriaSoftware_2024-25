@@ -10,7 +10,7 @@ app.use('/api/v1', routes);
 
 app.use(cors());
 
-const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend');
+const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend', 'dist');
 app.use('/', express.static(FRONTEND));
 
 /* Default 404 handler */
