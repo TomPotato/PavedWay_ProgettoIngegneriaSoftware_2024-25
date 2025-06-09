@@ -99,7 +99,7 @@
             </div>
             <div class="modal-action">
                 <form method="dialog" class="flex flex-row gap-2">
-                    <button class="btn btn-neutral " @click="addAdmin" :disabled="validateForm">Aggiungi</button>
+                    <button class="btn btn-neutral " @click="addAdmin" :disabled="!validateForm">Aggiungi</button>
                     <button class="btn btn-neutral" @click="closeModal('AmministratoreCrea')">Annulla</button>
                 </form>
             </div>
@@ -124,7 +124,6 @@ const ready = ref(false);
 const users = ref([]);
 const userId = ref(null);
 const username = ref('');
-const email = ref('');
 const name = ref('');
 const surname = ref('');
 const password = ref('');
@@ -156,13 +155,11 @@ const validatePasswordVerify = computed(() => {
 const validateForm = computed(() => {
     return (
         username.value &&
-        email.value &&
         name.value &&
         surname.value &&
         password.value &&
         passwordVerify.value &&
         validateUsername.value &&
-        validateEmail.value &&
         validateName.value &&
         validateSurname.value &&
         validatePassword.value &&
