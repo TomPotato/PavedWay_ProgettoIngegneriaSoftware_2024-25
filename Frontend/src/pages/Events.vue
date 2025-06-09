@@ -157,7 +157,7 @@
 							</p>
 							<label class="label w-full">
 								<p>Notifica gli utenti:</p>
-								<input @click="notifyChange" type="checkbox"
+								<input @click="notifyChange" type="checkbox" checked="checked"
 									class="checkbox border-indigo-600 bg-indigo-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800" />
 							</label>
 						</fieldset>
@@ -456,7 +456,7 @@ const ready = ref(true);
 
 const now = ref('tutti');
 const meters = ref('metri');
-const notify = ref(false);
+const notify = ref(true);
 
 const title = ref('');
 const validateTitle = computed(() => {
@@ -544,6 +544,22 @@ const openModal = (id, eventId = '') => {
 
 const closeModal = (id) => {
 	document.getElementById(id).close();
+	switch (id){
+		case 'CantieriCrea':
+			resCreaSites();
+			break;
+		case 'CantieriModifica':
+			resMod();
+			break;
+		case 'SegnalazioniCrea':
+			resCreaReports();
+			break;
+		case 'SegnalazioniCerca':
+			resCerca();
+			break;
+		default:
+			break;
+	};
 };
 
 const openDrawer = (id) => {
@@ -645,6 +661,7 @@ const resCreaSites = () => {
 	start.value = '';
 	end.value = '';
 	companyName.value = '';
+	notify.value = true;
 };
 
 const resCreaReports = () => {
@@ -805,6 +822,7 @@ const createSite = async () => {
 			closeModal('CantieriCrea');
 		}
 	} catch (error) {
+		console.log(error);
 		errorMessage.value = error.value;
 	}
 };
