@@ -1,15 +1,16 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+# .github/workflows/ci.yml
 
 name: Node.js CI
 
 on:
   push:
     branches: [ "main" ]
+
 permissions:
   contents: write
   pull-requests: write
-  actions: write
+  deployments: write     # ✅ Aggiunto per Render action
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,44 +27,47 @@ jobs:
       DB_TEST: ${{ secrets.DB_TEST }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       ORS_API_KEY: ${{ secrets.ORS_API_KEY }}      
-        
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: Backend/package-lock.json
-        
-    - name: Install dependencies
-      run: npm ci
-      working-directory: Backend
+      - uses: actions/checkout@v3
 
-    - name: Build
-      run: npm run build --if-present
-      working-directory: Backend
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: Backend/package-lock.json
 
-    - name: Test
-      run: npm test
-      working-directory: Backend
+      - name: Install dependencies
+        run: npm ci
+        working-directory: Backend
+
+      - name: Build
+        run: npm run build --if-present
+        working-directory: Backend
+
+      - name: Test
+        run: npm test
+        working-directory: Backend
+
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
     needs: test
+
     steps:
       - name: Trigger Render deploy
         run: |
           curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_ID }}/deploys \
           -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
           -H "Content-Type: application/json"
+
       - name: Wait for Render Deployment
         uses: bounceapp/render-action@0.6.0
         with:
-         render-token: ${{ secrets.RENDER_TOKEN }}
-         github-token: ${{ secrets.GITHUB_TOKEN }}
-         service-id: ${{ secrets.RENDER_ID }}
-         retries: 20
-         wait: 16000
-         sleep: 30000
+          render-token: ${{ secrets.RENDER_TOKEN }}
+          github-token: ${{ github.token }}          # ✅ fix qui
+          service-id: ${{ secrets.RENDER_ID }}
+          retries: 20
+          wait: 16000
+          sleep: 30000
