@@ -45,7 +45,6 @@ router.post('/', tokenChecker, async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-
     offset = toValidInt(req.query.offset);
     limit = toValidInt(req.query.limit);
 

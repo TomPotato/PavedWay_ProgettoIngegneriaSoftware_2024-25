@@ -28,9 +28,17 @@ router.get('/', async (req, res) => {
         date = new Date().toISOString();
     }
 
+    if((req.query.latitude !== undefined || req.query.longitude !== undefined || req.query.radius !== undefined) &&
+    (req.query.latitude === undefined || req.query.longitude === undefined || req.query.radius === undefined))
+    {
+        return res.status(400).json(createError('Richiesta non valida', 400,
+            'Devi fornire longitudine, latitudine e raggio.'));
+    }
+
     let latitude = null;
     let longitude = null;
     let radius = null;
+
 
     if (req.query.latitude && req.query.longitude) {
         if (!validator.validateLocation(Number(req.query.latitude), Number(req.query.longitude))) {
@@ -118,6 +126,22 @@ router.patch('/:id', tokenChecker, async (req, res) => {
         return res.status(403).json(createError('Accesso Negato', 403,
             'Non sei autorizzato a modificare questa informazione.'));
     }
+
+    const { duration, realDuration } = req.body;
+
+    if (
+    (realDuration?.start && !validator.validateDate(realDuration.start)) ||
+    (realDuration?.end && !validator.validateDate(realDuration.end)) ||
+    (duration?.start && !validator.validateDate(duration.start)) ||
+    (duration?.end && !validator.validateDate(duration.end))
+    ) {
+    return res.status(400).json(createError(
+        'Richiesta non valida',
+        400,
+        'Devi fornire una data valida in formato ISO 8601 per le durate.'
+    ));
+    }
+
 
     try {
 

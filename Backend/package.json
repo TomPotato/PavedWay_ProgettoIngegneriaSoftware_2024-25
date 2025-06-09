@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --setupFiles dotenv/config",
     "dev": "node -r dotenv/config ./server.js"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "util": "^0.12.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "dotenv": "^16.5.0"
   }
 }

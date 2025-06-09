@@ -50,15 +50,14 @@ router.post('/', tokenDecoder, async (req, res) => {
             'Devi fornire nome utente, nome, cognome, password, ruolo e email o ufficio.'));
     }
 
-    if (req.user && req.user.role !== 'admin' && req.body.role === 'admin') {
-        return res.status(403).json(createError('Accesso negato', 403,
-            'Devi essere un amministratore per creare un nuovo utente amministratore.'));
-
-    }
-
     if (req.body.role !== 'citizen' && req.body.role !== 'admin') {
         return res.status(400).json(createError('Richiesta non valida', 400,
             'Il ruolo deve essere "citizen" o "admin".'));
+    }
+
+    if (req.body.role === 'admin' && (!req.user || req.user.role !== 'admin')) {
+        return res.status(403).json(createError('Accesso negato', 403,
+            'Devi essere un amministratore per creare un nuovo utente amministratore.'));
     }
 
     if (req.body.role === 'citizen' && !req.body.email) {
@@ -109,7 +108,12 @@ router.get('/:id/reports', async (req, res) => {
     const offset = toValidInt(req.query.offset);
     const limit = toValidInt(req.query.limit);
 
-    await userService.getUserById(userId);
+    try {
+        await userService.getUserById(userId);
+    } catch (error) {
+        return res.status(error.code).json(error);
+    }
+
     let date;
 
     if (req.query.now === 'true' && req.query.date) {
@@ -125,6 +129,12 @@ router.get('/:id/reports', async (req, res) => {
         date = req.query.date;
     } else if (req.query.now === 'true') {
         date = new Date().toISOString();
+    }
+
+    const user = await userService.getUserById(userId);
+    if (!user) {
+        return res.status(404).json(createError('Utente non trovato', 400,
+            'Devi fornire un ID valido per l utente.'));
     }
 
     let latitude;
@@ -169,7 +179,11 @@ router.get('/:id/reports', async (req, res) => {
 router.delete('/:id', tokenChecker, async (req, res) => {
     const userId = req.params.id;
 
-    await userService.getUserById(userId);
+    try {
+        await userService.getUserById(userId);
+    } catch (error) {
+        return res.status(error.code).json(error);
+    }
 
     if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json(createError('Accesso negato', 403,

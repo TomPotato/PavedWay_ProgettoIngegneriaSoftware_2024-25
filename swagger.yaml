@@ -74,7 +74,7 @@ paths:
                   user:
                     allOf:
                       - $ref: "#/components/schemas/UserInfo"
-                    description: Informazioni sull'utente autenticato. Include nome utente, nome, cognome, ruolo e email o ufficio.
+                    description: Informazioni sull'utente autenticato. Include id, nome utente, nome, cognome, ruolo e email o ufficio.
         "400":
           description: Richiesta non valida.
           content:
@@ -1360,6 +1360,9 @@ components:
         - surname
         - role
       properties:
+        id:
+          type: string
+          description: ID dell'utente (generato automaticamente dal server).
         username:
           type: string
           description: Nome utente.

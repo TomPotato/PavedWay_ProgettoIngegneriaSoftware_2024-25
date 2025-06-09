@@ -103,9 +103,9 @@ class SiteService {
       const site = await Site.exists({ _id: id });
       if (!site) {
         throw createError(
-          "Segnalazione non trovata",
+          "Cantiere non trovato",
           404,
-          "Nessuna segnalazione trovata con questo ID."
+          "Nessun cantiere trovato con questo ID."
         );
       }
       return await Site.findById(id);
@@ -156,11 +156,12 @@ class SiteService {
         return updatedSite;
       }
     } catch (error) {
-      throw createError(
-        "Errore interno del server",
-        500,
-        "Errore interno del server avvenuto durante la modifica."
-      );
+      if (error.code) {
+        throw error;
+      } else {
+        const message = "Errore interno del server durante l'eliminazione.";
+        throw createError("Errore interno del server", 500, message);
+      }
     }
   }
 
@@ -422,6 +423,7 @@ class SiteService {
       if (error.code) {
         throw error;
       } else {
+        console.error(error);
         const message = 'Errore interno del server durante la creazione del commento.';
         throw createError('Errore interno del server', 500, message);
       }
