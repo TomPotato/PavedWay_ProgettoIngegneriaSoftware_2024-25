@@ -47,3 +47,6 @@ jobs:
           npm ci
       - run: npm run build --if-present
       - run: npm test
+
+      - name: Render GitHub Action
+        uses: Bounceapp/render-action@0.12.0
