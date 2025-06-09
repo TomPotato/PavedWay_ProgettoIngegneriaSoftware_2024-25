@@ -687,6 +687,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
   /sites:
     get:
       tags:
@@ -808,6 +809,37 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /sites/{id}:
+    get:
+      tags:
+        - Cantieri
+      summary: Restituisce un cantiere specifico
+      description: Restituisce un cantiere specifico in base all'ID fornito.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID della segnalazione da restituire.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Site"
+        "404":
+          description: Cantiere non trovato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     patch:
       tags:
         - Cantieri
@@ -955,7 +987,6 @@ paths:
                 text:
                   type: string
                   description: Testo del commento.
-
       responses:
         "201":
           description: Commento aggiunto con successo.
