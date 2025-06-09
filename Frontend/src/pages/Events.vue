@@ -822,7 +822,6 @@ const createSite = async () => {
 			closeModal('CantieriCrea');
 		}
 	} catch (error) {
-		console.log(error);
 		errorMessage.value = error.value;
 	}
 };
