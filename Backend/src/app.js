@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const routes = require('./routes');
 
 const app = express();
 
-// TESTING VUE
-const cors = require('cors');
+app.use(express.json({ limit: '2mb' }))
+app.use('/api/v1', routes);
+
 app.use(cors(
     {
         origin: 'http://localhost:5173',
@@ -13,7 +15,8 @@ app.use(cors(
     }
 ));
 
-app.use(express.json({ limit: '2mb' }))
-app.use('/api/v1', routes);
+const FRONTEND = process.env.FRONTEND || Path.join(__dirname, '..', '..', 'Frontend');
+app.use('/PavedWayApp/', express.static(FRONTEND));
+app.use('/', express.static('static'));
 
 module.exports = app;
