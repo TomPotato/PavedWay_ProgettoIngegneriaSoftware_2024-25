@@ -22,7 +22,7 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_TEST: ${{ secrets.DB_TEST }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      ORS_API_KEY: ${{ secrets.DB_URI }}      
+      ORS_API_KEY: ${{ secrets.ORS_API_KEY }}      
         
     steps:
     - uses: actions/checkout@v3
