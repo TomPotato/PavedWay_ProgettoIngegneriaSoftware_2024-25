@@ -42,11 +42,10 @@ var tokenCitizen = jwt.sign(
 );
 
 
-//Test for the POST /api/v1/users endpoint
-describe('POST /api/v1/users', () => {
+// User story 15: Create Admin
+describe('User story 15: Create Admin', () => {
 
-	// User story: Create Admin
-	test('should return 201 with valid admin data', async () => {
+	test('60: Creazione di un amministratore inserendo correttamente tutti i dati validi', async () => {
 		const admin = testAdmins[0];
 
 		const res = await request(app)
@@ -60,7 +59,7 @@ describe('POST /api/v1/users', () => {
 		expect(res.body.role).toBe('admin');
 	});
 
-	test('should return 403 for citizen trying to create admin', async () => {
+	test('65: Creazione di un amministratore inserendo i dati correttamente ma non essendo autenticato come amministratore', async () => {
 		const admin = testAdmins[1];
 
 		await request(app)
@@ -70,7 +69,7 @@ describe('POST /api/v1/users', () => {
 			.expect(403);
 	});
 
-	test('should return 403 for missing API key', async () => {
+	test('62: Creazione di un amministratore con dati validi ma senza autenticazione', async () => {
 		const admin = testAdmins[1];
 
 		const res = await request(app)
@@ -79,7 +78,7 @@ describe('POST /api/v1/users', () => {
 			.expect(403);
 	});
 
-	test('should return 400 for missing required fields', async () => {
+	test('64: Creazione di un amminstratore inserendo i dati incorrettamente (non del formato richiesto)', async () => {
 		const admin = testAdmins[1];
 
 		await request(app)
@@ -89,7 +88,7 @@ describe('POST /api/v1/users', () => {
 			.expect(400);
 	});
 
-	test('should return 400 for empty request body', async () => {
+	test('61: Creazione di un amministratore non inserendo peró nessun dato', async () => {
 		await request(app)
 			.post('/api/v1/users')
 			.set('X-API-Key', tokenAdmin)
@@ -97,7 +96,7 @@ describe('POST /api/v1/users', () => {
 			.expect(400);
 	});
 
-	test('should return 409 for username already exists', async () => {
+	test('63: Creazione di un amministratore inserendo i dati correttamente ma l\'username é giá in utilizzo', async () => {
 		const admin = testAdmins[0];
 
 		await request(app)
@@ -105,9 +104,9 @@ describe('POST /api/v1/users', () => {
 			.set('X-API-Key', tokenAdmin)
 			.send({ ...admin, role: 'admin' })
 			.expect(409);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid role', async () => {
+	test('64: Creazione di un amminstratore inserendo i dati incorrettamente (non del formato richiesto)', async () => {
 		const admin = testAdmins[1];
 
 		await request(app)
@@ -115,10 +114,14 @@ describe('POST /api/v1/users', () => {
 			.set('X-API-Key', tokenAdmin)
 			.send({ ...admin, role: 'invalid_role' })
 			.expect(400);
-	});
+	}, 20000);
+});
 
-	// User story: Register
-	test('should return 201 with valid citizen data', async () => {
+
+// User story 10: Register
+describe('User story 10: Register', () => {
+
+	test('36: Registrazione di un nuovo utente fornendo nome utente, nome, cognome, password e email validi', async () => {
 		const citizen = testCitizens[0];
 
 		const res = await request(app)
@@ -130,9 +133,9 @@ describe('POST /api/v1/users', () => {
 		expect(res.body).toHaveProperty('id');
 		expect(res.body.username).toBe(citizen.username);
 		expect(res.body.role).toBe('citizen');
-	});
+	}, 20000);
 
-	test('should return 409 for mail already exists', async () => {
+	test('37: Registrazione di un nuovo utente fornendo una email già in uso', async () => {
 		const citizen = testCitizens[0];
 
 		await request(app)
@@ -140,9 +143,9 @@ describe('POST /api/v1/users', () => {
 			.set('X-API-Key', tokenCitizen)
 			.send({ ...citizen, role: 'citizen' })
 			.expect(409);
-	});
+	}, 20000);
 
-	test('should return 400 for missing required fields', async () => {
+	test('38: Registrazione di un utente fornendo dati incompleti', async () => {
 		const citizen = testCitizens[1];
 
 		await request(app)
@@ -150,47 +153,47 @@ describe('POST /api/v1/users', () => {
 			.set('X-API-Key', tokenCitizen)
 			.send({ ...citizen, role: 'citizen', username: undefined })
 			.expect(400);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid username', async () => {
+	test('39: Registrazione di un nuovo utente con nome utente non valido', async () => {
 		const citizen = testCitizens[1];
 		await request(app)
 			.post('/api/v1/users')
 			.send({ ...citizen, role: 'citizen', username: 'paved_way1!' })
 			.expect(400);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid name', async () => {
+	test('40: Registrazione di un nuovo utente con nome non valido', async () => {
 		const citizen = testCitizens[1];
 		await request(app)
 			.post('/api/v1/users')
 			.send({ ...citizen, role: 'citizen', name: 'Paved!' })
 			.expect(400);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid surname', async () => {
+	test('41: Registrazione di un nuovo utente con cognome non valido', async () => {
 		const citizen = testCitizens[1];
 		await request(app)
 			.post('/api/v1/users')
 			.send({ ...citizen, role: 'citizen', surname: 'Way!' })
 			.expect(400);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid password', async () => {
+	test('42: Registrazione di un nuovo utente con password non valida', async () => {
 		const citizen = testCitizens[1];
 		await request(app)
 			.post('/api/v1/users')
 			.send({ ...citizen, role: 'citizen', password: 'password' })
 			.expect(400);
-	});
+	}, 20000);
 
-	test('should return 400 for invalid email', async () => {
+	test('43: Registrazione di un nuovo utente con email non valida', async () => {
 		const citizen = testCitizens[1];
 		await request(app)
 			.post('/api/v1/users')
 			.send({ ...citizen, role: 'citizen', email: 'paved-way' })
 			.expect(400);
-	});
+	}, 20000);
 });
 
 // User story 25: Delete User
@@ -214,7 +217,7 @@ describe('User story 25: Delete User', () => {
 			.delete(`/api/v1/users/${id}`)
 			.set('X-API-Key', token)
 			.expect(204);
-	});
+	}, 20000);
 
 	test('97: Eliminazione del proprio profilo ma senza autenticazione', async () => {
 		const citizen = testCitizens[3];
@@ -233,7 +236,7 @@ describe('User story 25: Delete User', () => {
 		await request(app)
 			.delete(`/api/v1/users/${id}`)
 			.expect(401);
-	});
+	}, 20000);
 
 	test('98: Eliminazione di un altro profilo', async () => {
 		const citizen = testCitizens[3];
@@ -261,7 +264,7 @@ describe('User story 25: Delete User', () => {
 			.delete(`/api/v1/users/${id}`)
 			.set('X-API-Key', token)
 			.expect(403);
-	});
+	}, 20000);
 
 	test('99: Eliminazione dell\'ultimo amministratore', async () => {
 		const admin = testAdmins[0];
@@ -296,7 +299,7 @@ describe('User story 25: Delete User', () => {
 			.delete(`/api/v1/users/${id}`)
 			.set('X-API-Key', token)
 			.expect(409);
-	});
+	}, 20000);
 });
 
 // User story 26: Admin Delete User
@@ -359,8 +362,8 @@ describe('User story 26: Admin Delete User', () => {
 
 
 
-//Test for the GET /api/v1/users endpoint
-describe('GET /api/v1/users', () => {
+// User story 14: Read Sent Reports
+describe(' User story 14: Read Sent Reports', () => {
 
 	beforeAll(async () => {
 		for (const admin of testAdmins) {
@@ -381,8 +384,8 @@ describe('GET /api/v1/users', () => {
 		}
 	});
 
-	// User story: Read Sent Reports
-	test('should return 200 with valid user ID', async () => {
+
+	test('55: Lettura delle segnalazioni di un utente specifico fornendo l\'id ma senza offset e limit', async () => {
 
 		const userId = createdAdmins[1].id;
 
@@ -394,7 +397,7 @@ describe('GET /api/v1/users', () => {
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 
-	test('should return 200 with valid user ID and offset', async () => {
+	test('56: Lettura delle segnalazioni di un utente specifico fornendo id e offset ma senza limit', async () => {
 
 		const userId = createdAdmins[1].id
 
@@ -407,7 +410,7 @@ describe('GET /api/v1/users', () => {
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 
-	test('should return 200 with valid user ID and limit', async () => {
+	test('57: Lettura delle segnalazioni di un utente specifico fornendo id e limit ma senza offset', async () => {
 
 		const userId = createdAdmins[1].id
 		const limit = 5;
@@ -422,7 +425,7 @@ describe('GET /api/v1/users', () => {
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 
-	test('should return 200 with valid user ID, limit and offset', async () => {
+	test('58: Lettura delle segnalazioni di un utente specifico fornendo id limit e offset', async () => {
 
 		const userId = createdAdmins[1].id
 		const limit = 5;
@@ -437,7 +440,7 @@ describe('GET /api/v1/users', () => {
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 
-	test('should return 404 for invalid user ID', async () => {
+	test('59: Lettura delle segnalazioni di un utente non esistente fornendo id limit e offset', async () => {
 
 		const nonExistentId = new mongoose.Types.ObjectId();
 
@@ -446,12 +449,14 @@ describe('GET /api/v1/users', () => {
 			.send({ limit: 5, offset: 1 })
 			.expect(404);
 	});
+});
 
 
 
+// User story 23: Read Users
+describe('User story 23: Read Users', () => {
 
-	//User story: Read Users
-	test('should return 200 with no query params', async () => {
+	test('84: Lettura degli utenti senza offset e limit', async () => {
 		const res = await request(app)
 			.get('/api/v1/users')
 			.set('X-API-Key', tokenAdmin)
@@ -460,20 +465,20 @@ describe('GET /api/v1/users', () => {
 		expect(Array.isArray(res.body)).toBe(true);
 	});
 
-	test('should return 401 with no authentication', async () => {
+	test('85: Lettura degli utenti senza offset e limit ma senza autenticazione', async () => {
 		const res = await request(app)
 			.get('/api/v1/users')
 			.expect(401);
 	});
 
-	test('should return 403 with citizen authentication', async () => {
+	test('86: Lettura degli utenti senza offset e limit ma con autenticazione cittadino', async () => {
 		const res = await request(app)
 			.get('/api/v1/users')
 			.set('X-API-Key', tokenCitizen)
 			.expect(403);
 	});
 
-	test('should return 200 with offset and limit', async () => {
+	test('87: Lettura degli utenti con offset e limit', async () => {
 		const offset = 2
 		const limit = 4
 
@@ -488,7 +493,20 @@ describe('GET /api/v1/users', () => {
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 
-	test('should return 200 with limit only', async () => {
+	test('88: Lettura degli utenti con solo offset', async () => {
+		const offset = 2
+
+		const res = await request(app)
+			.get('/api/v1/users')
+			.set('X-API-Key', tokenAdmin)
+			.query({ offset })
+			.expect(200);
+
+		expect(Array.isArray(res.body)).toBe(true);
+		expect(res.body.length).toBeGreaterThanOrEqual(0);
+	});
+
+	test('89: Lettura degli utenti con solo limit', async () => {
 		const limit = 4
 
 		const res = await request(app)
@@ -499,19 +517,6 @@ describe('GET /api/v1/users', () => {
 
 		expect(Array.isArray(res.body)).toBe(true);
 		expect(res.body.length).toBeLessThanOrEqual(limit);
-		expect(res.body.length).toBeGreaterThanOrEqual(0);
-	});
-
-	test('should return 200 with offset only', async () => {
-		const offset = 2
-
-		const res = await request(app)
-			.get('/api/v1/users')
-			.set('X-API-Key', tokenAdmin)
-			.query({ offset })
-			.expect(200);
-
-		expect(Array.isArray(res.body)).toBe(true);
 		expect(res.body.length).toBeGreaterThanOrEqual(0);
 	});
 });

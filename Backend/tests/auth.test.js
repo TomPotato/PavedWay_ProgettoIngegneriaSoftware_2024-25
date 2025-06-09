@@ -40,31 +40,10 @@ var tokenCitizen = jwt.sign(
 
 
 
-// Test for the POST /api/v1/authentication endpoint
-describe('POST /api/v1/authentication', () => {
+// User story 5: Log In
+describe('User story 5: Log In', () => {
 
-  //   beforeAll(async () => {
-  //     await User.deleteMany({});
-  //     for (const admin of testAdmins) {
-  //       const res = await request(app)
-  //         .post('/api/v1/users')
-  //         .set('X-API-Key', tokenAdmin)
-  //         .send({ ...admin });
-
-  //         createdAdmins.push(res.body);
-  //     }
-  //     for (const citizen of testCitizens) {
-  //       const res = await request(app)
-  //         .post('/api/v1/users')
-  //         .set('X-API-Key', tokenCitizen)
-  //         .send({ ...citizen });
-
-  //         createdCitizens.push(res.body);
-  //     }
-  //   });
-
-  //User story: Log In
-  test('should return 200 with valid credentials', async () => {
+  test('15: Login di un utente registrato fornendo username e password corretti', async () => {
     await request(app)
       .post('/api/v1/users')
       .set('X-API-Key', tokenAdmin)
@@ -82,7 +61,7 @@ describe('POST /api/v1/authentication', () => {
     expect(typeof res.body.token).toBe('string');
   });
 
-  test('should return 401 for invalid username', async () => {
+  test('16: Login di un utente registrato fornendo username errato e password corretta', async () => {
     await request(app)
       .post('/api/v1/authentication')
       .send({
@@ -92,7 +71,7 @@ describe('POST /api/v1/authentication', () => {
       .expect(401);
   });
 
-  test('should return 401 for invalid password', async () => {
+  test('17: Login di un utente registrato fornendo username corretto e password errata', async () => {
     await request(app)
       .post('/api/v1/authentication')
       .send({
@@ -102,26 +81,26 @@ describe('POST /api/v1/authentication', () => {
       .expect(401);
   });
 
-  test('should return 400 for missing fields', async () => {
+  test('18: Login di un utente senza fornire né username né password ', async () => {
     await request(app)
       .post('/api/v1/authentication')
       .expect(400);
   });
 
-  test('should return 400 for missing password', async () => {
-    await request(app)
-      .post('/api/v1/authentication')
-      .send({
-        username: testAdmins[1].username
-      })
-      .expect(400);
-  });
-
-  test('should return 400 for missing username', async () => {
+  test('19: Login di un utente senza fornire username', async () => {
     await request(app)
       .post('/api/v1/authentication')
       .send({
         password: testAdmins[1].password
+      })
+      .expect(400);
+  });
+
+  test('20: Login di un utente senza fornire password', async () => {
+    await request(app)
+      .post('/api/v1/authentication')
+      .send({
+        username: testAdmins[1].username
       })
       .expect(400);
   });
