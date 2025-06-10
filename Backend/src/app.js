@@ -7,15 +7,19 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }))
-app.use('/api/v1', routes);
 
+app.use('/api/v1', routes);
 
 const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend', 'dist');
 app.use('/', express.static(FRONTEND));
 
-app.get('*', (req, res, next) => {
+app.use((req, res, next) => {
+    if (req.method !== 'GET') return next();
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(FRONTEND, 'index.html'));
+
+    res.sendFile(path.join(FRONTEND, 'index.html'), (err) => {
+        if (err) next(err);
+    });
 });
 
 /* Default 404 handler */
