@@ -64,7 +64,7 @@
             </div>
             <div class="grid grid-cols-2 gap-5 w-auto bg-base-200 p-4 justify-end sticky bottom-0">
                 <div>
-                    <button class="btn btn-neutral w-full" @click="createComment" :disabled="!text">Crea</button>
+                    <button class="btn btn-neutral w-full" @click="createComment" :disabled="!text || !validateComment">Crea</button>
                 </div>
                 <div>
                     <button @click="closeModal('CommentiCrea')"
