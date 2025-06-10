@@ -59,7 +59,7 @@
                             class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow">
                             <li v-for="(notify, index) in notifications" :key="index">
                                 <button class="block px-2 py-1"
-                                    @click="notify.reportId ? goToReportInfo(index) : goToSiteInfo(index)"
+                                    @click="notifications[index].siteId ? goToSiteInfo(notifications[index].siteId) : notifications[index].reportId ? goToReportInfo(notifications[index].reportId) : null"
                                     :disabled="!notify.reportId && !notify.siteId">
                                     <p>{{ notify.message }}</p>
                                     <p v-if="notify.reportId">{{ notify.reportId }}</p>
@@ -100,7 +100,7 @@
             <div class="menu p-4 w-auto min-h-full bg-base-200 flex items-center justify-center">
                 <div v-for="(notify, index) in notificationsDrawer" :key="index">
                     <button class="block px-2 py-1 btn btn-ghost h-auto text-black"
-                        @click="goToReportInfo(index) || goToSiteInfo(index)"
+                        @click="notificationsDrawer[index].siteId ? goToSiteInfo(notificationsDrawer[index].siteId) : notificationsDrawer[index].reportId ? goToReportInfo(notificationsDrawer[index].reportId) : null"
                         :disabled="!notify.reportId && !notify.siteId">
                         <p>{{ notify.message }}</p>
                         <p v-if="notify.reportId">{{ notify.reportId }}</p>
@@ -160,18 +160,12 @@ const logout = () => {
     closeModal();
 };
 
-const goToReportInfo = (index) => {
-    if (notifications.value[index].reportId) {
-        const id = notifications.value[index].reportId;
-        router.push({ path: `/reports/${id}` });
-    }
+const goToReportInfo = (id) => {
+    router.push({ path: `/reports/${id}` });
 };
 
-const goToSiteInfo = (index) => {
-    if (notifications.value[index].site) {
-        const id = notifications.value[index].site;
-        router.push({ path: `/sites/${id}` });
-    }
+const goToSiteInfo = (id) => {
+    router.push({ path: `/sites/${id}` });
 };
 
 onMounted(async () => {
