@@ -13,15 +13,6 @@ app.use('/api/v1', routes);
 const FRONTEND = process.env.FRONTEND || path.join(__dirname, '..', '..', 'Frontend', 'dist');
 app.use('/', express.static(FRONTEND));
 
-app.use((req, res, next) => {
-    if (req.method !== 'GET') return next();
-    if (req.path.startsWith('/api')) return next();
-
-    res.sendFile(path.join(FRONTEND, 'index.html'), (err) => {
-        if (err) next(err);
-    });
-});
-
 /* Default 404 handler */
 app.use((req, res) => {
     res.status(404);
