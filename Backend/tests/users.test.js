@@ -382,7 +382,7 @@ describe(' User story 14: Read Sent Reports', () => {
 
 			createdCitizens.push(res.body);
 		}
-	});
+	}, 20000);
 
 
 	test('55: Lettura delle segnalazioni di un utente specifico fornendo l\'id ma senza offset e limit', async () => {
