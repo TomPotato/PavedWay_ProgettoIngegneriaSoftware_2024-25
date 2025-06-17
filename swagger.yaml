@@ -311,12 +311,12 @@ paths:
         - in: query
           name: latitude
           schema:
-            type: float
+            type: number
           description: Latitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: longitude
           schema:
-            type: float
+            type: number
           description: Longitudine del punto attorno a cui si vuole ricercare dei cantieri.
         - in: query
           name: radius
@@ -1262,13 +1262,17 @@ paths:
                 message:
                   type: string
                   description: Testo della notifica.
-                  oneOf:
-                  reportId:
-                    type: string
-                    description: ID del report che si vuole mostrare nella notifica.
-                  siteId:
-                    type: string
-                    description: ID del cantiere che si vuole mostrare nella notifica.
+                reportId:
+                  type: string
+                  description: ID del report che si vuole mostrare nella notifica.
+                siteId:
+                  type: string
+                  description: ID del cantiere che si vuole mostrare nella notifica.
+              oneOf:
+              - required: [reportId]
+              - required: [siteId]
+              - not:
+                  required: [reportId, siteId]
       responses:
         "201":
           description: Notifica creata con successo.
@@ -1479,11 +1483,11 @@ components:
       type: object
       required:
         - text
+        - id
       properties:
         id:
           type: integer
           description: ID del commento (generato automaticamente dal server).
-          required: true
         userId:
           type: integer
           description: ID dell'utente che ha scritto il commento.
