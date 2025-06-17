@@ -8,6 +8,8 @@ info:
 servers:
   - url: http://localhost:3000/api/v1
     description: Server locale per lo sviluppo e il test.
+  - url: https://paved-way.onrender.com/api/v1
+    description: Server pubblico per il deploy dell'applicazione.
 
 tags:
   - name: Autenticazione
